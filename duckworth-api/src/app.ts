@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { HouseholdEventHub } from './event-hub.js';
+import { registerOpenApi } from './openapi.js';
 import {
   DuplicateShoppingItemError,
   ItemVersionConflictError,
@@ -17,21 +18,34 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
+  await registerOpenApi(app);
   const databasePath = options.databasePath ?? process.env.SQLITE_PATH ?? './data/duckworth.sqlite';
   if (databasePath !== ':memory:') mkdirSync(dirname(databasePath), { recursive: true });
   const database = new DatabaseSync(databasePath);
   const items = new ShoppingItemRepository(database);
   const eventHub = options.eventHub ?? new HouseholdEventHub();
+  app.addSchema({
+    $id: 'ShoppingItem',
+    type: 'object',
+    properties: {
+      id: { type: 'string' }, householdId: { type: 'string' }, name: { type: 'string' },
+      status: { type: 'string', enum: ['active', 'purchased'] },
+      createdAt: { type: 'string' }, updatedAt: { type: 'string' }, version: { type: 'integer' },
+    },
+    required: ['id', 'householdId', 'name', 'status', 'createdAt', 'updatedAt', 'version'],
+  });
 
-  app.get('/health', async () => ({ status: 'ok' }));
+  app.get('/health', { schema: { tags: ['health'], response: { 200: { type: 'object', properties: { status: { type: 'string', const: 'ok' } }, required: ['status'] } } } }, async () => ({ status: 'ok' }));
 
   app.get<{ Params: { householdId: string }; Querystring: { includePurchased?: boolean } }>(
-    '/api/households/:householdId/items',
+    '/api/v1/households/:householdId/items',
+    { schema: { tags: ['shopping'], querystring: { type: 'object', properties: { includePurchased: { type: 'boolean' } } }, response: { 200: { type: 'array', items: { $ref: 'ShoppingItem#' } } } } },
     async (request) => items.listActive(request.params.householdId, request.query.includePurchased === true),
   );
 
   app.get<{ Params: { householdId: string } }>(
-    '/api/households/:householdId/events',
+    '/api/v1/households/:householdId/events',
+    { schema: { tags: ['events'], response: { 200: { type: 'string' } } } },
     async (request, reply) => {
       reply.hijack();
       const response = reply.raw;
@@ -54,7 +68,8 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   );
 
   app.post<{ Params: { householdId: string }; Body: { name?: string } }>(
-    '/api/households/:householdId/items',
+    '/api/v1/households/:householdId/items',
+    { schema: { tags: ['shopping'], body: { type: 'object', required: ['name'], properties: { name: { type: 'string', minLength: 1 } } }, response: { 201: { $ref: 'ShoppingItem#' } } } },
     async (request, reply) => {
       const name = request.body?.name;
       if (typeof name !== 'string' || name.trim().length === 0) {
@@ -77,7 +92,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   app.patch<{
     Params: { householdId: string; itemId: string };
     Body: { name?: string; status?: ShoppingItemStatus; expectedVersion?: number };
-  }>('/api/households/:householdId/items/:itemId', async (request, reply) => {
+  }>('/api/v1/households/:householdId/items/:itemId', { schema: { tags: ['shopping'], body: { type: 'object', required: ['expectedVersion'], properties: { name: { type: 'string' }, status: { type: 'string', enum: ['active', 'purchased'] }, expectedVersion: { type: 'integer', minimum: 1 } } }, response: { 200: { $ref: 'ShoppingItem#' } } } }, async (request, reply) => {
     const { name, status, expectedVersion } = request.body ?? {};
     if ((name === undefined && status === undefined) || (name !== undefined && (typeof name !== 'string' || name.trim().length === 0))) {
       return reply.code(400).send({ error: 'invalid_item_update' });

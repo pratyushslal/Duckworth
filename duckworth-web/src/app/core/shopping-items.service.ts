@@ -1,18 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import type { components } from '../api/generated/schema';
 
-export type ShoppingItemStatus = 'active' | 'purchased';
-
-export interface ShoppingItem {
-  id: string;
-  householdId: string;
-  name: string;
-  status: ShoppingItemStatus;
-  createdAt: string;
-  updatedAt: string;
-  version: number;
-}
+export type ShoppingItem = components['schemas']['def-0'];
+export type ShoppingItemStatus = ShoppingItem['status'];
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingItemsService {
@@ -32,6 +24,6 @@ export class ShoppingItemsService {
   }
 
   private itemsUrl(householdId: string): string {
-    return `/api/households/${encodeURIComponent(householdId)}/items`;
+    return `/api/v1/households/${encodeURIComponent(householdId)}/items`;
   }
 }

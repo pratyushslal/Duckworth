@@ -7,7 +7,7 @@ describe('shopping item endpoints', () => {
 
     const created = await app.inject({
       method: 'POST',
-      url: '/api/households/household-demo/items',
+      url: '/api/v1/households/household-demo/items',
       payload: { name: '  Milk  ' },
     });
     expect(created.statusCode).toBe(201);
@@ -15,7 +15,7 @@ describe('shopping item endpoints', () => {
 
     const listed = await app.inject({
       method: 'GET',
-      url: '/api/households/household-demo/items',
+      url: '/api/v1/households/household-demo/items',
     });
     expect(listed.statusCode).toBe(200);
     expect(listed.json()).toHaveLength(1);
@@ -26,7 +26,7 @@ describe('shopping item endpoints', () => {
 
   it('returns a conflict for a normalized duplicate', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
-    const url = '/api/households/household-demo/items';
+    const url = '/api/v1/households/household-demo/items';
 
     await app.inject({ method: 'POST', url, payload: { name: 'Milk' } });
     const duplicate = await app.inject({ method: 'POST', url, payload: { name: ' milk ' } });
@@ -38,7 +38,7 @@ describe('shopping item endpoints', () => {
 
   it('marks an item purchased and excludes it from the active list', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
-    const url = '/api/households/household-demo/items';
+    const url = '/api/v1/households/household-demo/items';
     const created = await app.inject({ method: 'POST', url, payload: { name: 'Bread' } });
     const itemId = created.json().id as string;
 
@@ -57,7 +57,7 @@ describe('shopping item endpoints', () => {
 
   it('edits and reopens an item with optimistic concurrency', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
-    const url = '/api/households/household-demo/items';
+    const url = '/api/v1/households/household-demo/items';
     const created = await app.inject({ method: 'POST', url, payload: { name: 'Bread' } });
     const itemId = created.json().id as string;
 
@@ -81,7 +81,7 @@ describe('shopping item endpoints', () => {
 
   it('rejects a stale update without overwriting the current item', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
-    const url = '/api/households/household-demo/items';
+    const url = '/api/v1/households/household-demo/items';
     const created = await app.inject({ method: 'POST', url, payload: { name: 'Eggs' } });
     const itemId = created.json().id as string;
 

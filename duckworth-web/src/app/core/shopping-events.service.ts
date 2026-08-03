@@ -11,7 +11,7 @@ export interface ShoppingItemEvent {
 export class ShoppingEventsService {
   connect(householdId: string): Observable<ShoppingItemEvent> {
     return new Observable((subscriber) => {
-      const source = new EventSource(`/api/households/${encodeURIComponent(householdId)}/events`);
+      const source = new EventSource(`/api/v1/households/${encodeURIComponent(householdId)}/events`);
       const listener = (event: MessageEvent<string>) => {
         try {
           subscriber.next(JSON.parse(event.data) as ShoppingItemEvent);

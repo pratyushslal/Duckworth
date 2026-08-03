@@ -37,7 +37,7 @@ describe('ShoppingEventsService', () => {
     const received: unknown[] = [];
     const subscription = service.connect('family one').subscribe((event) => received.push(event));
 
-    expect(FakeEventSource.instance.url).toBe('/api/households/family%20one/events');
+    expect(FakeEventSource.instance.url).toBe('/api/v1/households/family%20one/events');
     FakeEventSource.instance.emit('shopping-item.changed', { action: 'created', item: { id: 'item-1' } });
     expect(received).toEqual([{ action: 'created', item: { id: 'item-1' } }]);
 

@@ -24,12 +24,12 @@ with sync_playwright() as playwright:
     first.get_by_text("Authoritative milk", exact=True).wait_for()
 
     current = second.evaluate("""async () => {
-      const response = await fetch('/api/households/household-demo/items?includePurchased=true');
+      const response = await fetch('/api/v1/households/household-demo/items?includePurchased=true');
       const items = await response.json();
       return items.find((item) => item.name === 'Authoritative milk');
     }""")
     stale_result = second.evaluate("""async ({ id, version }) => {
-      const response = await fetch(`/api/households/household-demo/items/${id}`, {
+      const response = await fetch(`/api/v1/households/household-demo/items/${id}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Stale overwrite', expectedVersion: version - 1 })
       });
