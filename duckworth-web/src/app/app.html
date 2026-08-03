@@ -1,0 +1,17 @@
+<main class="shell">
+  <section class="hero" aria-labelledby="app-title">
+    <p class="eyebrow">Duckworth · foundation checkpoint</p>
+    <h1 id="app-title">Shopping coordination starts here.</h1>
+    <p class="lede">A lightweight shared space for the household’s next purchase.</p>
+    <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline'" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      @switch (apiStatus()) {
+        @case ('ready') { API connected }
+        @case ('offline') { API unavailable }
+        @default { Connecting to API… }
+      }
+    </div>
+  </section>
+</main>
+
+<router-outlet />
