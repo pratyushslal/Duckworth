@@ -109,6 +109,7 @@ button:disabled {
 
 .item-list li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -137,6 +138,14 @@ button:disabled {
 
 .edit-input {
   padding: 0.55rem 0.7rem;
+}
+
+.item-feedback {
+  flex-basis: 100%;
+  margin: 0.35rem 0 0;
+  color: #a6422c;
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .purchase-button {

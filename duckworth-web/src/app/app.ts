@@ -24,6 +24,7 @@ export class App {
   protected readonly activeCount = computed(() => this.items().filter((item) => item.status === 'active').length);
   protected readonly itemName = signal('');
   protected readonly message = signal('');
+  protected readonly rowMessages = signal<Record<string, string>>({});
   protected readonly busy = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly editDraft = signal('');
@@ -78,7 +79,7 @@ export class App {
         this.busy.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        this.handleUpdateError(error);
+        this.handleUpdateError(error, item);
         this.busy.set(false);
       },
     });
@@ -87,6 +88,7 @@ export class App {
   protected beginEdit(item: ShoppingItem): void {
     this.editingId.set(item.id);
     this.editDraft.set(item.name);
+    this.clearRowMessage(item.id);
   }
 
   protected cancelEdit(): void {
@@ -97,7 +99,7 @@ export class App {
   protected saveEdit(item: ShoppingItem): void {
     const name = this.editDraft().trim();
     if (!name) {
-      this.message.set('Enter an item name first.');
+      this.setRowMessage(item.id, 'Enter an item name before saving.');
       return;
     }
     this.busy.set(true);
@@ -109,7 +111,7 @@ export class App {
         this.busy.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        this.handleUpdateError(error);
+        this.handleUpdateError(error, item);
         this.busy.set(false);
       },
     });
@@ -126,12 +128,36 @@ export class App {
     this.items.update((items) => items.map((item) => item.id === updated.id ? updated : item));
   }
 
-  private handleUpdateError(error: HttpErrorResponse): void {
+  protected rowMessageFor(itemId: string): string | undefined {
+    return this.rowMessages()[itemId];
+  }
+
+  private handleUpdateError(error: HttpErrorResponse, item: ShoppingItem): void {
     if (error.status === 409 && error.error?.currentItem) {
       this.replaceItem(error.error.currentItem as ShoppingItem);
-      this.message.set('This item changed elsewhere. Your view was refreshed.');
+      this.setRowMessage(item.id, 'This item changed in another tab. The latest version is shown; review your change and try again.');
       return;
     }
-    this.message.set('Could not update that item.');
+    if (error.status === 400) {
+      this.setRowMessage(item.id, 'That item change was not valid. Check the name and try again.');
+      return;
+    }
+    if (error.status === 404) {
+      this.setRowMessage(item.id, 'This item is no longer available. Refresh the list to continue.');
+      return;
+    }
+    this.setRowMessage(item.id, `We couldn't save “${item.name}”. Check your connection and try again.`);
+  }
+
+  private setRowMessage(itemId: string, message: string): void {
+    this.rowMessages.update((messages) => ({ ...messages, [itemId]: message }));
+  }
+
+  private clearRowMessage(itemId: string): void {
+    this.rowMessages.update((messages) => {
+      const next = { ...messages };
+      delete next[itemId];
+      return next;
+    });
   }
 }

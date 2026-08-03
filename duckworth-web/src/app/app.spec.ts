@@ -47,4 +47,30 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Shopping coordination starts here.');
     expect(compiled.querySelector('[role="status"]')?.textContent).toContain('API connected');
   });
+
+  it('shows rename failures beside the item being edited', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true').flush([{
+      id: 'item-1', householdId: 'household-demo', name: 'Authoritative milk', status: 'active',
+      createdAt: '2026-08-03T00:00:00.000Z', updatedAt: '2026-08-03T00:00:00.000Z', version: 1,
+    }]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector('li') as HTMLElement;
+    (row.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const input = row.querySelector('input[aria-label="Edit item"]') as HTMLInputElement;
+    input.value = 'milk';
+    input.dispatchEvent(new Event('input'));
+    (Array.from(row.querySelectorAll('button')).find((button) => button.textContent?.trim() === 'Save') as HTMLButtonElement).click();
+    httpTesting.expectOne('/api/v1/households/household-demo/items/item-1').flush({ error: 'internal_error' }, { status: 500, statusText: 'Server Error' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(row.querySelector('[role="alert"]')?.textContent).toContain("We couldn't save");
+    expect(fixture.nativeElement.querySelector('.message')).toBeNull();
+  });
 });

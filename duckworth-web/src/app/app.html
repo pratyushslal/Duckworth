@@ -50,6 +50,9 @@
                   <button type="button" class="purchase-button" [disabled]="busy()" (click)="togglePurchased(item)">{{ item.status === 'purchased' ? 'Reopen' : 'Purchased' }}</button>
                 </span>
               }
+              @if (rowMessageFor(item.id); as rowMessage) {
+                <p class="item-feedback" role="alert">{{ rowMessage }}</p>
+              }
             </li>
           }
         </ul>
