@@ -18,7 +18,7 @@
           <p class="eyebrow">Active list</p>
           <h2 id="list-title">What the household needs</h2>
         </div>
-        <span class="count">{{ items().length }}</span>
+        <span class="count">{{ activeCount() }}</span>
       </div>
 
       <form class="add-form" (ngSubmit)="addItem()">
@@ -36,9 +36,20 @@
       } @else {
         <ul class="item-list">
           @for (item of items(); track item.id) {
-            <li>
-              <span>{{ item.name }}</span>
-              <button type="button" class="purchase-button" [disabled]="busy()" (click)="markPurchased(item)">Purchased</button>
+            <li [class.completed]="item.status === 'purchased'">
+              @if (editingId() === item.id) {
+                <input class="edit-input" [value]="editDraft()" (input)="editDraft.set($any($event.target).value)" aria-label="Edit item" />
+                <span class="row-actions">
+                  <button type="button" [disabled]="busy()" (click)="saveEdit(item)">Save</button>
+                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="cancelEdit()">Cancel</button>
+                </span>
+              } @else {
+                <span [class.struck]="item.status === 'purchased'">{{ item.name }}</span>
+                <span class="row-actions">
+                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="beginEdit(item)">Edit</button>
+                  <button type="button" class="purchase-button" [disabled]="busy()" (click)="togglePurchased(item)">{{ item.status === 'purchased' ? 'Reopen' : 'Purchased' }}</button>
+                </span>
+              }
             </li>
           }
         </ul>

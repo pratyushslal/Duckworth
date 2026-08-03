@@ -30,10 +30,10 @@ describe('ShoppingItemsService', () => {
     expect(add.request.body).toEqual({ name: 'Milk' });
     add.flush({});
 
-    service.updateStatus('household-demo', 'item-1', 'purchased').subscribe();
+    service.update('household-demo', 'item-1', { status: 'purchased', expectedVersion: 1 }).subscribe();
     const update = httpTesting.expectOne('/api/households/household-demo/items/item-1');
     expect(update.request.method).toBe('PATCH');
-    expect(update.request.body).toEqual({ status: 'purchased' });
+    expect(update.request.body).toEqual({ status: 'purchased', expectedVersion: 1 });
     update.flush({});
   });
 });

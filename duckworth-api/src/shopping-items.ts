@@ -10,6 +10,7 @@ export interface ShoppingItem {
   status: ShoppingItemStatus;
   createdAt: string;
   updatedAt: string;
+  version: number;
 }
 
 interface ShoppingItemRow {
@@ -19,11 +20,18 @@ interface ShoppingItemRow {
   status: ShoppingItemStatus;
   created_at: string;
   updated_at: string;
+  version: number;
 }
 
 export class DuplicateShoppingItemError extends Error {
   constructor(readonly existingItemId: string) {
     super('An item with this name is already active in the household');
+  }
+}
+
+export class ItemVersionConflictError extends Error {
+  constructor(readonly currentItem: ShoppingItem) {
+    super('The shopping item changed since it was loaded');
   }
 }
 
@@ -38,17 +46,23 @@ export class ShoppingItemRepository {
         status TEXT NOT NULL CHECK (status IN ('active', 'purchased')),
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
         UNIQUE (household_id, normalized_name, status)
       ) STRICT;
     `);
+    const columns = this.database.prepare('PRAGMA table_info(shopping_items)').all() as Array<{ name: string }>;
+    if (!columns.some((column) => column.name === 'version')) {
+      this.database.exec('ALTER TABLE shopping_items ADD COLUMN version INTEGER NOT NULL DEFAULT 1');
+    }
   }
 
-  listActive(householdId: string): ShoppingItem[] {
+  listActive(householdId: string, includePurchased = false): ShoppingItem[] {
+    const statusFilter = includePurchased ? '' : "AND status = 'active'";
     const rows = this.database
       .prepare(
-        `SELECT id, household_id, name, status, created_at, updated_at
+        `SELECT id, household_id, name, status, created_at, updated_at, version
          FROM shopping_items
-         WHERE household_id = ? AND status = 'active'
+         WHERE household_id = ? ${statusFilter}
          ORDER BY created_at ASC`,
       )
       .all(householdId) as unknown as ShoppingItemRow[];
@@ -65,6 +79,7 @@ export class ShoppingItemRepository {
       status: 'active' as const,
       createdAt: now,
       updatedAt: now,
+      version: 1,
     };
 
     try {
@@ -99,23 +114,46 @@ export class ShoppingItemRepository {
     return item;
   }
 
-  updateStatus(householdId: string, itemId: string, status: ShoppingItemStatus): ShoppingItem | undefined {
+  update(
+    householdId: string,
+    itemId: string,
+    patch: { name?: string; status?: ShoppingItemStatus },
+    expectedVersion: number,
+  ): ShoppingItem | undefined {
     const updatedAt = new Date().toISOString();
+    const fields: string[] = [];
+    const values: Array<string | number> = [];
+    if (patch.name !== undefined) {
+      fields.push('name = ?', 'normalized_name = ?');
+      values.push(patch.name.trim(), normalizeName(patch.name));
+    }
+    if (patch.status !== undefined) {
+      fields.push('status = ?');
+      values.push(patch.status);
+    }
+    fields.push('updated_at = ?', 'version = version + 1');
+    values.push(updatedAt, itemId, householdId, expectedVersion);
     const result = this.database
       .prepare(
-        `UPDATE shopping_items SET status = ?, updated_at = ?
-         WHERE id = ? AND household_id = ?`,
+        `UPDATE shopping_items SET ${fields.join(', ')}
+         WHERE id = ? AND household_id = ? AND version = ?`,
       )
-      .run(status, updatedAt, itemId, householdId);
-    if (Number(result.changes) === 0) return undefined;
+      .run(...values);
+    if (Number(result.changes) === 0) {
+      const current = this.get(householdId, itemId);
+      if (current && current.version !== expectedVersion) throw new ItemVersionConflictError(current);
+      return undefined;
+    }
 
-    const row = this.database
-      .prepare(
-        `SELECT id, household_id, name, status, created_at, updated_at
-         FROM shopping_items WHERE id = ? AND household_id = ?`,
-      )
-      .get(itemId, householdId) as unknown as ShoppingItem | undefined;
-    return row ? toShoppingItem(row as unknown as ShoppingItemRow) : undefined;
+    return this.get(householdId, itemId);
+  }
+
+  private get(householdId: string, itemId: string): ShoppingItem | undefined {
+    const row = this.database.prepare(
+      `SELECT id, household_id, name, status, created_at, updated_at, version
+       FROM shopping_items WHERE id = ? AND household_id = ?`,
+    ).get(itemId, householdId) as unknown as ShoppingItemRow | undefined;
+    return row ? toShoppingItem(row) : undefined;
   }
 
   close(): void {
@@ -135,5 +173,6 @@ function toShoppingItem(row: ShoppingItemRow): ShoppingItem {
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    version: row.version,
   };
 }

@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { HouseholdEventHub } from './event-hub.js';
 import {
   DuplicateShoppingItemError,
+  ItemVersionConflictError,
   ShoppingItemRepository,
   type ShoppingItemStatus,
 } from './shopping-items.js';
@@ -24,9 +25,9 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
 
   app.get('/health', async () => ({ status: 'ok' }));
 
-  app.get<{ Params: { householdId: string } }>(
+  app.get<{ Params: { householdId: string }; Querystring: { includePurchased?: boolean } }>(
     '/api/households/:householdId/items',
-    async (request) => items.listActive(request.params.householdId),
+    async (request) => items.listActive(request.params.householdId, request.query.includePurchased === true),
   );
 
   app.get<{ Params: { householdId: string } }>(
@@ -75,16 +76,30 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
 
   app.patch<{
     Params: { householdId: string; itemId: string };
-    Body: { status?: ShoppingItemStatus };
+    Body: { name?: string; status?: ShoppingItemStatus; expectedVersion?: number };
   }>('/api/households/:householdId/items/:itemId', async (request, reply) => {
-    const status = request.body?.status;
-    if (status !== 'active' && status !== 'purchased') {
+    const { name, status, expectedVersion } = request.body ?? {};
+    if ((name === undefined && status === undefined) || (name !== undefined && (typeof name !== 'string' || name.trim().length === 0))) {
+      return reply.code(400).send({ error: 'invalid_item_update' });
+    }
+    if (typeof expectedVersion !== 'number' || !Number.isInteger(expectedVersion) || expectedVersion < 1) {
+      return reply.code(400).send({ error: 'expected_version_required' });
+    }
+    const version = expectedVersion as number;
+    if (status !== undefined && status !== 'active' && status !== 'purchased') {
       return reply.code(400).send({ error: 'invalid_item_status' });
     }
-    const item = items.updateStatus(request.params.householdId, request.params.itemId, status);
-    if (!item) return reply.code(404).send({ error: 'item_not_found' });
-    eventHub.publish(request.params.householdId, { action: 'updated', item });
-    return reply.send(item);
+    try {
+      const item = items.update(request.params.householdId, request.params.itemId, { name, status }, version);
+      if (!item) return reply.code(404).send({ error: 'item_not_found' });
+      eventHub.publish(request.params.householdId, { action: 'updated', item });
+      return reply.send(item);
+    } catch (error) {
+      if (error instanceof ItemVersionConflictError) {
+        return reply.code(409).send({ error: 'item_version_conflict', currentItem: error.currentItem });
+      }
+      throw error;
+    }
   });
 
   app.addHook('onClose', async () => items.close());

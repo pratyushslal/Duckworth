@@ -9,6 +9,7 @@ const item: ShoppingItem = {
   status: 'active',
   createdAt: '2026-08-03T00:00:00.000Z',
   updatedAt: '2026-08-03T00:00:00.000Z',
+  version: 1,
 };
 
 describe('household event hub', () => {

@@ -11,22 +11,24 @@ export interface ShoppingItem {
   status: ShoppingItemStatus;
   createdAt: string;
   updatedAt: string;
+  version: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingItemsService {
   private readonly http = inject(HttpClient);
 
-  list(householdId: string): Observable<ShoppingItem[]> {
-    return this.http.get<ShoppingItem[]>(this.itemsUrl(householdId));
+  list(householdId: string, includePurchased = false): Observable<ShoppingItem[]> {
+    const query = includePurchased ? '?includePurchased=true' : '';
+    return this.http.get<ShoppingItem[]>(`${this.itemsUrl(householdId)}${query}`);
   }
 
   add(householdId: string, name: string): Observable<ShoppingItem> {
     return this.http.post<ShoppingItem>(this.itemsUrl(householdId), { name });
   }
 
-  updateStatus(householdId: string, itemId: string, status: ShoppingItemStatus): Observable<ShoppingItem> {
-    return this.http.patch<ShoppingItem>(`${this.itemsUrl(householdId)}/${itemId}`, { status });
+  update(householdId: string, itemId: string, patch: { name?: string; status?: ShoppingItemStatus; expectedVersion: number }): Observable<ShoppingItem> {
+    return this.http.patch<ShoppingItem>(`${this.itemsUrl(householdId)}/${itemId}`, patch);
   }
 
   private itemsUrl(householdId: string): string {

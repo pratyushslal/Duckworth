@@ -20,7 +20,7 @@ with sync_playwright() as playwright:
     observer.get_by_text(item_name, exact=True).wait_for(state="visible")
 
     observer.locator("li").filter(has_text=item_name).get_by_role("button", name="Purchased").click()
-    writer.get_by_text(item_name, exact=True).wait_for(state="hidden")
+    writer.locator("li").filter(has_text=item_name).get_by_role("button", name="Reopen").wait_for(state="visible")
 
     print(f"verified cross-page SSE synchronization for {item_name}")
     browser.close()

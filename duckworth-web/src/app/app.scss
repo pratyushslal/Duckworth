@@ -116,6 +116,29 @@ button:disabled {
   border-bottom: 1px solid #eee8da;
 }
 
+.item-list li.completed {
+  color: #8b8779;
+}
+
+.struck {
+  text-decoration: line-through;
+}
+
+.row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.secondary-button {
+  background: #eeeadc;
+  color: #21653a;
+}
+
+.edit-input {
+  padding: 0.55rem 0.7rem;
+}
+
 .purchase-button {
   padding: 0.55rem 0.75rem;
   background: #eeeadc;
