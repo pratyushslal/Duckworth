@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiHealthService } from './core/api-health.service';
 import { ShoppingItem, ShoppingItemsService } from './core/shopping-items.service';
+import { ShoppingEventsService } from './core/shopping-events.service';
 
 type ApiStatus = 'checking' | 'ready' | 'offline';
 
@@ -16,6 +17,7 @@ type ApiStatus = 'checking' | 'ready' | 'offline';
 export class App {
   private readonly apiHealth = inject(ApiHealthService);
   private readonly shoppingItems = inject(ShoppingItemsService);
+  private readonly shoppingEvents = inject(ShoppingEventsService);
   protected readonly householdId = 'household-demo';
   protected readonly apiStatus = signal<ApiStatus>('checking');
   protected readonly items = signal<ShoppingItem[]>([]);
@@ -29,6 +31,16 @@ export class App {
       error: () => this.apiStatus.set('offline'),
     });
     this.loadItems();
+    this.shoppingEvents.connect(this.householdId).subscribe({
+      next: ({ action, item }) => {
+        if (action === 'created' && item.status === 'active') {
+          this.items.update((items) => items.some((candidate) => candidate.id === item.id) ? items : [...items, item]);
+        }
+        if (action === 'updated' && item.status === 'purchased') {
+          this.items.update((items) => items.filter((candidate) => candidate.id !== item.id));
+        }
+      },
+    });
   }
 
   protected addItem(): void {
@@ -41,7 +53,7 @@ export class App {
     this.message.set('');
     this.shoppingItems.add(this.householdId, name).subscribe({
       next: (item) => {
-        this.items.update((items) => [...items, item]);
+        this.items.update((items) => items.some((candidate) => candidate.id === item.id) ? items : [...items, item]);
         this.itemName.set('');
         this.message.set(`${item.name} added to the list.`);
         this.busy.set(false);

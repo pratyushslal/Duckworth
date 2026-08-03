@@ -2,10 +2,17 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach as vitestBeforeEach, describe, expect, it, vi } from 'vitest';
+
+class FakeEventSource {
+  addEventListener(): void {}
+  close(): void {}
+}
 
 describe('App', () => {
   let httpTesting: HttpTestingController;
+
+  vitestBeforeEach(() => vi.stubGlobal('EventSource', FakeEventSource));
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,6 +24,7 @@ describe('App', () => {
 
   afterEach(() => {
     httpTesting.verify();
+    vi.unstubAllGlobals();
   });
 
   it('should create the app', () => {
