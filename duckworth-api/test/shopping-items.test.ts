@@ -95,4 +95,19 @@ describe('shopping item endpoints', () => {
     expect(stale.json()).toMatchObject({ error: 'item_version_conflict', currentItem: { name: 'Free range eggs', version: 2 } });
     await app.close();
   });
+
+  it('returns a duplicate conflict when an edit matches another active item', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+    const url = '/api/v1/households/household-demo/items';
+    const first = await app.inject({ method: 'POST', url, payload: { name: 'Milk' } });
+    const second = await app.inject({ method: 'POST', url, payload: { name: 'Oat milk' } });
+    const response = await app.inject({
+      method: 'PATCH',
+      url: `${url}/${second.json().id}`,
+      payload: { name: ' milk ', expectedVersion: 1 },
+    });
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({ error: 'duplicate_item', existingItemId: first.json().id });
+    await app.close();
+  });
 });

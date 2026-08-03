@@ -133,6 +133,10 @@ export class App {
   }
 
   private handleUpdateError(error: HttpErrorResponse, item: ShoppingItem): void {
+    if (error.status === 409 && error.error?.error === 'duplicate_item') {
+      this.setRowMessage(item.id, 'That name is already on the list. Choose a different name.');
+      return;
+    }
     if (error.status === 409 && error.error?.currentItem) {
       this.replaceItem(error.error.currentItem as ShoppingItem);
       this.setRowMessage(item.id, 'This item changed in another tab. The latest version is shown; review your change and try again.');

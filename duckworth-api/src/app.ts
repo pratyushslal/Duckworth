@@ -110,6 +110,9 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
       eventHub.publish(request.params.householdId, { action: 'updated', item });
       return reply.send(item);
     } catch (error) {
+      if (error instanceof DuplicateShoppingItemError) {
+        return reply.code(409).send({ error: 'duplicate_item', existingItemId: error.existingItemId });
+      }
       if (error instanceof ItemVersionConflictError) {
         return reply.code(409).send({ error: 'item_version_conflict', currentItem: error.currentItem });
       }

@@ -133,12 +133,24 @@ export class ShoppingItemRepository {
     }
     fields.push('updated_at = ?', 'version = version + 1');
     values.push(updatedAt, itemId, householdId, expectedVersion);
-    const result = this.database
-      .prepare(
-        `UPDATE shopping_items SET ${fields.join(', ')}
-         WHERE id = ? AND household_id = ? AND version = ?`,
-      )
-      .run(...values);
+    let result: { changes: number };
+    try {
+      result = this.database
+        .prepare(
+          `UPDATE shopping_items SET ${fields.join(', ')}
+           WHERE id = ? AND household_id = ? AND version = ?`,
+        )
+        .run(...values) as { changes: number };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('UNIQUE constraint failed') && patch.name !== undefined) {
+        const existing = this.database.prepare(
+          `SELECT id FROM shopping_items
+           WHERE household_id = ? AND normalized_name = ? AND status = 'active' AND id <> ?`,
+        ).get(householdId, normalizeName(patch.name), itemId) as { id: string } | undefined;
+        if (existing) throw new DuplicateShoppingItemError(existing.id);
+      }
+      throw error;
+    }
     if (Number(result.changes) === 0) {
       const current = this.get(householdId, itemId);
       if (current && current.version !== expectedVersion) throw new ItemVersionConflictError(current);
