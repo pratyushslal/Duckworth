@@ -1,6 +1,6 @@
 <main class="shell">
   <section class="hero" aria-labelledby="app-title">
-    <p class="eyebrow">Duckworth · foundation checkpoint</p>
+    <p class="eyebrow">Duckworth · household list</p>
     <h1 id="app-title">Shopping coordination starts here.</h1>
     <p class="lede">A lightweight shared space for the household’s next purchase.</p>
     <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline'" role="status">
@@ -11,6 +11,39 @@
         @default { Connecting to API… }
       }
     </div>
+
+    <section class="list-panel" aria-labelledby="list-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Active list</p>
+          <h2 id="list-title">What the household needs</h2>
+        </div>
+        <span class="count">{{ items().length }}</span>
+      </div>
+
+      <form class="add-form" (ngSubmit)="addItem()">
+        <label class="sr-only" for="item-name">Add an item</label>
+        <input id="item-name" name="itemName" [ngModel]="itemName()" (ngModelChange)="itemName.set($event)" placeholder="Add an item…" autocomplete="off" />
+        <button type="submit" [disabled]="busy()">Add</button>
+      </form>
+
+      @if (message()) {
+        <p class="message" role="alert">{{ message() }}</p>
+      }
+
+      @if (items().length === 0) {
+        <p class="empty-state">Nothing on the list yet. Add the first item above.</p>
+      } @else {
+        <ul class="item-list">
+          @for (item of items(); track item.id) {
+            <li>
+              <span>{{ item.name }}</span>
+              <button type="button" class="purchase-button" [disabled]="busy()" (click)="markPurchased(item)">Purchased</button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
   </section>
 </main>
 

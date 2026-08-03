@@ -25,12 +25,14 @@ describe('App', () => {
     expect(app).toBeTruthy();
     fixture.detectChanges();
     httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/households/household-demo/items').flush([]);
   });
 
   it('renders the foundation screen when the API is ready', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/households/household-demo/items').flush([]);
     await fixture.whenStable();
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;

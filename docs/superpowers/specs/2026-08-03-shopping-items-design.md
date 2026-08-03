@@ -17,7 +17,7 @@ Add the first useful household workflow: a person can view active shopping items
 - `POST /api/households/:householdId/items` accepts `{ name: string }` and returns `201` with the created item.
 - A normalized duplicate in the same household returns `409` with the existing item identifier.
 - `PATCH /api/households/:householdId/items/:itemId` accepts `{ status: "active" | "purchased" }`.
-- Invalid names return `400`; unknown household or item returns `404`.
+- Invalid names return `400`; unknown item identifiers return `404`. Household identifiers are treated as partition keys for this POC; membership and authorization checks are deferred until household identity is introduced.
 
 ## Data model
 
