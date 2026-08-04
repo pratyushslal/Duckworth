@@ -86,8 +86,10 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        name: string;
-                    };
+                        input?: string;
+                        name?: string;
+                        confirmedUnit?: string;
+                    } & (unknown | unknown);
                 };
             };
             responses: {
@@ -174,6 +176,8 @@ export interface paths {
                         name?: string;
                         /** @enum {string} */
                         status?: "active" | "purchased";
+                        quantity?: number | null;
+                        confirmedUnit?: string | null;
                         expectedVersion: number;
                     };
                 };
@@ -200,7 +204,13 @@ export interface components {
         "def-0": {
             id: string;
             householdId: string;
+            captureText: string;
             name: string;
+            quantity: number | null;
+            unit: string | null;
+            unitSource: ("explicit" | "history") | null;
+            unitConfirmedAt: string | null;
+            attentionReasons: ("missing_quantity" | "unconfirmed_historical_unit")[];
             /** @enum {string} */
             status: "active" | "purchased";
             createdAt: string;

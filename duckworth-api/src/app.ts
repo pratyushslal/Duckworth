@@ -15,6 +15,7 @@ import {
 export interface BuildAppOptions {
   databasePath?: string;
   eventHub?: HouseholdEventHub;
+  clock?: () => Date;
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
@@ -23,7 +24,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   const databasePath = options.databasePath ?? process.env.SQLITE_PATH ?? './data/duckworth.sqlite';
   if (databasePath !== ':memory:') mkdirSync(dirname(databasePath), { recursive: true });
   const database = new DatabaseSync(databasePath);
-  const items = new ShoppingItemRepository(database);
+  const items = new ShoppingItemRepository(database, options.clock);
   const eventHub = options.eventHub ?? new HouseholdEventHub();
   app.addSchema({
     $id: 'ShoppingItem',
@@ -75,17 +76,21 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     },
   );
 
-  app.post<{ Params: { householdId: string }; Body: { input?: string; name?: string } }>(
+  app.post<{ Params: { householdId: string }; Body: { input?: string; name?: string; confirmedUnit?: string } }>(
     '/api/v1/households/:householdId/items',
-    { schema: { tags: ['shopping'], body: { type: 'object', properties: { input: { type: 'string', minLength: 1 }, name: { type: 'string', minLength: 1 } } }, response: { 201: { $ref: 'ShoppingItem#' } } } },
+    { schema: { tags: ['shopping'], body: { type: 'object', properties: { input: { type: 'string', minLength: 1 }, name: { type: 'string', minLength: 1 }, confirmedUnit: { type: 'string', minLength: 1, maxLength: 32 } }, oneOf: [{ required: ['input'], not: { required: ['name'] } }, { required: ['name'], not: { required: ['input'] } }] }, response: { 201: { $ref: 'ShoppingItem#' } } } },
     async (request, reply) => {
-      const { input, name } = request.body ?? {};
+      const { input, name, confirmedUnit } = request.body ?? {};
       if ((input === undefined) === (name === undefined)) {
         return reply.code(400).send({ error: 'invalid_item_name' });
       }
+      if (confirmedUnit !== undefined
+        && (typeof confirmedUnit !== 'string' || confirmedUnit.trim().length === 0 || confirmedUnit.trim().length > 32)) {
+        return reply.code(400).send({ error: 'invalid_item_unit' });
+      }
 
       try {
-        const item = items.create(request.params.householdId, interpretCapture(input ?? name ?? ''));
+        const item = items.create(request.params.householdId, interpretCapture(input ?? name ?? ''), confirmedUnit);
         eventHub.publish(request.params.householdId, { action: 'created', item });
         return reply.code(201).send(item);
       } catch (error) {
@@ -102,10 +107,20 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
 
   app.patch<{
     Params: { householdId: string; itemId: string };
-    Body: { name?: string; status?: ShoppingItemStatus; expectedVersion?: number };
-  }>('/api/v1/households/:householdId/items/:itemId', { schema: { tags: ['shopping'], body: { type: 'object', required: ['expectedVersion'], properties: { name: { type: 'string' }, status: { type: 'string', enum: ['active', 'purchased'] }, expectedVersion: { type: 'integer', minimum: 1 } } }, response: { 200: { $ref: 'ShoppingItem#' } } } }, async (request, reply) => {
-    const { name, status, expectedVersion } = request.body ?? {};
-    if ((name === undefined && status === undefined) || (name !== undefined && (typeof name !== 'string' || name.trim().length === 0))) {
+    Body: {
+      name?: string;
+      status?: ShoppingItemStatus;
+      quantity?: number | null;
+      confirmedUnit?: string | null;
+      expectedVersion?: number;
+    };
+  }>('/api/v1/households/:householdId/items/:itemId', { schema: { tags: ['shopping'], body: { type: 'object', required: ['expectedVersion'], properties: { name: { type: 'string' }, status: { type: 'string', enum: ['active', 'purchased'] }, quantity: { anyOf: [{ type: 'number', exclusiveMinimum: 0 }, { type: 'null' }] }, confirmedUnit: { anyOf: [{ type: 'string', minLength: 1, maxLength: 32 }, { type: 'null' }] }, expectedVersion: { type: 'integer', minimum: 1 } } }, response: { 200: { $ref: 'ShoppingItem#' } } } }, async (request, reply) => {
+    const body = request.body ?? {};
+    const { name, status, quantity, confirmedUnit, expectedVersion } = body;
+    const hasQuantity = Object.prototype.hasOwnProperty.call(body, 'quantity');
+    const hasConfirmedUnit = Object.prototype.hasOwnProperty.call(body, 'confirmedUnit');
+    if ((name === undefined && status === undefined && !hasQuantity && !hasConfirmedUnit)
+      || (name !== undefined && (typeof name !== 'string' || name.trim().length === 0))) {
       return reply.code(400).send({ error: 'invalid_item_update' });
     }
     if (typeof expectedVersion !== 'number' || !Number.isInteger(expectedVersion) || expectedVersion < 1) {
@@ -115,8 +130,24 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     if (status !== undefined && status !== 'active' && status !== 'purchased') {
       return reply.code(400).send({ error: 'invalid_item_status' });
     }
+    if (hasQuantity && quantity !== null
+      && (typeof quantity !== 'number' || !Number.isFinite(quantity) || quantity <= 0)) {
+      return reply.code(400).send({ error: 'invalid_item_quantity' });
+    }
+    if (hasConfirmedUnit && confirmedUnit !== null
+      && (typeof confirmedUnit !== 'string' || confirmedUnit.trim().length === 0 || confirmedUnit.trim().length > 32)) {
+      return reply.code(400).send({ error: 'invalid_item_unit' });
+    }
     try {
-      const item = items.update(request.params.householdId, request.params.itemId, { name, status }, version);
+      const patch: {
+        name?: string;
+        status?: ShoppingItemStatus;
+        quantity?: number | null;
+        confirmedUnit?: string | null;
+      } = { name, status };
+      if (hasQuantity) patch.quantity = quantity ?? null;
+      if (hasConfirmedUnit) patch.confirmedUnit = confirmedUnit ?? null;
+      const item = items.update(request.params.householdId, request.params.itemId, patch, version);
       if (!item) return reply.code(404).send({ error: 'item_not_found' });
       eventHub.publish(request.params.householdId, { action: 'updated', item });
       return reply.send(item);

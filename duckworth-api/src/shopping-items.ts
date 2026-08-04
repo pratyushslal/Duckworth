@@ -68,7 +68,10 @@ export class ItemVersionConflictError extends Error {
 }
 
 export class ShoppingItemRepository {
-  constructor(private readonly database: DatabaseSync) {
+  constructor(
+    private readonly database: DatabaseSync,
+    private readonly clock: () => Date = () => new Date(),
+  ) {
     this.database.exec(CREATE_SHOPPING_ITEMS_TABLE);
     const columns = this.database.prepare('PRAGMA table_info(shopping_items)').all() as Array<{ name: string }>;
     if (!columns.some((column) => column.name === 'capture_text')) {
@@ -130,17 +133,23 @@ export class ShoppingItemRepository {
     return rows.map(toShoppingItem);
   }
 
-  create(householdId: string, capture: CaptureInterpretation): ShoppingItem {
-    const now = new Date().toISOString();
-    const unitSource = capture.unit === null ? null : 'explicit' as const;
+  create(householdId: string, capture: CaptureInterpretation, confirmedUnit?: string): ShoppingItem {
+    const now = this.clock().toISOString();
+    const normalizedName = normalizeName(capture.name);
+    const explicitUnit = confirmedUnit?.trim() ?? capture.unit;
+    const historicalUnit = explicitUnit === null
+      ? this.findLatestConfirmedUnit(householdId, normalizedName)
+      : null;
+    const unit = explicitUnit ?? historicalUnit;
+    const unitSource = explicitUnit !== null ? 'explicit' as const : historicalUnit !== null ? 'history' as const : null;
     const item = {
       id: randomUUID(),
       householdId,
       captureText: capture.captureText,
       name: capture.name,
-      normalizedName: normalizeName(capture.name),
+      normalizedName,
       quantity: capture.quantity,
-      unit: capture.unit,
+      unit,
       unitSource,
       unitConfirmedAt: unitSource === 'explicit' ? now : null,
       attentionReasons: attentionReasonsForFields('active', capture.quantity, unitSource),
@@ -188,15 +197,31 @@ export class ShoppingItemRepository {
     return item;
   }
 
+  private findLatestConfirmedUnit(householdId: string, normalizedName: string): string | null {
+    const row = this.database.prepare(
+      `SELECT unit FROM shopping_items
+       WHERE household_id = ? AND normalized_name = ?
+         AND unit IS NOT NULL AND unit_source = 'explicit' AND unit_confirmed_at IS NOT NULL
+       ORDER BY unit_confirmed_at DESC, created_at DESC, id DESC
+       LIMIT 1`,
+    ).get(householdId, normalizedName) as { unit: string } | undefined;
+    return row?.unit ?? null;
+  }
+
   update(
     householdId: string,
     itemId: string,
-    patch: { name?: string; status?: ShoppingItemStatus },
+    patch: {
+      name?: string;
+      status?: ShoppingItemStatus;
+      quantity?: number | null;
+      confirmedUnit?: string | null;
+    },
     expectedVersion: number,
   ): ShoppingItem | undefined {
-    const updatedAt = new Date().toISOString();
+    const updatedAt = this.clock().toISOString();
     const fields: string[] = [];
-    const values: Array<string | number> = [];
+    const values: Array<string | number | null> = [];
     if (patch.name !== undefined) {
       fields.push('name = ?', 'normalized_name = ?');
       values.push(patch.name.trim(), normalizeName(patch.name));
@@ -204,6 +229,18 @@ export class ShoppingItemRepository {
     if (patch.status !== undefined) {
       fields.push('status = ?');
       values.push(patch.status);
+    }
+    if (patch.quantity !== undefined) {
+      fields.push('quantity = ?');
+      values.push(patch.quantity);
+    }
+    if (patch.confirmedUnit !== undefined) {
+      fields.push('unit = ?', 'unit_source = ?', 'unit_confirmed_at = ?');
+      if (patch.confirmedUnit === null) {
+        values.push(null, null, null);
+      } else {
+        values.push(patch.confirmedUnit.trim(), 'explicit', updatedAt);
+      }
     }
     fields.push('updated_at = ?', 'version = version + 1');
     values.push(updatedAt, itemId, householdId, expectedVersion);

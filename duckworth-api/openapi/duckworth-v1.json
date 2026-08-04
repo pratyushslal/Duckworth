@@ -16,8 +16,65 @@
           "householdId": {
             "type": "string"
           },
+          "captureText": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unitSource": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "explicit",
+                  "history"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unitConfirmedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attentionReasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "missing_quantity",
+                "unconfirmed_historical_unit"
+              ]
+            }
           },
           "status": {
             "type": "string",
@@ -39,7 +96,13 @@
         "required": [
           "id",
           "householdId",
+          "captureText",
           "name",
+          "quantity",
+          "unit",
+          "unitSource",
+          "unitConfirmedAt",
+          "attentionReasons",
           "status",
           "createdAt",
           "updatedAt",
@@ -129,15 +192,43 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "name"
-                ],
                 "properties": {
+                  "input": {
+                    "type": "string",
+                    "minLength": 1
+                  },
                   "name": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "confirmedUnit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
                   }
-                }
+                },
+                "oneOf": [
+                  {
+                    "required": [
+                      "input"
+                    ],
+                    "not": {
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "name"
+                    ],
+                    "not": {
+                      "required": [
+                        "input"
+                      ]
+                    }
+                  }
+                ]
               }
             }
           }
@@ -218,6 +309,29 @@
                     "enum": [
                       "active",
                       "purchased"
+                    ]
+                  },
+                  "quantity": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "confirmedUnit": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      {
+                        "type": "null"
+                      }
                     ]
                   },
                   "expectedVersion": {
