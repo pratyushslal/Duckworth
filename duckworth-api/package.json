@@ -4,10 +4,16 @@
   "description": "",
   "main": "dist/src/server.js",
   "scripts": {
+    "capture:build": "tsc -p ../packages/item-capture/tsconfig.json",
+    "predev": "pnpm capture:build",
     "dev": "tsx watch src/server.ts",
+    "prebuild": "pnpm capture:build",
     "build": "tsc -p tsconfig.json",
+    "prestart": "pnpm capture:build",
     "start": "node dist/src/server.js",
+    "pretypecheck": "pnpm capture:build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "pnpm capture:build",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "openapi:write": "tsx src/openapi/write-openapi.ts"
@@ -27,6 +33,7 @@
     "node": ">=24 <27"
   },
   "dependencies": {
+    "@duckworth/item-capture": "link:../packages/item-capture",
     "@fastify/cors": "^11.3.0",
     "@fastify/swagger": "^9.8.1",
     "@fastify/type-provider-typebox": "^6.1.0",
