@@ -55,7 +55,7 @@ The parser preserves the user's item-name casing after trimming and collapsing w
 ### Historical unit behavior
 
 - Explicit shorthand always wins over history.
-- When shorthand has no unit, Duckworth may prefill the most recently confirmed unit for the same normalized item name in the same household.
+- When shorthand has no unit and confirmed history exists, Duckworth prefills the most recently confirmed unit for the same normalized item name in the same household.
 - A historical unit is stored on the new item with source `history` and remains visibly unconfirmed.
 - An inferred value never reinforces itself. It becomes confirmed history only when the user clicks a value-specific action such as **Accept cartons** or edits the unit.
 - Accepting or editing writes the unit with source `explicit`. Removing a unit writes `null` and does not create a historical choice.
@@ -142,6 +142,7 @@ The existing item response adds:
 - `quantity: number | null`
 - `unit: string | null`
 - `unitSource: "explicit" | "history" | null`
+- `unitConfirmedAt: string | null`
 - `attentionReasons: ("missing_quantity" | "unconfirmed_historical_unit")[]`
 
 OpenAPI snapshots in the API and frontend, generated Angular types, and contract tests change together.
