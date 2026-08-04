@@ -59,6 +59,13 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "prebundle": {
+              "exclude": [
+                "@duckworth/item-capture"
+              ]
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "duckworth-web:build:production"

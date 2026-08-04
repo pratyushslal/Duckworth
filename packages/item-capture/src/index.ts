@@ -68,6 +68,21 @@ export function interpretCapture(input: string): CaptureInterpretation {
     return { captureText, name: normalizeDisplayName(quantityMatch[2]), quantity, unit: null };
   }
 
+  const trailingQuantityMatch = /^(.+)\s+([+-]?\d+(?:\.\d+)?|Infinity|NaN)\s+(\S+)$/i.exec(captureText);
+  if (trailingQuantityMatch) {
+    const unit = UNIT_ALIASES[trailingQuantityMatch[3].toLocaleLowerCase()];
+    if (unit) {
+      const quantity = Number(trailingQuantityMatch[2]);
+      if (!Number.isFinite(quantity) || quantity <= 0) throw new InvalidCaptureError('Capture is not valid');
+      return {
+        captureText,
+        name: normalizeDisplayName(trailingQuantityMatch[1]),
+        quantity,
+        unit,
+      };
+    }
+  }
+
   if (/^(?:[+-]?\d+(?:\.\d+)?|Infinity|NaN)(?:\s|$)/i.test(captureText)) {
     throw new InvalidCaptureError('Capture is not valid');
   }

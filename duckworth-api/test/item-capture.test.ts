@@ -29,6 +29,27 @@ describe('typed item capture', () => {
     });
   });
 
+  it('interprets an item name followed by quantity and a recognized unit', () => {
+    expect(interpretCapture('biscuits 2 pcs')).toEqual({
+      captureText: 'biscuits 2 pcs',
+      name: 'biscuits',
+      quantity: 2,
+      unit: 'piece',
+    });
+  });
+
+  it('keeps a name ending in a number when no recognized trailing unit exists', () => {
+    expect(interpretCapture('Formula 1')).toMatchObject({
+      name: 'Formula 1',
+      quantity: null,
+      unit: null,
+    });
+  });
+
+  it('rejects a non-positive trailing quantity with a recognized unit', () => {
+    expect(() => interpretCapture('biscuits 0 pcs')).toThrow('Capture is not valid');
+  });
+
   it.each([
     ['500 grams flour', 'g'],
     ['2 kgs rice', 'kg'],

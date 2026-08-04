@@ -21,8 +21,9 @@ The add box understands a conservative leading quantity and optional unit:
 - `2 milk` saves a count of two.
 - `1.5 kg potatoes` saves quantity `1.5`, unit `kg`, and item `potatoes`.
 - `2 cartons milk` saves canonical unit `carton`.
+- `biscuits 2 pcs` also works when quantity and a recognized unit come after the item name.
 
-Recognized units cover common mass, volume, count, and package words. Unrecognized wording stays in the item name so Duckworth does not guess. The preview is computed locally and does not wait for the network.
+Recognized units cover common mass, volume, count, and package words. Trailing syntax requires a recognized unit, so a product name such as `Formula 1` is not misread as a quantity. Unrecognized wording stays in the item name so Duckworth does not guess. The preview is computed locally and does not wait for the network.
 
 When the household has previously confirmed a unit for the same item, Duckworth highlights it as **From last time · Check before ordering**. Use the value-specific **Accept** action or **Change unit** inline; leaving it unconfirmed never blocks other list actions. Confirmed history is cached locally per household for immediate advisory previews, while the API remains authoritative.
 

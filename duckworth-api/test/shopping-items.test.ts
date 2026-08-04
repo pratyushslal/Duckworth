@@ -27,6 +27,26 @@ describe('shopping item endpoints', () => {
     await app.close();
   });
 
+  it('creates structured intent from trailing quantity and unit shorthand', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/households/household-demo/items',
+      payload: { input: 'biscuits 2 pcs' },
+    });
+
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json()).toMatchObject({
+      captureText: 'biscuits 2 pcs',
+      name: 'biscuits',
+      quantity: 2,
+      unit: 'piece',
+      unitSource: 'explicit',
+      attentionReasons: [],
+    });
+    await app.close();
+  });
+
   it('records a unit explicitly confirmed before creation', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
     const response = await app.inject({

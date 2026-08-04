@@ -45,8 +45,11 @@ Examples:
 | `2 milk` | 2 | — | `milk` |
 | `1.5 kg potatoes` | 1.5 | `kg` | `potatoes` |
 | `2 dozen eggs` | 2 | `dozen` | `eggs` |
+| `biscuits 2 pcs` | 2 | `piece` | `biscuits` |
 
 Natural phrases such as `half a kilo onions`, `milk for the week`, and `enough apples for four` remain ordinary item names in this slice. Zero, negative, non-finite, or quantity-only input is invalid.
+
+For familiar name-first entry, Duckworth also recognizes a trailing positive quantity followed by a known unit, such as `biscuits 2 pcs`. A trailing number without a recognized unit remains part of the name, preventing product names such as `Formula 1` from being reinterpreted.
 
 The canonical vocabulary is `g`, `kg`, `ml`, `l`, `piece`, `pack`, `packet`, `bottle`, `carton`, `can`, `box`, `bag`, and `dozen`. Singular/plural spelling variants and common abbreviations normalize to those values: for example, `grams` to `g`, `kilograms` and `kgs` to `kg`, `litres` and `liters` to `l`, and `pcs` to `piece`.
 

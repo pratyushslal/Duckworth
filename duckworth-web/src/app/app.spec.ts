@@ -105,6 +105,25 @@ describe('App', () => {
     httpTesting.expectNone(() => true);
   });
 
+  it('previews trailing quantity and unit shorthand immediately', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true').flush([]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const input = fixture.nativeElement.querySelector('#item-name') as HTMLInputElement;
+    input.value = 'biscuits 2 pcs';
+    input.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.capture-preview')?.textContent).toContain('2 piece');
+    expect(fixture.nativeElement.querySelector('.capture-preview')?.textContent).toContain('biscuits');
+    httpTesting.expectNone(() => true);
+  });
+
   it('previews a bare item as needing quantity without blocking capture', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
