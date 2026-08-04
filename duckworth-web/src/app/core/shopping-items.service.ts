@@ -15,11 +15,20 @@ export class ShoppingItemsService {
     return this.http.get<ShoppingItem[]>(`${this.itemsUrl(householdId)}${query}`);
   }
 
-  add(householdId: string, name: string): Observable<ShoppingItem> {
-    return this.http.post<ShoppingItem>(this.itemsUrl(householdId), { name });
+  add(householdId: string, input: string, confirmedUnit?: string): Observable<ShoppingItem> {
+    return this.http.post<ShoppingItem>(this.itemsUrl(householdId), {
+      input,
+      ...(confirmedUnit ? { confirmedUnit } : {}),
+    });
   }
 
-  update(householdId: string, itemId: string, patch: { name?: string; status?: ShoppingItemStatus; expectedVersion: number }): Observable<ShoppingItem> {
+  update(householdId: string, itemId: string, patch: {
+    name?: string;
+    status?: ShoppingItemStatus;
+    quantity?: number | null;
+    confirmedUnit?: string | null;
+    expectedVersion: number;
+  }): Observable<ShoppingItem> {
     return this.http.patch<ShoppingItem>(`${this.itemsUrl(householdId)}/${itemId}`, patch);
   }
 

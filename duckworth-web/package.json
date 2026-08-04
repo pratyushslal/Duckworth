@@ -3,15 +3,20 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "capture:build": "tsc -p ../packages/item-capture/tsconfig.json",
+    "prestart": "pnpm capture:build",
     "start": "ng serve --proxy-config proxy.conf.json",
+    "prebuild": "pnpm capture:build",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "pretest": "pnpm capture:build",
     "test": "ng test",
     "api:generate": "openapi-typescript openapi/duckworth-v1.json -o src/app/api/generated/schema.d.ts"
   },
   "private": true,
   "packageManager": "pnpm@11.5.2",
   "dependencies": {
+    "@duckworth/item-capture": "link:../packages/item-capture",
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",
     "@angular/core": "^22.1.0",

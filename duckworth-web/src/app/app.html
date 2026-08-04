@@ -23,9 +23,33 @@
 
       <form class="add-form" (ngSubmit)="addItem()">
         <label class="sr-only" for="item-name">Add an item</label>
-        <input id="item-name" name="itemName" [ngModel]="itemName()" (ngModelChange)="itemName.set($event)" placeholder="Add an item…" autocomplete="off" />
-        <button type="submit" [disabled]="busy()">Add</button>
+        <input id="item-name" name="itemName" [ngModel]="itemName()" (ngModelChange)="updateItemName($event)" placeholder="Add an item…" autocomplete="off" />
+        <button type="submit" [disabled]="addPending()">{{ addPending() ? 'Saving…' : 'Add' }}</button>
       </form>
+
+      @if (capturePreview(); as preview) {
+        <p class="capture-preview" [class.history-preview]="preview.unitSource === 'history'" aria-live="polite">
+          @if (preview.quantity !== null) {
+            <strong>{{ preview.quantity }}@if (preview.unit) { {{ preview.unit }} }</strong>
+            <span aria-hidden="true"> · </span>{{ preview.name }}
+          } @else {
+            <strong>Needs quantity</strong><span aria-hidden="true"> · </span>{{ preview.name }}
+          }
+          @if (preview.unitSource === 'history') {
+            <span class="preview-history-note">
+              From last time · Check before ordering
+              @if (captureConfirmedUnit() === preview.unit) {
+                <span class="capture-accepted">Accepted for this item</span>
+              } @else {
+                <button type="button" class="capture-accept-button" (click)="acceptCaptureUnit()">Accept {{ preview.unit }}</button>
+              }
+            </span>
+          }
+        </p>
+      }
+      @if (captureErrorMessage()) {
+        <p class="capture-error" role="alert">{{ captureErrorMessage() }}</p>
+      }
 
       @if (message()) {
         <p class="message" role="alert">{{ message() }}</p>
@@ -37,18 +61,64 @@
         <ul class="item-list">
           @for (item of items(); track item.id) {
             <li [class.completed]="item.status === 'purchased'">
-              @if (editingId() === item.id) {
+              @if (detailsEditingId() === item.id) {
+                <form class="details-form" (ngSubmit)="saveDetails(item)">
+                  <span class="details-heading">Details for <strong>{{ item.name }}</strong></span>
+                  <label>
+                    <span>Quantity</span>
+                    <input #detailsQuantityInput class="details-input" type="number" min="0.01" step="any"
+                      [value]="detailsQuantityDraft()"
+                      (input)="detailsQuantityDraft.set($any($event.target).value)"
+                      [attr.aria-label]="'Quantity for ' + item.name" />
+                  </label>
+                  <label>
+                    <span>Unit <small>optional</small></span>
+                    <input class="details-input" maxlength="32" [value]="detailsUnitDraft()"
+                      (input)="detailsUnitDraft.set($any($event.target).value)"
+                      [attr.aria-label]="'Unit for ' + item.name" placeholder="e.g. kg, pack" />
+                  </label>
+                  <span class="row-actions">
+                    <button type="submit" [disabled]="isItemPending(item.id)">{{ isItemPending(item.id) ? 'Saving…' : 'Save details' }}</button>
+                    <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="cancelDetails()">Cancel</button>
+                  </span>
+                </form>
+              } @else if (editingId() === item.id) {
                 <input class="edit-input" [value]="editDraft()" (input)="editDraft.set($any($event.target).value)" aria-label="Edit item" />
                 <span class="row-actions">
-                  <button type="button" [disabled]="busy()" (click)="saveEdit(item)">Save</button>
-                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="cancelEdit()">Cancel</button>
+                  <button type="button" [disabled]="isItemPending(item.id)" (click)="saveEdit(item)">Save</button>
+                  <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="cancelEdit()">Cancel</button>
                 </span>
               } @else {
-                <span [class.struck]="item.status === 'purchased'">{{ item.name }}</span>
-                <span class="row-actions">
-                  <button type="button" class="secondary-button" [disabled]="busy()" (click)="beginEdit(item)">Edit</button>
-                  <button type="button" class="purchase-button" [disabled]="busy()" (click)="togglePurchased(item)">{{ item.status === 'purchased' ? 'Reopen' : 'Purchased' }}</button>
+                <span class="item-summary" [class.struck]="item.status === 'purchased'">
+                  <span>
+                    @if (item.quantity !== null) { <strong>{{ item.quantity }}@if (item.unit) { {{ item.unit }} }</strong><span aria-hidden="true"> · </span> }
+                    {{ item.name }}
+                  </span>
+                  @if (item.status === 'active' && hasAttention(item, 'missing_quantity')) {
+                    <span class="attention-badge">Needs details</span>
+                  }
                 </span>
+                <span class="row-actions">
+                  @if (item.status === 'active' && item.unit && hasAttention(item, 'unconfirmed_historical_unit')) {
+                    <button type="button" class="accept-unit-button" [disabled]="isItemPending(item.id)" (click)="acceptHistoricalUnit(item)">
+                      {{ isItemPending(item.id) ? 'Accepting…' : 'Accept ' + item.unit }}
+                    </button>
+                    <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginDetails(item)">
+                      Change unit
+                    </button>
+                  }
+                  @if (item.status === 'active' && hasAttention(item, 'missing_quantity')) {
+                    <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginDetails(item)">Add details</button>
+                  }
+                  <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginEdit(item)">Edit</button>
+                  <button type="button" class="purchase-button" [disabled]="isItemPending(item.id)" (click)="togglePurchased(item)">{{ item.status === 'purchased' ? 'Reopen' : 'Purchased' }}</button>
+                </span>
+                @if (item.status === 'active' && item.unit && hasAttention(item, 'unconfirmed_historical_unit')) {
+                  <div class="unit-suggestion" role="note">
+                    <span class="unit-suggestion-value">{{ item.unit }}</span>
+                    <span><strong>From last time</strong> · Check before ordering</span>
+                  </div>
+                }
               }
               @if (rowMessageFor(item.id); as rowMessage) {
                 <p class="item-feedback" role="alert">{{ rowMessage }}</p>
