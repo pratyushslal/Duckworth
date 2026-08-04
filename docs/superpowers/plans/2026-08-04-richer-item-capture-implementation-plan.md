@@ -1,6 +1,6 @@
 # Richer Typed Item Capture — Implementation Plan
 
-**Status:** Pending user approval
+**Status:** Approved and implemented
 
 **Date:** 2026-08-04
 
@@ -388,18 +388,18 @@ python e2e/sse_check.py
 
 ## Final acceptance gate
 
-- [ ] Parser tests prove the approved deterministic grammar through the public shared package.
-- [ ] Typing and previews perform no HTTP request.
-- [ ] Structured capture, migration, repeated purchase history, unit memory, and confirmation pass through public HTTP tests.
-- [ ] Legacy `name` creation remains functional.
-- [ ] OpenAPI snapshots and generated Angular types are current.
-- [ ] Missing quantity and unconfirmed historical unit are visible, accessible, and non-blocking.
-- [ ] Failed mutations preserve drafts and never lock unrelated list actions.
-- [ ] Cached history is household-scoped, advisory, versioned, and safely reconciled.
-- [ ] API/frontend typechecks, tests, and builds pass independently.
-- [ ] Live lifecycle, SSE, stale-conflict, and delayed-network checks pass.
-- [ ] Price and ordering implementation remain deferred, with only the future attention-rule boundary documented.
-- [ ] No online Git remote is configured or contacted.
+- [x] Parser tests prove the approved deterministic grammar through the public shared package.
+- [x] Typing and previews perform no HTTP request.
+- [x] Structured capture, migration, repeated purchase history, unit memory, and confirmation pass through public HTTP tests.
+- [x] Legacy `name` creation remains functional.
+- [x] OpenAPI snapshots and generated Angular types are current.
+- [x] Missing quantity and unconfirmed historical unit are visible, accessible, and non-blocking.
+- [x] Failed mutations preserve drafts and never lock unrelated list actions.
+- [x] Cached history is household-scoped, advisory, versioned, and safely reconciled.
+- [x] API/frontend typechecks, tests, and builds pass independently.
+- [x] Live lifecycle, SSE, stale-conflict, and delayed-network checks pass.
+- [x] Price and ordering implementation remain deferred, with only the future attention-rule boundary documented.
+- [x] No online Git remote is configured or contacted.
 
 ## Commit checkpoints
 
