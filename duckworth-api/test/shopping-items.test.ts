@@ -2,6 +2,74 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 
 describe('shopping item endpoints', () => {
+  it('creates structured intent from typed shorthand', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/households/household-demo/items',
+      payload: { input: '1.5 kg potatoes' },
+    });
+
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json()).toMatchObject({
+      captureText: '1.5 kg potatoes',
+      name: 'potatoes',
+      quantity: 1.5,
+      unit: 'kg',
+      unitSource: 'explicit',
+      unitConfirmedAt: expect.any(String),
+      attentionReasons: [],
+      status: 'active',
+      version: 1,
+    });
+
+    await app.close();
+  });
+
+  it('saves a bare item with missing quantity attention', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/households/household-demo/items',
+      payload: { input: 'milk' },
+    });
+
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json()).toMatchObject({
+      name: 'milk',
+      quantity: null,
+      unit: null,
+      attentionReasons: ['missing_quantity'],
+    });
+
+    await app.close();
+  });
+
+  it('hides active attention while purchased and derives it again when reopened', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+    const url = '/api/v1/households/household-demo/items';
+    const created = await app.inject({ method: 'POST', url, payload: { input: 'milk' } });
+    const itemId = created.json().id as string;
+
+    const purchased = await app.inject({
+      method: 'PATCH',
+      url: `${url}/${itemId}`,
+      payload: { status: 'purchased', expectedVersion: 1 },
+    });
+    expect(purchased.json().attentionReasons).toEqual([]);
+
+    const reopened = await app.inject({
+      method: 'PATCH',
+      url: `${url}/${itemId}`,
+      payload: { status: 'active', expectedVersion: 2 },
+    });
+    expect(reopened.json().attentionReasons).toEqual(['missing_quantity']);
+
+    await app.close();
+  });
+
   it('creates and lists an active item for a household', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
 
@@ -21,6 +89,21 @@ describe('shopping item endpoints', () => {
     expect(listed.json()).toHaveLength(1);
     expect(listed.json()[0]).toMatchObject({ name: 'Milk', status: 'active' });
 
+    await app.close();
+  });
+
+  it('keeps legacy name capture while rejecting ambiguous capture fields', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+    const url = '/api/v1/households/household-demo/items';
+
+    const legacy = await app.inject({ method: 'POST', url, payload: { name: 'Milk' } });
+    const neither = await app.inject({ method: 'POST', url, payload: {} });
+    const both = await app.inject({ method: 'POST', url, payload: { input: 'Bread', name: 'Bread' } });
+
+    expect(legacy.statusCode, legacy.body).toBe(201);
+    expect(legacy.json()).toMatchObject({ captureText: 'Milk', name: 'Milk' });
+    expect(neither.statusCode).toBe(400);
+    expect(both.statusCode).toBe(400);
     await app.close();
   });
 
@@ -52,6 +135,34 @@ describe('shopping item endpoints', () => {
 
     const listed = await app.inject({ method: 'GET', url });
     expect(listed.json()).toEqual([]);
+    await app.close();
+  });
+
+  it('retains repeated purchases while preventing simultaneous active duplicates', async () => {
+    const app = await buildApp({ databasePath: ':memory:' });
+    const url = '/api/v1/households/household-demo/items';
+
+    const first = await app.inject({ method: 'POST', url, payload: { input: '2 cartons milk' } });
+    await app.inject({
+      method: 'PATCH',
+      url: `${url}/${first.json().id}`,
+      payload: { status: 'purchased', expectedVersion: 1 },
+    });
+    const second = await app.inject({ method: 'POST', url, payload: { input: '2 cartons milk' } });
+    const duplicate = await app.inject({ method: 'POST', url, payload: { input: '2 cartons milk' } });
+
+    expect(second.statusCode, second.body).toBe(201);
+    expect(duplicate.statusCode).toBe(409);
+
+    const secondPurchased = await app.inject({
+      method: 'PATCH',
+      url: `${url}/${second.json().id}`,
+      payload: { status: 'purchased', expectedVersion: 1 },
+    });
+    expect(secondPurchased.statusCode, secondPurchased.body).toBe(200);
+
+    const history = await app.inject({ method: 'GET', url: `${url}?includePurchased=true` });
+    expect(history.json().filter((item: { status: string }) => item.status === 'purchased')).toHaveLength(2);
     await app.close();
   });
 

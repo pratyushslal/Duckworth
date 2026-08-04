@@ -2,6 +2,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { InvalidCaptureError, interpretCapture } from '@duckworth/item-capture';
 import { HouseholdEventHub } from './event-hub.js';
 import { registerOpenApi } from './openapi.js';
 import {
@@ -28,11 +29,18 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     $id: 'ShoppingItem',
     type: 'object',
     properties: {
-      id: { type: 'string' }, householdId: { type: 'string' }, name: { type: 'string' },
+      id: { type: 'string' }, householdId: { type: 'string' }, captureText: { type: 'string' },
+      name: { type: 'string' },
+      quantity: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+      unit: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      unitSource: { anyOf: [{ type: 'string', enum: ['explicit', 'history'] }, { type: 'null' }] },
+      unitConfirmedAt: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      attentionReasons: { type: 'array', items: { type: 'string', enum: ['missing_quantity', 'unconfirmed_historical_unit'] } },
       status: { type: 'string', enum: ['active', 'purchased'] },
       createdAt: { type: 'string' }, updatedAt: { type: 'string' }, version: { type: 'integer' },
     },
-    required: ['id', 'householdId', 'name', 'status', 'createdAt', 'updatedAt', 'version'],
+    required: ['id', 'householdId', 'captureText', 'name', 'quantity', 'unit', 'unitSource',
+      'unitConfirmedAt', 'attentionReasons', 'status', 'createdAt', 'updatedAt', 'version'],
   });
 
   app.get('/health', { schema: { tags: ['health'], response: { 200: { type: 'object', properties: { status: { type: 'string', const: 'ok' } }, required: ['status'] } } } }, async () => ({ status: 'ok' }));
@@ -67,20 +75,23 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     },
   );
 
-  app.post<{ Params: { householdId: string }; Body: { name?: string } }>(
+  app.post<{ Params: { householdId: string }; Body: { input?: string; name?: string } }>(
     '/api/v1/households/:householdId/items',
-    { schema: { tags: ['shopping'], body: { type: 'object', required: ['name'], properties: { name: { type: 'string', minLength: 1 } } }, response: { 201: { $ref: 'ShoppingItem#' } } } },
+    { schema: { tags: ['shopping'], body: { type: 'object', properties: { input: { type: 'string', minLength: 1 }, name: { type: 'string', minLength: 1 } } }, response: { 201: { $ref: 'ShoppingItem#' } } } },
     async (request, reply) => {
-      const name = request.body?.name;
-      if (typeof name !== 'string' || name.trim().length === 0) {
+      const { input, name } = request.body ?? {};
+      if ((input === undefined) === (name === undefined)) {
         return reply.code(400).send({ error: 'invalid_item_name' });
       }
 
       try {
-        const item = items.create(request.params.householdId, name);
+        const item = items.create(request.params.householdId, interpretCapture(input ?? name ?? ''));
         eventHub.publish(request.params.householdId, { action: 'created', item });
         return reply.code(201).send(item);
       } catch (error) {
+        if (error instanceof InvalidCaptureError) {
+          return reply.code(400).send({ error: 'invalid_item_name' });
+        }
         if (error instanceof DuplicateShoppingItemError) {
           return reply.code(409).send({ error: 'duplicate_item', existingItemId: error.existingItemId });
         }

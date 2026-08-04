@@ -5,7 +5,13 @@ import type { ShoppingItem } from '../src/shopping-items.js';
 const item: ShoppingItem = {
   id: 'item-1',
   householdId: 'family-a',
+  captureText: 'Milk',
   name: 'Milk',
+  quantity: null,
+  unit: null,
+  unitSource: null,
+  unitConfirmedAt: null,
+  attentionReasons: ['missing_quantity'],
   status: 'active',
   createdAt: '2026-08-03T00:00:00.000Z',
   updatedAt: '2026-08-03T00:00:00.000Z',

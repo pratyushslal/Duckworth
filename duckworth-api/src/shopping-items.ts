@@ -1,12 +1,39 @@
 import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
+import { normalizeItemName, type CaptureInterpretation } from '@duckworth/item-capture';
+
+const CREATE_SHOPPING_ITEMS_TABLE = `
+  CREATE TABLE IF NOT EXISTS shopping_items (
+    id TEXT PRIMARY KEY,
+    household_id TEXT NOT NULL,
+    capture_text TEXT NOT NULL,
+    name TEXT NOT NULL,
+    normalized_name TEXT NOT NULL,
+    quantity REAL CHECK (quantity > 0 OR quantity IS NULL),
+    unit TEXT,
+    unit_source TEXT CHECK (unit_source IN ('explicit', 'history') OR unit_source IS NULL),
+    unit_confirmed_at TEXT,
+    status TEXT NOT NULL CHECK (status IN ('active', 'purchased')),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    version INTEGER NOT NULL DEFAULT 1
+  ) STRICT;
+`;
 
 export type ShoppingItemStatus = 'active' | 'purchased';
+export type ShoppingItemUnitSource = 'explicit' | 'history';
+export type ShoppingItemAttentionReason = 'missing_quantity' | 'unconfirmed_historical_unit';
 
 export interface ShoppingItem {
   id: string;
   householdId: string;
+  captureText: string;
   name: string;
+  quantity: number | null;
+  unit: string | null;
+  unitSource: ShoppingItemUnitSource | null;
+  unitConfirmedAt: string | null;
+  attentionReasons: ShoppingItemAttentionReason[];
   status: ShoppingItemStatus;
   createdAt: string;
   updatedAt: string;
@@ -16,7 +43,12 @@ export interface ShoppingItem {
 interface ShoppingItemRow {
   id: string;
   household_id: string;
+  capture_text: string;
   name: string;
+  quantity: number | null;
+  unit: string | null;
+  unit_source: ShoppingItemUnitSource | null;
+  unit_confirmed_at: string | null;
   status: ShoppingItemStatus;
   created_at: string;
   updated_at: string;
@@ -37,22 +69,50 @@ export class ItemVersionConflictError extends Error {
 
 export class ShoppingItemRepository {
   constructor(private readonly database: DatabaseSync) {
-    this.database.exec(`
-      CREATE TABLE IF NOT EXISTS shopping_items (
-        id TEXT PRIMARY KEY,
-        household_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        normalized_name TEXT NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('active', 'purchased')),
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        version INTEGER NOT NULL DEFAULT 1,
-        UNIQUE (household_id, normalized_name, status)
-      ) STRICT;
-    `);
+    this.database.exec(CREATE_SHOPPING_ITEMS_TABLE);
     const columns = this.database.prepare('PRAGMA table_info(shopping_items)').all() as Array<{ name: string }>;
-    if (!columns.some((column) => column.name === 'version')) {
-      this.database.exec('ALTER TABLE shopping_items ADD COLUMN version INTEGER NOT NULL DEFAULT 1');
+    if (!columns.some((column) => column.name === 'capture_text')) {
+      this.migrateLegacySchema(columns);
+    }
+    this.database.exec(`
+      CREATE UNIQUE INDEX IF NOT EXISTS shopping_items_active_name_unique
+      ON shopping_items (household_id, normalized_name)
+      WHERE status = 'active';
+    `);
+  }
+
+  private migrateLegacySchema(columns: Array<{ name: string }>): void {
+    const names = new Set(columns.map((column) => column.name));
+    const expression = (column: string, fallback: string) => names.has(column) ? column : fallback;
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      this.database.exec('ALTER TABLE shopping_items RENAME TO shopping_items_legacy');
+      this.database.exec(CREATE_SHOPPING_ITEMS_TABLE);
+      this.database.exec(`
+        INSERT INTO shopping_items
+          (id, household_id, capture_text, name, normalized_name, quantity, unit, unit_source,
+           unit_confirmed_at, status, created_at, updated_at, version)
+        SELECT
+          id,
+          household_id,
+          ${expression('capture_text', 'name')},
+          name,
+          normalized_name,
+          ${expression('quantity', 'NULL')},
+          ${expression('unit', 'NULL')},
+          ${expression('unit_source', 'NULL')},
+          ${expression('unit_confirmed_at', 'NULL')},
+          status,
+          created_at,
+          updated_at,
+          ${expression('version', '1')}
+        FROM shopping_items_legacy;
+        DROP TABLE shopping_items_legacy;
+        COMMIT;
+      `);
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
     }
   }
 
@@ -60,7 +120,8 @@ export class ShoppingItemRepository {
     const statusFilter = includePurchased ? '' : "AND status = 'active'";
     const rows = this.database
       .prepare(
-        `SELECT id, household_id, name, status, created_at, updated_at, version
+        `SELECT id, household_id, capture_text, name, quantity, unit, unit_source, unit_confirmed_at,
+                status, created_at, updated_at, version
          FROM shopping_items
          WHERE household_id = ? ${statusFilter}
          ORDER BY created_at ASC`,
@@ -69,13 +130,20 @@ export class ShoppingItemRepository {
     return rows.map(toShoppingItem);
   }
 
-  create(householdId: string, name: string): ShoppingItem {
+  create(householdId: string, capture: CaptureInterpretation): ShoppingItem {
     const now = new Date().toISOString();
+    const unitSource = capture.unit === null ? null : 'explicit' as const;
     const item = {
       id: randomUUID(),
       householdId,
-      name: name.trim(),
-      normalizedName: normalizeName(name),
+      captureText: capture.captureText,
+      name: capture.name,
+      normalizedName: normalizeName(capture.name),
+      quantity: capture.quantity,
+      unit: capture.unit,
+      unitSource,
+      unitConfirmedAt: unitSource === 'explicit' ? now : null,
+      attentionReasons: attentionReasonsForFields('active', capture.quantity, unitSource),
       status: 'active' as const,
       createdAt: now,
       updatedAt: now,
@@ -86,14 +154,20 @@ export class ShoppingItemRepository {
       this.database
         .prepare(
           `INSERT INTO shopping_items
-           (id, household_id, name, normalized_name, status, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+           (id, household_id, capture_text, name, normalized_name, quantity, unit, unit_source,
+            unit_confirmed_at, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           item.id,
           item.householdId,
+          item.captureText,
           item.name,
           item.normalizedName,
+          item.quantity,
+          item.unit,
+          item.unitSource,
+          item.unitConfirmedAt,
           item.status,
           item.createdAt,
           item.updatedAt,
@@ -162,7 +236,8 @@ export class ShoppingItemRepository {
 
   private get(householdId: string, itemId: string): ShoppingItem | undefined {
     const row = this.database.prepare(
-      `SELECT id, household_id, name, status, created_at, updated_at, version
+      `SELECT id, household_id, capture_text, name, quantity, unit, unit_source, unit_confirmed_at,
+              status, created_at, updated_at, version
        FROM shopping_items WHERE id = ? AND household_id = ?`,
     ).get(itemId, householdId) as unknown as ShoppingItemRow | undefined;
     return row ? toShoppingItem(row) : undefined;
@@ -174,17 +249,35 @@ export class ShoppingItemRepository {
 }
 
 export function normalizeName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  return normalizeItemName(name);
 }
 
 function toShoppingItem(row: ShoppingItemRow): ShoppingItem {
   return {
     id: row.id,
     householdId: row.household_id,
+    captureText: row.capture_text,
     name: row.name,
+    quantity: row.quantity,
+    unit: row.unit,
+    unitSource: row.unit_source,
+    unitConfirmedAt: row.unit_confirmed_at,
+    attentionReasons: attentionReasonsForFields(row.status, row.quantity, row.unit_source),
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     version: row.version,
   };
+}
+
+function attentionReasonsForFields(
+  status: ShoppingItemStatus,
+  quantity: number | null,
+  unitSource: ShoppingItemUnitSource | null,
+): ShoppingItemAttentionReason[] {
+  if (status !== 'active') return [];
+  const reasons: ShoppingItemAttentionReason[] = [];
+  if (quantity === null) reasons.push('missing_quantity');
+  if (unitSource === 'history') reasons.push('unconfirmed_historical_unit');
+  return reasons;
 }
