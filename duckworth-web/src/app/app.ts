@@ -689,6 +689,7 @@ export class App implements OnDestroy {
         this.pairingPending.set(false);
         this.message.set('Household session connected.');
         this.loadItems();
+        this.restoreConversationState();
       },
       error: () => {
         this.pairingPending.set(false);

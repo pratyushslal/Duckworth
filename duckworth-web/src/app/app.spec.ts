@@ -38,6 +38,7 @@ class FakeStorage {
 
 describe('App', () => {
   let httpTesting: HttpTestingController;
+  let initializeContext: ReturnType<typeof vi.fn>;
 
   const flushConversationCapture = (saved: unknown[], merged: unknown[] = []): void => {
     httpTesting.expectOne('/api/v1/households/household-demo/conversation-captures').flush({
@@ -56,6 +57,7 @@ describe('App', () => {
   });
 
   beforeEach(async () => {
+    initializeContext = vi.fn(() => EMPTY);
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -67,7 +69,7 @@ describe('App', () => {
         } },
         { provide: ConversationContextService, useValue: {
           current: signal(null),
-          initialize: () => EMPTY,
+          initialize: initializeContext,
           register: () => EMPTY,
           close: () => EMPTY,
         } },
@@ -883,6 +885,30 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('.message')?.textContent)
       .toContain('Connect this device to the household before retrying.');
     expect(input.value).toBe('laundry detergent gel big pack');
+  });
+
+  it('reinitializes conversation context after pairing a device', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true')
+      .flush({ error: 'authentication_required' }, { status: 401, statusText: 'Unauthorized' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(initializeContext).toHaveBeenCalledTimes(1);
+    const component = fixture.componentInstance as unknown as {
+      pairingCode: { set(value: string): void };
+      pairSession(): void;
+    };
+    component.pairingCode.set('pair-code');
+    component.pairSession();
+    httpTesting.expectOne('/api/v1/session/pair').flush({ lane: 'live', householdId: 'household-demo' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(initializeContext).toHaveBeenCalledTimes(2);
   });
 
   it('shows a direct details action for an item missing quantity', async () => {
