@@ -859,6 +859,32 @@ describe('App', () => {
     expect(input.value).toBe('');
   });
 
+  it('asks the user to pair again when capture authentication expires', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const input = fixture.nativeElement.querySelector('#item-name') as HTMLInputElement;
+    input.value = 'laundry detergent gel big pack';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.add-form button') as HTMLButtonElement).click();
+
+    httpTesting.expectOne('/api/v1/households/household-demo/conversation-captures')
+      .flush({ error: 'authentication_required' }, { status: 401, statusText: 'Unauthorized' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#pairing-title')?.textContent)
+      .toContain('Connect this device');
+    expect(fixture.nativeElement.querySelector('.message')?.textContent)
+      .toContain('Connect this device to the household before retrying.');
+    expect(input.value).toBe('laundry detergent gel big pack');
+  });
+
   it('shows a direct details action for an item missing quantity', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

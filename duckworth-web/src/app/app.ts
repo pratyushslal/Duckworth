@@ -308,9 +308,14 @@ export class App implements OnDestroy {
         this.loadItems();
       },
       error: (error: HttpErrorResponse) => {
-        this.message.set(error.status === 409
-          ? 'That item could not be merged safely.'
-          : 'Could not process that capture. Your text is still here to retry.');
+        if (error.status === 401) {
+          this.pairingRequired.set(true);
+          this.message.set('Connect this device to the household before retrying.');
+        } else {
+          this.message.set(error.status === 409
+            ? 'That item could not be merged safely.'
+            : 'Could not process that capture. Your text is still here to retry.');
+        }
         this.addPending.set(false);
       },
     });
