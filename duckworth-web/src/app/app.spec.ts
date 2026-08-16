@@ -971,8 +971,12 @@ describe('App', () => {
       .find((button) => button.textContent?.trim() === 'Review item');
     expect(reviewItem).toBeTruthy();
     reviewItem?.click();
+    await fixture.whenStable();
     fixture.detectChanges();
 
+    const sort = root.querySelector('select[aria-label="Sort shopping items"]') as HTMLSelectElement;
+    expect(sort.value).toBe('attention');
+    expect(root.querySelector('#shopping-item-unresolved-milk.unresolved-focused')).toBeTruthy();
     const row = root.querySelector('.item-list li') as HTMLElement;
     const quantity = row.querySelector('input[aria-label="Quantity for Milk"]') as HTMLInputElement;
     const unit = row.querySelector('input[aria-label="Unit for Milk"]') as HTMLInputElement;

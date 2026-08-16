@@ -13,7 +13,7 @@ import {
 } from './core/shopping-items.service';
 import { ShoppingEventsService } from './core/shopping-events.service';
 import { ListPreferences } from './core/list-preferences';
-import { sortShoppingItems, type ShoppingItemSort } from './core/shopping-item-sort';
+import { isUnresolvedShoppingItem, sortShoppingItems, type ShoppingItemSort } from './core/shopping-item-sort';
 import { UnitHistoryCache, type UnitHistoryMap } from './core/unit-history-cache';
 import { CaptureCombobox } from './capture-assistance/capture-combobox';
 import type { CaptureSuggestion, ClarificationCandidate, SemanticSuggestion } from '@duckworth/local-assistance';
@@ -103,9 +103,11 @@ export class App implements OnDestroy {
   protected readonly learningCorrections = signal<SemanticCorrectionRecord[]>([]);
   protected readonly learningMetrics = signal<HouseholdQualityMetrics | null>(null);
   protected readonly unresolvedReviewOpen = signal(false);
-  protected readonly unresolvedItems = computed(() => this.items().filter((item) => item.status === 'active' && (
-    item.categoryConfidence === 'unknown' || item.quantity === null || item.unit === null
-  )));
+  protected readonly focusedUnresolvedItemId = signal<string | null>(null);
+  protected readonly unresolvedItems = computed(() => sortShoppingItems(
+    this.items().filter(isUnresolvedShoppingItem),
+    'attention',
+  ));
   protected readonly personalVocabularyEnabled = signal(true);
   private readonly activeLanguageBundle = signal<LanguagePackBundle | null>(null);
   private readonly installedLanguageBundles = signal<LanguagePackBundle[]>([]);
@@ -1134,7 +1136,31 @@ export class App implements OnDestroy {
   }
 
   protected toggleUnresolvedReview(): void {
-    this.unresolvedReviewOpen.update((open) => !open);
+    this.unresolvedReviewOpen.update((open) => {
+      const nextOpen = !open;
+      if (nextOpen) {
+        this.changeSort('attention');
+        this.selectedShopTypeId.set(null);
+      } else {
+        this.focusedUnresolvedItemId.set(null);
+      }
+      return nextOpen;
+    });
+  }
+
+  protected reviewUnresolvedItem(item: ShoppingItem): void {
+    this.changeSort('attention');
+    this.selectedShopTypeId.set(null);
+    this.focusedUnresolvedItemId.set(item.id);
+    this.beginDetails(item);
+    queueMicrotask(() => {
+      const row = globalThis.document?.getElementById(`shopping-item-${item.id}`);
+      row?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  protected isUnresolvedItem(item: ShoppingItem): boolean {
+    return isUnresolvedShoppingItem(item);
   }
 
   protected unresolvedReasons(item: ShoppingItem): string[] {

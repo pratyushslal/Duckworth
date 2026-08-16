@@ -62,15 +62,43 @@ describe('sortShoppingItems', () => {
   it('projects items needing attention first and falls back to latest-first', () => {
     const complete = {
       ...item('item-c', '2026-08-06T09:00:00.000Z'),
+      quantity: 1,
+      unit: 'piece',
       attentionReasons: [],
     } satisfies ShoppingItem;
-    const missingQuantity = item('item-a', '2026-08-04T09:00:00.000Z');
+    const missingQuantity = { ...item('item-a', '2026-08-04T09:00:00.000Z'), unit: 'piece' } satisfies ShoppingItem;
     const historicalUnit = {
       ...item('item-b', '2026-08-05T09:00:00.000Z'),
+      quantity: 1,
+      unit: 'piece',
       attentionReasons: ['unconfirmed_historical_unit'],
     } satisfies ShoppingItem;
 
     expect(sortShoppingItems([complete, missingQuantity, historicalUnit], 'attention').map(({ id }) => id))
       .toEqual(['item-b', 'item-a', 'item-c']);
+  });
+
+  it('puts unresolved category and unit items ahead of otherwise complete items', () => {
+    const complete = {
+      ...item('complete', '2026-08-06T09:00:00.000Z'),
+      quantity: 1,
+      unit: 'piece',
+      attentionReasons: [],
+    } satisfies ShoppingItem;
+    const unknownCategory = {
+      ...complete,
+      id: 'unknown-category',
+      categoryConfidence: 'unknown' as const,
+      createdAt: '2026-08-04T09:00:00.000Z',
+    } satisfies ShoppingItem;
+    const missingUnit = {
+      ...complete,
+      id: 'missing-unit',
+      unit: null,
+      createdAt: '2026-08-05T09:00:00.000Z',
+    } satisfies ShoppingItem;
+
+    expect(sortShoppingItems([complete, unknownCategory, missingUnit], 'attention').map(({ id }) => id))
+      .toEqual(['missing-unit', 'unknown-category', 'complete']);
   });
 });

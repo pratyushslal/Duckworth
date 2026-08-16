@@ -112,7 +112,7 @@
                     <strong>{{ formatItemName(item.name, item.brandName) }}</strong>
                     <span>{{ unresolvedReasons(item).join(' · ') }}</span>
                   </div>
-                  <button type="button" (click)="beginDetails(item)">Review item</button>
+                  <button type="button" (click)="reviewUnresolvedItem(item)">Review item</button>
                 </article>
               }
             } @else {
@@ -372,7 +372,10 @@
       } @else {
         <ul class="item-list">
           @for (item of sortedItems(); track item.id) {
-            <li [class.completed]="item.status === 'purchased'">
+            <li [id]="'shopping-item-' + item.id"
+              [class.completed]="item.status === 'purchased'"
+              [class.unresolved-item]="isUnresolvedItem(item)"
+              [class.unresolved-focused]="focusedUnresolvedItemId() === item.id">
               @if (detailsEditingId() === item.id) {
                 <form class="details-form" (ngSubmit)="saveDetails(item)">
                   <span class="details-heading">Edit <strong>{{ formatItemName(item.name, item.brandName) }}</strong></span>
@@ -455,8 +458,10 @@
                     @if (classificationHint(item); as hint) { <span class="classification-hint">{{ hint }}</span> }
                     @if (helpfulDetailHint(item); as helpful) { <span class="classification-hint">{{ helpful }}</span> }
                   </span>
-                  @if (item.status === 'active' && hasAttention(item, 'missing_quantity')) {
-                    <span class="attention-badge">Needs details</span>
+                  @if (item.status === 'active' && isUnresolvedItem(item)) {
+                    <span class="attention-badge" [attr.title]="unresolvedReasons(item).join(' · ')">
+                      {{ hasAttention(item, 'missing_quantity') ? 'Needs details' : 'Needs review' }}
+                    </span>
                   }
                 </span>
                 <span class="row-actions">

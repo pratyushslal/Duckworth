@@ -3,6 +3,16 @@ import type { ShoppingItem } from './shopping-items.service';
 
 export type ShoppingItemSort = 'latest' | 'oldest' | 'name-asc' | 'attention';
 
+export function isUnresolvedShoppingItem(item: ShoppingItem): boolean {
+  return item.status === 'active' && (
+    item.categoryConfidence === 'unknown' || item.quantity === null || item.unit === null
+  );
+}
+
+function needsAttention(item: ShoppingItem): boolean {
+  return isUnresolvedShoppingItem(item) || (item.status === 'active' && item.attentionReasons.length > 0);
+}
+
 function compareIds(left: ShoppingItem, right: ShoppingItem): number {
   return left.id.localeCompare(right.id);
 }
@@ -32,7 +42,7 @@ export function sortShoppingItems(
   }
   if (mode === 'attention') {
     return [...items].sort((left, right) => {
-      const attention = Number(left.attentionReasons.length === 0) - Number(right.attentionReasons.length === 0);
+      const attention = Number(!needsAttention(left)) - Number(!needsAttention(right));
       return attention || compareLatest(left, right);
     });
   }

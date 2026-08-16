@@ -453,10 +453,24 @@ button:disabled {
   gap: 1rem;
   padding: 0.8rem 0;
   border-bottom: 1px solid #eee8da;
+  scroll-margin-block: 1.5rem;
 }
 
 .item-list li.completed {
   color: #8b8779;
+}
+
+.item-list li.unresolved-item {
+  border-left: 0.35rem solid #d19a4a;
+  padding-left: 0.7rem;
+  background: #fffaf0;
+}
+
+.item-list li.unresolved-focused {
+  border-left-color: #176b45;
+  border-radius: 0.7rem;
+  box-shadow: 0 0 0 0.2rem rgba(23, 107, 69, 0.16);
+  background: #f2fbf5;
 }
 
 .struck {
