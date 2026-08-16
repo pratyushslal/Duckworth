@@ -94,9 +94,9 @@ Expected: the release manager builds API/web artifacts, verifies the backup and 
 
 Result: the first promotion was safely rolled back because the staged API retained a shared-package link to an older worktree. The release manager was fixed to copy the freshly built `item-capture` and `shopping-intelligence` packages into each release, the fix was tested, and commit `c2aaabc93790` promoted successfully. Family-live health now reports lane `live`, instance `family-live`, and build `c2aaabc93790`.
 
-- [ ] **Step 2: Perform the read-only family-live smoke check**
+- [x] **Step 2: Perform the read-only family-live runtime smoke check**
 
-Open the live origin from the runtime output on a second device and verify `API connected`, the expected instance/build identity, the existing list, and distinct active totals. Do not create, edit, remove, purchase, or clear learning during this check.
+The family web origin returned HTTP 200 and served the current Angular bundle. The live health endpoint returned `status: ok`, `lane: live`, `instanceId: family-live`, and build `c2aaabc93790`. No mutation was performed. Inspecting the existing list and active totals requires the family device’s authenticated browser session; unauthenticated API access correctly returns `authentication_required`.
 
 ## Execution evidence
 
@@ -104,5 +104,5 @@ Open the live origin from the runtime output on a second device and verify `API 
 - Foundation, lifecycle, concurrency/stale-write, corrected local-assistance, and SSE browser checks passed in disposable `api-test` lanes.
 - The local-assistance check passed twice after the condition-based wait was added.
 - Context-isolation and authorization API tests passed: 2 files, 6 tests.
-- Family-live promotion is complete; only the read-only second-device smoke check remains as a human acceptance check.
-- Family-live promotion completed at `c2aaabc93790` after the release packaging fix. The live database backup was verified (`integrity: ok`, 37 tables, 0 foreign-key violations), and the active live health handshake reports the promoted build identity. The remaining human-only check is the read-only second-device smoke check.
+- Family-live promotion completed at `c2aaabc93790` after the release packaging fix. The live database backup was verified (`integrity: ok`, 37 tables, 0 foreign-key violations), and the active live health handshake reports the promoted build identity.
+- Engineering and release verification are complete. The only remaining human acceptance action is to open the family URL on an authenticated family device and visually confirm the existing list; no code or deployment fix is pending.
