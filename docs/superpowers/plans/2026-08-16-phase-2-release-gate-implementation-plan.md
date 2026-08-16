@@ -29,7 +29,7 @@
 - Consumes: local `main` branch and `origin/main`.
 - Produces: a clean, identified release candidate suitable for disposable testing.
 
-- [ ] **Step 1: Verify the candidate identity and clean tree**
+- [x] **Step 1: Verify the candidate identity and clean tree**
 
 Run:
 
@@ -54,7 +54,7 @@ Expected: no status output; `HEAD` is the current pushed `main` commit.
 - Consumes: the lane factory command `node tools/lanes/duckworth-profiles.mjs api-test run --with-web --`.
 - Produces: browser evidence that the web UI talks to the disposable runtime and that two pages share list state while stale writes cannot overwrite newer state.
 
-- [ ] **Step 1: Run the foundation and lifecycle checks in the disposable lane**
+- [x] **Step 1: Run the foundation and lifecycle checks in the disposable lane**
 
 Run:
 
@@ -68,9 +68,9 @@ node tools/lanes/duckworth-profiles.mjs api-test run --with-web -- python duckwo
 
 Expected: every command exits zero, reports an `api-test` handshake, and removes its disposable database and server afterward.
 
-- [ ] **Step 2: Record any release blocker**
+- [x] **Step 2: Record any release blocker**
 
-If a command fails, preserve its output and stop promotion. Classify the failure as application behavior, lane isolation, runtime identity, browser rendering, or environment permissions before changing code.
+The first local-assistance run exposed a same-tick browser assertion race. The check was changed to wait for the observable input value, then passed twice in fresh disposable lanes. No application behavior or lane-isolation blocker remains.
 
 ### Task 3: Promote only after the gate is green
 
@@ -95,3 +95,11 @@ Expected: the release manager builds API/web artifacts, verifies the backup and 
 - [ ] **Step 2: Perform the read-only family-live smoke check**
 
 Open the live origin from the runtime output on a second device and verify `API connected`, the expected instance/build identity, the existing list, and distinct active totals. Do not create, edit, remove, purchase, or clear learning during this check.
+
+## Execution evidence
+
+- Candidate checked at `5abf638` before the browser gate.
+- Foundation, lifecycle, concurrency/stale-write, corrected local-assistance, and SSE browser checks passed in disposable `api-test` lanes.
+- The local-assistance check passed twice after the condition-based wait was added.
+- Context-isolation and authorization API tests passed: 2 files, 6 tests.
+- Family-live promotion remains intentionally pending because it requires the release manager’s configured persistent live environment and a read-only second-device smoke check.

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 from runtime_guard import open_sandbox
 PACK_ROOT = Path(__file__).parents[2] / "duckworth-api" / "language-packs"
 MANIFEST_TEXT = (PACK_ROOT / "countries" / "IN" / "manifest.json").read_text(encoding="utf-8")
@@ -47,7 +47,7 @@ with sync_playwright() as playwright:
     assert len(requests) == baseline_requests, "typing created an HTTP request"
     capture.press("ArrowDown")
     capture.press("ArrowRight")
-    assert capture.input_value() == "atta"
+    expect(capture).to_have_value("atta")
 
     cached_capture = page.get_by_role("combobox", name="Item jodein")
     baseline_requests = len(requests)
