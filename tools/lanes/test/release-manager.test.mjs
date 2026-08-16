@@ -1,11 +1,12 @@
 import { afterEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
   activateRelease,
   buildLiveBackupCommand,
+  copyLocalPackageArtifact,
   createPromotionPlan,
   readActiveRelease,
   runPromotionPlan,
@@ -58,5 +59,25 @@ describe('live release promotion', () => {
     assert.deepEqual(buildLiveBackupCommand('C:\\live.sqlite', 'C:\\backup.sqlite', { buildId: 'old' }).slice(-4), [
       '--lane', 'live', '--instance', 'family-live',
     ]);
+  });
+
+  it('copies current shared packages into a release instead of retaining old workspace links', () => {
+    const root = mkdtempSync(join(tmpdir(), 'duckworth-release-package-'));
+    directories.push(root);
+    const sourcePackage = join(root, 'source', 'shopping-intelligence');
+    const releaseApi = join(root, 'release', 'duckworth-api');
+    const stalePackage = join(releaseApi, 'node_modules', '@duckworth', 'shopping-intelligence');
+    mkdirSync(join(sourcePackage, 'dist'), { recursive: true });
+    mkdirSync(join(stalePackage, 'dist'), { recursive: true });
+    writeFileSync(join(sourcePackage, 'package.json'), '{"name":"current"}\n');
+    writeFileSync(join(sourcePackage, 'dist', 'index.js'), 'export const build = "current";\n');
+    writeFileSync(join(stalePackage, 'package.json'), '{"name":"old"}\n');
+    writeFileSync(join(stalePackage, 'dist', 'index.js'), 'export const build = "old";\n');
+
+    copyLocalPackageArtifact(sourcePackage, releaseApi, 'shopping-intelligence');
+
+    assert.equal(existsSync(join(releaseApi, 'node_modules', '@duckworth', 'shopping-intelligence', 'dist', 'index.js')), true);
+    assert.equal(readFileSync(join(releaseApi, 'node_modules', '@duckworth', 'shopping-intelligence', 'package.json'), 'utf8'), '{"name":"current"}\n');
+    assert.equal(readFileSync(join(releaseApi, 'node_modules', '@duckworth', 'shopping-intelligence', 'dist', 'index.js'), 'utf8'), 'export const build = "current";\n');
   });
 });

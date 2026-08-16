@@ -68,6 +68,13 @@ export function activateRelease(operationalRoot, release) {
   renameSync(temporary, path);
 }
 
+export function copyLocalPackageArtifact(sourcePackageRoot, releaseApiRoot, packageName) {
+  const targetPackageRoot = join(releaseApiRoot, 'node_modules', '@duckworth', packageName);
+  rmSync(targetPackageRoot, { recursive: true, force: true });
+  mkdirSync(dirname(targetPackageRoot), { recursive: true });
+  cpSync(sourcePackageRoot, targetPackageRoot, { recursive: true, dereference: true });
+}
+
 export async function promoteRelease({ repositoryRoot, operationalRoot, lanHost, buildId = currentBuildId(repositoryRoot) }) {
   const sourceRoot = resolve(repositoryRoot);
   const runtimeRoot = resolve(operationalRoot);
@@ -105,6 +112,16 @@ export async function promoteRelease({ repositoryRoot, operationalRoot, lanHost,
       cpSync(join(sourceRoot, 'duckworth-api', 'language-packs'), join(stagingRoot, 'duckworth-api', 'language-packs'), { recursive: true });
       cpSync(join(sourceRoot, 'duckworth-api', 'openapi'), join(stagingRoot, 'duckworth-api', 'openapi'), { recursive: true });
       cpSync(join(sourceRoot, 'duckworth-api', 'package.json'), join(stagingRoot, 'duckworth-api', 'package.json'));
+      copyLocalPackageArtifact(
+        join(sourceRoot, 'packages', 'item-capture'),
+        join(stagingRoot, 'duckworth-api'),
+        'item-capture',
+      );
+      copyLocalPackageArtifact(
+        join(sourceRoot, 'packages', 'shopping-intelligence'),
+        join(stagingRoot, 'duckworth-api'),
+        'shopping-intelligence',
+      );
       cpSync(join(sourceRoot, 'duckworth-web', 'dist'), join(stagingRoot, 'duckworth-web', 'dist'), { recursive: true });
       mkdirSync(join(stagingRoot, 'tools', 'lanes'), { recursive: true });
       cpSync(join(sourceRoot, 'tools', 'lanes', 'static-web-server.mjs'), join(stagingRoot, 'tools', 'lanes', 'static-web-server.mjs'));
