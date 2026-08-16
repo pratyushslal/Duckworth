@@ -82,7 +82,7 @@ The first local-assistance run exposed a same-tick browser assertion race. The c
 - Consumes: the clean tested commit and green disposable browser evidence.
 - Produces: an immutable family-live release with build identity verification and rollback metadata.
 
-- [ ] **Step 1: Promote the exact tested build**
+- [x] **Step 1: Promote the exact tested build**
 
 Run:
 
@@ -91,6 +91,8 @@ node tools/lanes/duckworth-profiles.mjs release promote
 ```
 
 Expected: the release manager builds API/web artifacts, verifies the backup and staged release, activates the release marker atomically, restarts only family-live, and confirms the live build identity.
+
+Result: the first promotion was safely rolled back because the staged API retained a shared-package link to an older worktree. The release manager was fixed to copy the freshly built `item-capture` and `shopping-intelligence` packages into each release, the fix was tested, and commit `c2aaabc93790` promoted successfully. Family-live health now reports lane `live`, instance `family-live`, and build `c2aaabc93790`.
 
 - [ ] **Step 2: Perform the read-only family-live smoke check**
 
@@ -102,4 +104,5 @@ Open the live origin from the runtime output on a second device and verify `API 
 - Foundation, lifecycle, concurrency/stale-write, corrected local-assistance, and SSE browser checks passed in disposable `api-test` lanes.
 - The local-assistance check passed twice after the condition-based wait was added.
 - Context-isolation and authorization API tests passed: 2 files, 6 tests.
-- Family-live promotion remains intentionally pending because it requires the release manager’s configured persistent live environment and a read-only second-device smoke check.
+- Family-live promotion is complete; only the read-only second-device smoke check remains as a human acceptance check.
+- Family-live promotion completed at `c2aaabc93790` after the release packaging fix. The live database backup was verified (`integrity: ok`, 37 tables, 0 foreign-key violations), and the active live health handshake reports the promoted build identity. The remaining human-only check is the read-only second-device smoke check.
