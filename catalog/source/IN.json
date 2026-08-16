@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "countryCode": "IN",
+  "defaultLocale": "en-IN",
+  "bridgeLocales": ["en-IN"],
+  "regionalProducts": [
+    { "countryCode": "IN", "version": "2026.08.05.1" }
+  ],
+  "locales": [
+    { "locale": "en-IN", "version": "2026.08.14.2" },
+    { "locale": "hi-Latn-IN", "version": "2026.08.06.1" }
+  ]
+}

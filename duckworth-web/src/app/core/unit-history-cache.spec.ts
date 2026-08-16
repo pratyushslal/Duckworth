@@ -10,8 +10,10 @@ class MemoryStorage {
 
 const item = (overrides: Partial<ShoppingItem>): ShoppingItem => ({
   id: 'item-1', householdId: 'family-a', captureText: '2 cartons Milk', name: 'Milk',
-  quantity: 2, unit: 'carton', unitSource: 'explicit', unitConfirmedAt: '2026-08-03T00:00:00.000Z',
-  attentionReasons: [], status: 'purchased', createdAt: '2026-08-03T00:00:00.000Z',
+  quantity: 2, unit: 'carton', packageSize: null, packageUnit: null,
+  brandId: null, productId: null, conceptId: null,
+  unitSource: 'explicit', unitConfirmedAt: '2026-08-03T00:00:00.000Z',
+  attentionReasons: [], status: 'purchased', removedAt: null, createdAt: '2026-08-03T00:00:00.000Z',
   updatedAt: '2026-08-03T00:00:00.000Z', version: 2, ...overrides,
 });
 
@@ -57,5 +59,13 @@ describe('UnitHistoryCache', () => {
     expect(merged['rice'].unit).toBe('bag');
     expect(merged['milk'].unit).toBe('bottle');
     expect(cache.read('family-a')).toEqual(merged);
+  });
+
+  it('does not learn a confirmed unit from a removed mistake', () => {
+    const cache = new UnitHistoryCache(new MemoryStorage());
+
+    expect(cache.replaceFromItems('family-a', [
+      item({ status: 'removed', removedAt: '2026-08-06T00:00:00.000Z' }),
+    ])).toEqual({});
   });
 });

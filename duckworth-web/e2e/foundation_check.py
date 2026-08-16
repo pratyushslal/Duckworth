@@ -1,23 +1,19 @@
 from pathlib import Path
-import time
 from uuid import uuid4
 
 from playwright.sync_api import sync_playwright
+from runtime_guard import open_sandbox
 
 
-def wait_for_alert(page, expected: str) -> None:
-    deadline = time.monotonic() + 5
-    while time.monotonic() < deadline:
-        if page.get_by_role("alert").inner_text() == expected:
-            return
-        page.wait_for_timeout(50)
-    raise AssertionError(f"Expected alert {expected!r}, got {page.get_by_role('alert').inner_text()!r}")
+def wait_for_saved_capture(page, expected_count: str) -> None:
+    page.get_by_role("heading", name="Capture result").wait_for()
+    page.get_by_text(expected_count, exact=True).wait_for()
 
 
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch()
     page = browser.new_page()
-    page.goto("http://127.0.0.1:4200", wait_until="networkidle")
+    open_sandbox(page)
 
     assert page.locator("h1").inner_text() == "Shopping coordination starts here."
     assert page.get_by_role("status").inner_text() == "API connected"
@@ -25,17 +21,17 @@ with sync_playwright() as playwright:
 
     item_name = f"Browser milk {uuid4().hex[:8]}"
     page.get_by_label("Add an item").fill(item_name)
-    page.get_by_role("button", name="Add", exact=True).click()
+    page.locator("form.add-form button[type=submit]").click()
     page.get_by_text(item_name, exact=True).wait_for(state="visible")
-    wait_for_alert(page, f"{item_name} added to the list.")
+    wait_for_saved_capture(page, "Saved 1")
 
     page.get_by_label("Add an item").fill(item_name)
-    page.get_by_role("button", name="Add", exact=True).click()
-    wait_for_alert(page, "That item is already on the list.")
+    page.locator("form.add-form button[type=submit]").click()
+    page.get_by_role("heading", name="Capture result").wait_for()
 
-    page.locator("li").filter(has_text=item_name).get_by_role("button", name="Purchased").click()
-    page.get_by_text(item_name, exact=True).wait_for(state="hidden")
-    wait_for_alert(page, f"{item_name} marked purchased.")
+    row = page.locator("li").filter(has_text=item_name).last
+    row.get_by_role("button", name="Purchased").click()
+    row.get_by_role("button", name="Reopen").wait_for()
 
     screenshot = Path(r"C:\tmp\duckworth-foundation.png")
     page.screenshot(path=str(screenshot), full_page=True)

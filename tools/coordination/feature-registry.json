@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "features": [
+    { "id": "capture-default-piece", "status": "supported", "acceptance": ["Bare item preview and save default to quantity 1 and unit piece."], "tests": ["item-capture", "api-shopping-items", "web-capture"] },
+    { "id": "package-aware-capture", "status": "supported", "acceptance": ["Requested count and package size remain separate."], "tests": ["item-capture", "api-shopping-items"] },
+    { "id": "list-ordering-and-filters", "status": "supported", "acceptance": ["Newest items appear first and shop filters remain visible and actionable."], "tests": ["api-shopping-items", "web-capture"] },
+    { "id": "category-and-shop-classification", "status": "supported", "acceptance": ["Known items receive safe categories/shop tags and uncertain items remain Unassigned."], "tests": ["api-shopping-items"] },
+    { "id": "local-assistance", "status": "supported", "acceptance": ["Autocomplete, spelling clarification, and household history remain local and reversible."], "tests": ["local-assistance", "web-capture"] },
+    { "id": "conversation-brain", "status": "supported", "acceptance": ["Natural-language capture, drafts, replay, undo, and context isolation survive restart."], "tests": ["shopping-intelligence", "api-brain"] },
+    { "id": "lane-isolation", "status": "supported", "acceptance": ["Live and sandbox use fixed distinct ports, processes, and databases."], "tests": ["lane-supervisor"] },
+    { "id": "release-recovery", "status": "supported", "acceptance": ["Only verified immutable releases can be approved for live."], "tests": ["lane-supervisor", "coordination"] },
+    { "id": "cloud-assistance", "status": "experimental", "acceptance": ["External assistance is disabled by default and locally mocked in tests."], "tests": ["api-brain"] }
+  ]
+}

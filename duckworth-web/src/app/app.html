@@ -1,16 +1,133 @@
 <main class="shell">
   <section class="hero" aria-labelledby="app-title">
     <p class="eyebrow">Duckworth · household list</p>
+    @if (runtimeIdentity(); as runtime) {
+      @if (runtime.lane === 'sandbox') {
+        <aside class="environment-banner sandbox" data-runtime-lane="sandbox">
+          <strong>Testing workspace</strong>
+          Changes here never affect the family-live list. Instance: {{ runtime.instanceId }}
+        </aside>
+      } @else if (runtime.lane === 'api-test') {
+        <aside class="environment-banner api-test" data-runtime-lane="api-test">
+          <strong>Disposable API test</strong>
+          This isolated instance and its data will be deleted automatically. Instance: {{ runtime.instanceId }}
+        </aside>
+      }
+    }
     <h1 id="app-title">Shopping coordination starts here.</h1>
     <p class="lede">A lightweight shared space for the household’s next purchase.</p>
-    <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline'" role="status">
+    <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline' || apiStatus() === 'misconfigured'" role="status">
       <span class="status-dot" aria-hidden="true"></span>
       @switch (apiStatus()) {
         @case ('ready') { API connected }
         @case ('offline') { API unavailable }
+        @case ('misconfigured') { Wrong API lane }
         @default { Connecting to API… }
       }
     </div>
+
+    @if (pairingRequired()) {
+      <section class="pairing-panel" aria-labelledby="pairing-title">
+        <h2 id="pairing-title">Connect this device</h2>
+        <p>Enter the household pairing code once. It will be kept in a protected browser session.</p>
+        <label>
+          Pairing code
+          <input
+            [ngModel]="pairingCode()"
+            (ngModelChange)="pairingCode.set($event)"
+            autocomplete="one-time-code"
+            type="password"
+          />
+        </label>
+        <button type="button" (click)="pairSession()" [disabled]="pairingPending()">
+          {{ pairingPending() ? 'Connecting…' : 'Connect household' }}
+        </button>
+      </section>
+    }
+
+    <app-language-settings (changed)="applyLanguageSettings($event)" />
+    <app-household-settings [householdId]="householdId" />
+
+    <section class="personal-learning-panel" aria-labelledby="personal-learning-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Private on this device</p>
+          <h2 id="personal-learning-title">Spelling help</h2>
+        </div>
+        <p>Personal corrections stay in this browser and never change the shared list.</p>
+      </div>
+      <button type="button" (click)="togglePersonalVocabulary()">
+        {{ personalVocabularyEnabled() ? 'Disable spelling help' : 'Enable spelling help' }}
+      </button>
+      <button type="button" (click)="clearPersonalVocabulary()">Clear this device history</button>
+    </section>
+
+    <section class="capture-privacy-panel" aria-labelledby="capture-privacy-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Raw input privacy</p>
+          <h2 id="capture-privacy-title">Capture history</h2>
+        </div>
+        <p>Raw capture text follows the server retention policy and is removed automatically. List items are not removed.</p>
+      </div>
+      <button type="button" (click)="exportCaptureHistory()">Export capture history</button>
+      <button type="button" (click)="deleteCaptureHistory()">Delete capture history</button>
+      @if (capturePrivacyMessage()) {
+        <p role="status">{{ capturePrivacyMessage() }}</p>
+      }
+    </section>
+
+    <section class="learning-panel" aria-labelledby="learning-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Governed intelligence</p>
+            <h2 id="learning-title">Duckworth learned</h2>
+          </div>
+          <div>
+            <p>These household preferences are reversible and never override what you type now.</p>
+            <button type="button" (click)="loadLearning()">Review learned preferences</button>
+          </div>
+        </div>
+        @if (learningMetrics(); as metrics) {
+          <p class="learning-metrics" role="status">
+            {{ metrics.activeLearningCount }} active rules · {{ metrics.correctionCount }} corrections · {{ metrics.undoCount }} undone · {{ metrics.unresolvedCount }} unresolved
+          </p>
+        }
+        @for (entry of learnedEntries(); track entry.id) {
+          <article class="learning-entry">
+            <div>
+              <strong>{{ entry.kind }}</strong>
+              <span>{{ entry.supportingEventIds.length }} supporting events</span>
+            </div>
+            <div class="learning-actions">
+              @if (entry.status === 'active') {
+                <button type="button" (click)="clearLearning(entry)">Clear influence</button>
+              } @else {
+                <button type="button" (click)="restoreLearning(entry)">Restore influence</button>
+              }
+            </div>
+          </article>
+        }
+        @if (learnedEntries().length === 0) {
+          <p>No governed preferences loaded.</p>
+        }
+        @if (learningCorrections().length > 0) {
+          <details class="learning-history">
+            <summary>Correction history</summary>
+            @for (correction of learningCorrections(); track correction.id) {
+              @if (!correction.inverseOfEventId) {
+                <article class="learning-entry">
+                  <div>
+                    <strong>{{ correction.source.rawClause }}</strong>
+                    <span>{{ correction.changedFields.join(', ') }}</span>
+                  </div>
+                  <button type="button" (click)="undoCorrection(correction)">Undo correction</button>
+                </article>
+              }
+            }
+          </details>
+        }
+    </section>
 
     <section class="list-panel" aria-labelledby="list-title">
       <div class="section-heading">
@@ -18,22 +135,67 @@
           <p class="eyebrow">Active list</p>
           <h2 id="list-title">What the household needs</h2>
         </div>
-        <span class="count">{{ activeCount() }}</span>
+        <div class="list-tools">
+          <label class="sort-control">
+            <span>{{ uiText('sortBy', 'Sort by') }}</span>
+            <select name="listSort" aria-label="Sort shopping items" [ngModel]="sortMode()" (ngModelChange)="changeSort($event)">
+              <option value="latest">{{ uiText('latestAdded', 'Latest added') }}</option>
+              <option value="oldest">{{ uiText('oldestAdded', 'Oldest added') }}</option>
+              <option value="name-asc">{{ uiText('itemNameAscending', 'Item name A–Z') }}</option>
+              <option value="attention">{{ uiText('needsAttentionFirst', 'Needs attention first') }}</option>
+            </select>
+          </label>
+          <span class="count">{{ activeCount() }}</span>
+        </div>
       </div>
 
+      @if (shopTypeFacets().length > 0) {
+        <nav class="shop-type-filters" aria-label="Shop type filters">
+          <button type="button" class="shop-type-filter"
+            [class.selected]="selectedShopTypeId() === null"
+            [attr.aria-pressed]="selectedShopTypeId() === null"
+            (click)="selectShopType(null)">All {{ activeCount() }}</button>
+          @if (shopTypeFacets().find((facet) => facet.id === 'unassigned'); as unassigned) {
+            @if (unassigned.activeDistinctCount > 0) {
+              <button type="button" class="shop-type-filter"
+                [class.selected]="selectedShopTypeId() === 'unassigned'"
+                [attr.aria-pressed]="selectedShopTypeId() === 'unassigned'"
+                (click)="selectShopType('unassigned')">Unassigned {{ unassigned.activeDistinctCount }}</button>
+            }
+          }
+          @for (shopType of assignableShopTypeFacets(); track shopType.id) {
+            <button type="button" class="shop-type-filter"
+              [class.selected]="selectedShopTypeId() === shopType.id"
+              [attr.aria-pressed]="selectedShopTypeId() === shopType.id"
+              (click)="selectShopType(shopType.id)">{{ shopType.label }} {{ shopType.activeDistinctCount }}</button>
+          }
+        </nav>
+      }
+
       <form class="add-form" (ngSubmit)="addItem()">
-        <label class="sr-only" for="item-name">Add an item</label>
-        <input id="item-name" name="itemName" [ngModel]="itemName()" (ngModelChange)="updateItemName($event)" placeholder="Add an item…" autocomplete="off" />
-        <button type="submit" [disabled]="addPending()">{{ addPending() ? 'Saving…' : 'Add' }}</button>
+        <app-capture-combobox
+          [label]="uiText('addItem', 'Add an item')"
+          [placeholder]="uiText('addItem', 'Add an item') + '…'"
+          [value]="itemName()"
+          (valueChange)="updateItemName($event)"
+          (suggestionAccepted)="acceptCaptureSuggestion($event)"
+        />
+        <button type="submit" [disabled]="addPending()">{{ addPending() ? 'Saving…' : uiText('addItem', 'Add') }}</button>
+        <button type="button" class="capture-lookup-button"
+          [disabled]="cloudLookupPending() || itemName().trim().length < 4"
+          (click)="requestOptionalDetails()">Find optional details</button>
       </form>
 
       @if (capturePreview(); as preview) {
         <p class="capture-preview" [class.history-preview]="preview.unitSource === 'history'" aria-live="polite">
+          <strong>{{ formatItemName(preview.name, preview.brandName) }}</strong>
+          @if (preview.packageSize !== null && preview.packageUnit) {
+            <span class="package-detail" [attr.aria-label]="preview.packageSize + ' ' + unitAriaLabel(preview.packageUnit)"><span aria-hidden="true"> · </span>{{ formatMeasurement(preview.packageSize, preview.packageUnit) }}</span>
+          }
           @if (preview.quantity !== null) {
-            <strong>{{ preview.quantity }}@if (preview.unit) { {{ preview.unit }} }</strong>
-            <span aria-hidden="true"> · </span>{{ preview.name }}
+            <span class="item-count" [attr.aria-label]="measurementAriaLabel(preview.quantity, preview.unit)"><span aria-hidden="true"> · </span>{{ formatMeasurement(preview.quantity, preview.unit) }}</span>
           } @else {
-            <strong>Needs quantity</strong><span aria-hidden="true"> · </span>{{ preview.name }}
+            <span class="attention-copy"><span aria-hidden="true"> · </span>Quantity optional</span>
           }
           @if (preview.unitSource === 'history') {
             <span class="preview-history-note">
@@ -41,7 +203,7 @@
               @if (captureConfirmedUnit() === preview.unit) {
                 <span class="capture-accepted">Accepted for this item</span>
               } @else {
-                <button type="button" class="capture-accept-button" (click)="acceptCaptureUnit()">Accept {{ preview.unit }}</button>
+                <button type="button" class="capture-accept-button" (click)="acceptCaptureUnit()">Accept {{ formatUnitLabel(preview.unit) }}</button>
               }
             </span>
           }
@@ -51,48 +213,220 @@
         <p class="capture-error" role="alert">{{ captureErrorMessage() }}</p>
       }
 
-      @if (message()) {
-        <p class="message" role="alert">{{ message() }}</p>
+      @if (cloudLookupPending()) {
+        <p class="capture-preview" role="status">Finding optional details… You can still add this item now.</p>
+      }
+      @if (cloudSuggestion(); as candidate) {
+        <section class="capture-preview" aria-live="polite">
+          <strong>Premium suggestion: {{ cloudSuggestionText(candidate.suggestion) }}</strong>
+          <span> · {{ candidate.suggestion.rationale }} · {{ candidate.source }}</span>
+          <button type="button" class="capture-accept-button" (click)="useCloudSuggestion()">Review optional details</button>
+        </section>
       }
 
-      @if (items().length === 0) {
+      @if (clarificationCandidate(); as candidate) {
+        <app-spelling-clarification [candidate]="candidate" (decision)="resolveSpelling($event)" />
+      }
+
+      @if (message()) {
+        <p class="message" role="alert">
+          {{ message() }}
+          @if (lastRemovedItem()) {
+            <button type="button" class="message-action" (click)="undoRemoval()">Undo removal</button>
+          }
+        </p>
+      }
+
+      @if (conversationResult(); as result) {
+        <section class="conversation-summary" aria-labelledby="conversation-result-title" aria-live="polite">
+          <div class="conversation-summary-heading">
+            <div>
+              <h3 id="conversation-result-title">Capture result</h3>
+              <p>Your list is saved. Review only the parts that need your judgment.</p>
+            </div>
+            @if (result.session.status === 'closed') {
+              <span class="conversation-closed">Conversation closed</span>
+            }
+          </div>
+
+          @if (result.session.status === 'close_pending' && result.pendingAction; as pendingAction) {
+            <div class="conversation-close-prompt" role="alert">
+              <strong>Close this conversation?</strong>
+              <span>Your saved list stays available. Confirm only if you are finished adding items.</span>
+              <span class="row-actions">
+                <button type="button" (click)="confirmConversationClose(pendingAction)">Confirm close</button>
+                <button type="button" class="secondary-button" (click)="cancelConversationClose(pendingAction)">Keep adding</button>
+              </span>
+            </div>
+          }
+
+          <div class="outcome-counts" aria-label="Capture outcome summary">
+            <span><strong>Saved {{ result.saved.length }}</strong></span>
+            <span><strong>Updated {{ result.merged.length }}</strong></span>
+            <span [class.needs-review]="openConversationDrafts().length > 0">
+              <strong>Needs clarification {{ openConversationDrafts().length }}</strong>
+            </span>
+          </div>
+
+          @if (result.captureAudit; as audit) {
+            <details class="capture-audit">
+              <summary>What Duckworth understood</summary>
+              <p class="capture-audit-original"><strong>Original input:</strong> {{ audit.text }}</p>
+              @for (operation of audit.operations; track $index) {
+                <div class="capture-audit-operation">
+                  @if (operation.kind === 'draft') {
+                    <strong>Needs review: {{ operation.draftText }}</strong>
+                    <span>{{ operation.reasonCode }}</span>
+                  } @else {
+                    <strong>{{ operation.kind | titlecase }}: {{ operation.itemName }}</strong>
+                    <span>
+                      @if (operation.quantity !== null && operation.quantity !== undefined) {
+                        {{ formatMeasurement(operation.quantity, operation.unit) }}
+                      }
+                      @if (operation.packageSize !== null && operation.packageSize !== undefined) {
+                        · {{ formatMeasurement(operation.packageSize, operation.packageUnit) }} pack size
+                      }
+                      @if (operation.categoryId) { · {{ operation.categoryId }} }
+                    </span>
+                  }
+                </div>
+              }
+              <small>Engine {{ audit.engineVersion }} · Audit ID {{ audit.inputId }}</small>
+            </details>
+          }
+
+          @if (result.undo.length > 0) {
+            <div class="undo-actions" aria-label="Recent adjustments">
+              @for (token of result.undo; track token.eventId) {
+                <button type="button" class="secondary-button" [disabled]="isItemPending(token.itemId)"
+                  (click)="undoConversationAdjustment(token)">Undo</button>
+              }
+            </div>
+          }
+
+          @if (openConversationDrafts().length > 0) {
+            <div class="clarification-list">
+              @for (draft of openConversationDrafts(); track draft.id) {
+                <article class="clarification-item">
+                  <div>
+                    <strong>{{ draft.text }}</strong>
+                    <p>{{ draft.reason === 'ambiguous_reference'
+                      ? 'More than one list item could match.'
+                      : 'This part could not be understood safely.' }}</p>
+                  </div>
+                  @if (reviewingDraftId() === draft.id) {
+                    <form class="draft-review-form" (ngSubmit)="resolveDraft(draft)">
+                      <label>
+                        <span>Clarify this item</span>
+                        <input [value]="draftResolutionText()"
+                          (input)="draftResolutionText.set($any($event.target).value)"
+                          placeholder="Say exactly what should be added" />
+                      </label>
+                      <span class="draft-actions">
+                        <button type="submit" [disabled]="addPending() || !draftResolutionText().trim()">Save clarification</button>
+                        <button type="button" class="secondary-button" (click)="cancelDraftReview()">Cancel</button>
+                      </span>
+                    </form>
+                  } @else {
+                    <span class="draft-actions">
+                      <button type="button" class="secondary-button" (click)="beginDraftReview(draft)">Review</button>
+                      <button type="button" class="secondary-button" (click)="dismissDraft(draft)">Dismiss</button>
+                    </span>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      @if (sortedItems().length === 0) {
         <p class="empty-state">Nothing on the list yet. Add the first item above.</p>
       } @else {
         <ul class="item-list">
-          @for (item of items(); track item.id) {
+          @for (item of sortedItems(); track item.id) {
             <li [class.completed]="item.status === 'purchased'">
               @if (detailsEditingId() === item.id) {
                 <form class="details-form" (ngSubmit)="saveDetails(item)">
-                  <span class="details-heading">Details for <strong>{{ item.name }}</strong></span>
-                  <label>
-                    <span>Quantity</span>
-                    <input #detailsQuantityInput class="details-input" type="number" min="0.01" step="any"
-                      [value]="detailsQuantityDraft()"
-                      (input)="detailsQuantityDraft.set($any($event.target).value)"
-                      [attr.aria-label]="'Quantity for ' + item.name" />
+                  <span class="details-heading">Edit <strong>{{ formatItemName(item.name, item.brandName) }}</strong></span>
+                  <label class="details-item-field">
+                    <span>Item</span>
+                    <input class="details-input" [value]="detailsNameDraft()"
+                      (input)="detailsNameDraft.set($any($event.target).value)"
+                      aria-label="Item name" />
                   </label>
-                  <label>
-                    <span>Unit <small>optional</small></span>
-                    <input class="details-input" maxlength="32" [value]="detailsUnitDraft()"
-                      (input)="detailsUnitDraft.set($any($event.target).value)"
-                      [attr.aria-label]="'Unit for ' + item.name" placeholder="e.g. kg, pack" />
+                  @for (field of detailFields(item); track field) {
+                    <label class="details-dynamic-field">
+                      <span>{{ detailFieldLabel(item, field) }} <small>{{ detailFieldHelp(field) }}</small></span>
+                      @switch (field) {
+                        @case ('quantity') {
+                          <input #detailsQuantityInput class="details-input" type="number" min="0.01" step="any"
+                            [value]="detailsQuantityDraft()"
+                            (input)="detailsQuantityDraft.set($any($event.target).value)"
+                            [attr.aria-label]="detailFieldLabel(item, field) + ' for ' + item.name" />
+                        }
+                        @case ('unit') {
+                          <input class="details-input" maxlength="32" [value]="detailsUnitDraft()"
+                            (input)="detailsUnitDraft.set($any($event.target).value)"
+                            [attr.aria-label]="detailFieldLabel(item, field) + ' for ' + item.name" placeholder="e.g. kg, strip" />
+                        }
+                        @case ('packageSize') {
+                          <input class="details-input" type="number" min="0.01" step="any"
+                            [value]="detailsPackageSizeDraft()"
+                            (input)="detailsPackageSizeDraft.set($any($event.target).value)"
+                            [attr.aria-label]="detailFieldLabel(item, field) + ' for ' + item.name" />
+                        }
+                        @case ('packageUnit') {
+                          <input class="details-input" maxlength="32" [value]="detailsPackageUnitDraft()"
+                            (input)="detailsPackageUnitDraft.set($any($event.target).value)"
+                            [attr.aria-label]="detailFieldLabel(item, field) + ' for ' + item.name" placeholder="e.g. g, ml" />
+                        }
+                      }
+                    </label>
+                  }
+                  <div class="shop-type-editor" aria-label="Shop type classification">
+                    <span class="details-field-label">Shop types</span>
+                    @if (shopTypeEditingItemId() === item.id) {
+                      <span class="shop-type-options">
+                        @for (shopType of assignableShopTypeFacets(); track shopType.id) {
+                          <label>
+                            <input type="checkbox" [checked]="isShopTypeApplied(item, shopType.id)"
+                              [disabled]="isItemPending(item.id)"
+                              (change)="changeShopType(item, shopType.id, $any($event.target).checked)" />
+                            {{ shopType.label }}
+                          </label>
+                        }
+                      </span>
+                    } @else {
+                      <span class="shop-type-summary">
+                        @for (shopType of item.shopTypes ?? []; track shopType.id) { <span class="shop-type-tag">{{ shopType.label }}</span> }
+                        @if ((item.shopTypes?.length ?? 0) === 0) { <span class="classification-hint">Where will you buy this from?</span> }
+                        <button type="button" class="secondary-button" (click)="beginShopTypeEditing(item)">Edit shop types</button>
+                      </span>
+                    }
+                  </div>
+                  <label class="details-learning-toggle">
+                    <input type="checkbox" [checked]="detailsLearnCorrection()"
+                      (change)="detailsLearnCorrection.set($any($event.target).checked)" />
+                    Remember this correction for matching items in this household
                   </label>
                   <span class="row-actions">
                     <button type="submit" [disabled]="isItemPending(item.id)">{{ isItemPending(item.id) ? 'Saving…' : 'Save details' }}</button>
                     <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="cancelDetails()">Cancel</button>
                   </span>
                 </form>
-              } @else if (editingId() === item.id) {
-                <input class="edit-input" [value]="editDraft()" (input)="editDraft.set($any($event.target).value)" aria-label="Edit item" />
-                <span class="row-actions">
-                  <button type="button" [disabled]="isItemPending(item.id)" (click)="saveEdit(item)">Save</button>
-                  <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="cancelEdit()">Cancel</button>
-                </span>
               } @else {
                 <span class="item-summary" [class.struck]="item.status === 'purchased'">
                   <span>
-                    @if (item.quantity !== null) { <strong>{{ item.quantity }}@if (item.unit) { {{ item.unit }} }</strong><span aria-hidden="true"> · </span> }
-                    {{ item.name }}
+                    <strong>{{ formatItemName(item.name, item.brandName) }}</strong>
+                    @if (item.packageSize !== null && item.packageUnit) {
+                      <span class="package-detail" [attr.aria-label]="item.packageSize + ' ' + unitAriaLabel(item.packageUnit)"><span aria-hidden="true"> · </span>{{ formatMeasurement(item.packageSize, item.packageUnit) }}</span>
+                    }
+                    @if (item.quantity !== null) { <span class="item-count" [attr.aria-label]="measurementAriaLabel(item.quantity, item.unit)"><span aria-hidden="true"> · </span>{{ formatMeasurement(item.quantity, item.unit) }}</span> }
+                    @for (detail of semanticDetails(item); track detail) { <span class="package-detail"><span aria-hidden="true"> · </span>{{ detail }}</span> }
+                    @for (shopType of item.shopTypes ?? []; track shopType.id) { <span class="shop-type-tag">{{ shopType.label }}</span> }
+                    @if (classificationHint(item); as hint) { <span class="classification-hint">{{ hint }}</span> }
+                    @if (helpfulDetailHint(item); as helpful) { <span class="classification-hint">{{ helpful }}</span> }
                   </span>
                   @if (item.status === 'active' && hasAttention(item, 'missing_quantity')) {
                     <span class="attention-badge">Needs details</span>
@@ -101,7 +435,7 @@
                 <span class="row-actions">
                   @if (item.status === 'active' && item.unit && hasAttention(item, 'unconfirmed_historical_unit')) {
                     <button type="button" class="accept-unit-button" [disabled]="isItemPending(item.id)" (click)="acceptHistoricalUnit(item)">
-                      {{ isItemPending(item.id) ? 'Accepting…' : 'Accept ' + item.unit }}
+                      {{ isItemPending(item.id) ? 'Accepting…' : 'Accept ' + formatUnitLabel(item.unit) }}
                     </button>
                     <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginDetails(item)">
                       Change unit
@@ -110,12 +444,18 @@
                   @if (item.status === 'active' && hasAttention(item, 'missing_quantity')) {
                     <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginDetails(item)">Add details</button>
                   }
-                  <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginEdit(item)">Edit</button>
+                  @if (item.status === 'active' && (item.shopTypes?.length ?? 0) === 0) {
+                    <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginShopTypeEditing(item)">Where will you buy this from?</button>
+                  }
+                  <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="beginEdit(item)">Edit item</button>
+                  @if (item.status === 'active') {
+                    <button type="button" class="secondary-button remove-button" [disabled]="isItemPending(item.id)" (click)="removeItem(item)">Remove</button>
+                  }
                   <button type="button" class="purchase-button" [disabled]="isItemPending(item.id)" (click)="togglePurchased(item)">{{ item.status === 'purchased' ? 'Reopen' : 'Purchased' }}</button>
                 </span>
                 @if (item.status === 'active' && item.unit && hasAttention(item, 'unconfirmed_historical_unit')) {
                   <div class="unit-suggestion" role="note">
-                    <span class="unit-suggestion-value">{{ item.unit }}</span>
+                    <span class="unit-suggestion-value">{{ formatUnitLabel(item.unit) }}</span>
                     <span><strong>From last time</strong> · Check before ordering</span>
                   </div>
                 }
@@ -126,6 +466,87 @@
             </li>
           }
         </ul>
+      }
+
+      <div class="archive-controls">
+        @if (activeCount() > 0) {
+          @if (archiveConfirming()) {
+            <div class="archive-confirmation" role="group" aria-label="Confirm list archive">
+              <span><strong>Archive a snapshot?</strong> Active items will stay on this list.</span>
+              <span class="archive-actions">
+                <button type="button" [disabled]="archivePending()" (click)="confirmArchive()">
+                  {{ archivePending() ? 'Archiving…' : 'Confirm archive' }}
+                </button>
+                <button type="button" class="secondary-button" [disabled]="archivePending()" (click)="cancelArchive()">
+                  Keep active
+                </button>
+              </span>
+            </div>
+          } @else {
+            <button type="button" class="secondary-button" (click)="beginArchive()">Archive this list</button>
+          }
+        }
+        <button type="button" class="secondary-button" (click)="toggleArchiveHistory()">
+          {{ archiveHistoryOpen() ? 'Hide archived lists' : 'Review archived lists' }}
+        </button>
+      </div>
+
+      @if (archiveHistoryOpen()) {
+        <section class="list-archives" aria-labelledby="archive-history-title">
+          <h3 id="archive-history-title">Archived list snapshots</h3>
+          @if (listArchives().length === 0) {
+            <p>No archived lists yet.</p>
+          } @else {
+            @for (archive of listArchives(); track archive.id) {
+              <article class="list-archive">
+                <div class="archive-heading">
+                  <div>
+                    <strong>{{ archive.items.length }} {{ archive.items.length === 1 ? 'item' : 'items' }}</strong>
+                    <span>{{ archive.status === 'reopened' ? 'Reopened for review' : 'Archived snapshot' }}</span>
+                  </div>
+                  <span class="archive-actions">
+                    @if (archive.status === 'archived') {
+                      <button type="button" class="secondary-button" [disabled]="archivePending()"
+                        (click)="reopenArchive(archive)">Reopen</button>
+                    }
+                    <button type="button" class="secondary-button" [disabled]="archivePending()"
+                      (click)="copyArchive(archive)">Copy to active list</button>
+                  </span>
+                </div>
+                <ul class="archive-item-list">
+                  @for (item of archive.items; track item.id) {
+                    <li>
+                      <span>{{ formatItemName(item.name, item.brandName) }}</span>
+                      @if (item.packageSize !== null && item.packageUnit) {
+                        <span>{{ formatMeasurement(item.packageSize, item.packageUnit) }}</span>
+                      }
+                      @if (item.quantity !== null) {
+                        <span>{{ formatMeasurement(item.quantity, item.unit) }}</span>
+                      }
+                      @for (detail of semanticDetails(item); track detail) { <span>{{ detail }}</span> }
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+          }
+        </section>
+      }
+
+      @if (recentlyRemovedItems().length > 0) {
+        <details class="recently-removed">
+          <summary>Recently removed ({{ recentlyRemovedItems().length }})</summary>
+          <ul>
+            @for (item of recentlyRemovedItems(); track item.id) {
+              <li>
+                <span>{{ formatItemName(item.name, item.brandName) }}</span>
+                <button type="button" class="secondary-button" [disabled]="isItemPending(item.id)" (click)="restoreItem(item)">
+                  {{ isItemPending(item.id) ? 'Restoring…' : 'Restore' }}
+                </button>
+              </li>
+            }
+          </ul>
+        </details>
       }
     </section>
   </section>

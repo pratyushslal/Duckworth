@@ -1,0 +1,45 @@
+<div class="field-shell">
+  <input
+    [id]="inputId()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [attr.aria-label]="label()"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-activedescendant]="activeDescendant()"
+    role="combobox"
+    aria-autocomplete="list"
+    autocomplete="off"
+    (input)="handleInput($event)"
+    (focus)="handleFocus()"
+    (blur)="handleBlur()"
+    (keydown)="handleKeydown($event)"
+    (compositionstart)="handleCompositionStart()"
+    (compositionend)="handleCompositionEnd()"
+  />
+
+  @if (expanded()) {
+    <ul class="suggestions" [id]="listboxId" role="listbox" [attr.aria-label]="label() + ' suggestions'">
+      @for (suggestion of suggestions(); track suggestion.canonicalId ?? suggestion.text; let index = $index) {
+        <li
+          [id]="optionId(index)"
+          role="option"
+          [attr.aria-selected]="highlightedIndex() === index"
+          [attr.aria-label]="optionAriaLabel(suggestion)"
+          [class.highlighted]="highlightedIndex() === index"
+          (pointerdown)="$event.preventDefault()"
+          (click)="accept(index)"
+        >
+          <span class="suggestion-text">{{ suggestion.text }}</span>
+          <span class="suggestion-meta">
+            <span>{{ kindLabel(suggestion) }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ sourceLabel(suggestion) }}</span>
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<span class="sr-only" aria-live="polite" aria-atomic="true">{{ liveMessage() }}</span>

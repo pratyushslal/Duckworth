@@ -3,6 +3,11 @@ node_modules/
 dist/
 coverage/
 .angular/
+.pnpm-store/
+.recovery/
+__pycache__/
+.playwright-cli/
+[[]k
 
 # Local configuration and data
 .env

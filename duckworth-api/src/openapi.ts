@@ -9,7 +9,7 @@ export async function registerOpenApi(app: FastifyInstance): Promise<void> {
         description: 'Household shopping coordination API',
         version: '1.0.0',
       },
-      tags: [{ name: 'health' }, { name: 'shopping' }, { name: 'events' }],
+      tags: [{ name: 'health' }, { name: 'shopping' }, { name: 'events' }, { name: 'language-packs' }],
     },
   });
 }

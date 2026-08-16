@@ -1,0 +1,88 @@
+:host {
+  position: relative;
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.field-shell {
+  position: relative;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #d9d2bf;
+  border-radius: 0.75rem;
+  background: #fffdf7;
+  color: #17231d;
+  font: inherit;
+}
+
+input::placeholder {
+  color: #746e5d;
+  opacity: 1;
+}
+
+input:focus-visible {
+  outline: 3px solid #1459a6;
+  outline-offset: 3px;
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 0.15rem;
+  max-height: 18rem;
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  border: 1px solid #cfc5aa;
+  border-radius: 0.85rem;
+  background: #fffdf7;
+  box-shadow: 0 0.9rem 2rem rgb(52 47 28 / 16%);
+  list-style: none;
+}
+
+.suggestions li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.55rem;
+  cursor: pointer;
+}
+
+.suggestions li:hover,
+.suggestions li.highlighted {
+  background: #e6f0e8;
+}
+
+.suggestion-text {
+  color: #17231d;
+  font-weight: 750;
+}
+
+.suggestion-meta {
+  display: flex;
+  gap: 0.35rem;
+  color: #536158;
+  font-size: 0.75rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

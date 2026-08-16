@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "countryCode": "IN",
+  "version": "2026.08.05.1",
+  "products": [
+    { "id": "product.amul.butter", "brandId": "brand.amul", "brandName": "Amul", "conceptId": "grocery.butter.dairy", "primary": "Amul Butter", "aliases": ["amul butter"], "compatibleContainerUnits": ["box", "pack"], "compatiblePackageUnits": ["g", "kg"] },
+    { "id": "product.britannia.50-50", "brandId": "brand.britannia", "brandName": "Britannia", "conceptId": "grocery.biscuits.plain", "primary": "Britannia 50-50", "aliases": ["britannia 50 50", "50-50", "britannia 50-50 biscuit", "britannia 50-50 biscuits"], "compatibleContainerUnits": ["pack", "packet"], "compatiblePackageUnits": ["g", "kg"] },
+    { "id": "product.dukes.bourbon", "brandId": "brand.dukes", "brandName": "Dukes", "conceptId": "grocery.biscuits.plain", "primary": "Dukes Bourbon", "aliases": ["dukes bourbon", "bourbon biscuits"], "compatibleContainerUnits": ["pack", "packet"], "compatiblePackageUnits": ["g", "kg"] },
+    { "id": "product.tata.tea", "brandId": "brand.tata", "brandName": "Tata", "conceptId": "grocery.tea", "primary": "Tata Tea", "aliases": ["tata tea"], "compatibleContainerUnits": ["pack", "packet"], "compatiblePackageUnits": ["g", "kg"] },
+    { "id": "product.maggi.noodles", "brandId": "brand.maggi", "brandName": "Maggi", "conceptId": "grocery.noodles", "primary": "Maggi noodles", "aliases": ["maggi noodles", "maggie noodles"], "compatibleContainerUnits": ["pack", "packet"], "compatiblePackageUnits": ["g", "kg"] }
+  ]
+}

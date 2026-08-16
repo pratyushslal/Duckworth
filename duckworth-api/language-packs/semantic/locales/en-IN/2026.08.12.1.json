@@ -1,0 +1,1868 @@
+{
+  "attributeMarkers": [
+    {
+      "attributeId": "model",
+      "prefixes": [
+        "model",
+        "series"
+      ]
+    },
+    {
+      "attributeId": "size",
+      "prefixes": [
+        "size"
+      ]
+    },
+    {
+      "attributeId": "colour",
+      "prefixes": [
+        "color",
+        "colour"
+      ]
+    }
+  ],
+  "attributeValues": {
+    "colour": [
+      "red",
+      "blue",
+      "green",
+      "black",
+      "white",
+      "yellow",
+      "pink",
+      "brown",
+      "grey",
+      "gray",
+      "orange",
+      "purple"
+    ],
+    "fat_level": [
+      "low-fat",
+      "whole"
+    ],
+    "form": [
+      "tablet",
+      "capsule",
+      "syrup",
+      "cream",
+      "ointment",
+      "drop",
+      "drops"
+    ],
+    "material": [
+      "cotton",
+      "wool",
+      "silk",
+      "leather",
+      "linen",
+      "denim"
+    ],
+    "size": [
+      "xs",
+      "s",
+      "m",
+      "l",
+      "xl",
+      "xxl",
+      "small",
+      "medium",
+      "large"
+    ]
+  },
+  "checksum": "sha256:8bb783d8cf2bd84a6bb72a364639b56c6546e0f376a0c89b59ccdd62d6852539",
+  "conceptAliases": [
+    {
+      "alias": "bread",
+      "conceptId": "grocery.bread.loaf"
+    },
+    {
+      "alias": "loaf",
+      "conceptId": "grocery.bread.loaf"
+    },
+    {
+      "alias": "butter",
+      "conceptId": "grocery.butter.dairy"
+    },
+    {
+      "alias": "dairy butter",
+      "conceptId": "grocery.butter.dairy"
+    },
+    {
+      "alias": "biscuit",
+      "conceptId": "grocery.biscuits.plain"
+    },
+    {
+      "alias": "biscuits",
+      "conceptId": "grocery.biscuits.plain"
+    },
+    {
+      "alias": "eggs",
+      "conceptId": "grocery.eggs.chicken"
+    },
+    {
+      "alias": "egg",
+      "conceptId": "grocery.eggs.chicken"
+    },
+    {
+      "alias": "wheat flour",
+      "conceptId": "grocery.flour.wheat"
+    },
+    {
+      "alias": "atta",
+      "conceptId": "grocery.flour.wheat"
+    },
+    {
+      "alias": "milk",
+      "conceptId": "grocery.milk.dairy"
+    },
+    {
+      "alias": "onions",
+      "conceptId": "grocery.onion"
+    },
+    {
+      "alias": "onion",
+      "conceptId": "grocery.onion"
+    },
+    {
+      "alias": "potatoes",
+      "conceptId": "grocery.potato"
+    },
+    {
+      "alias": "potato",
+      "conceptId": "grocery.potato"
+    },
+    {
+      "alias": "rice",
+      "conceptId": "grocery.rice.white"
+    },
+    {
+      "alias": "sugar",
+      "conceptId": "grocery.sugar.white"
+    },
+    {
+      "alias": "tea",
+      "conceptId": "grocery.tea"
+    },
+    {
+      "alias": "tomatoes",
+      "conceptId": "grocery.tomato"
+    },
+    {
+      "alias": "tomato",
+      "conceptId": "grocery.tomato"
+    },
+    {
+      "alias": "coca cola",
+      "conceptId": "grocery.cola.coca-cola"
+    },
+    {
+      "alias": "coca-cola",
+      "conceptId": "grocery.cola.coca-cola"
+    },
+    {
+      "alias": "thums up",
+      "conceptId": "grocery.cola.thums-up"
+    },
+    {
+      "alias": "thums-up",
+      "conceptId": "grocery.cola.thums-up"
+    },
+    {
+      "alias": "naproxen",
+      "conceptId": "pharmacy.naproxen"
+    }
+  ],
+  "displayLabels": {
+    "attribute.colour": "Colour",
+    "attribute.form": "Form",
+    "attribute.material": "Material",
+    "attribute.model": "Model",
+    "attribute.size": "Size",
+    "category.apparel": "Apparel",
+    "category.electronics": "Electronics",
+    "category.general": "General",
+    "category.grocery": "Grocery",
+    "category.pharmacy": "Pharmacy",
+    "family.maggi.noodles": "Maggi noodles",
+    "product.maggi.noodles": "Maggi noodles",
+    "shop.apparel": "Apparel",
+    "shop.electronics": "Electronics",
+    "shop.general": "General",
+    "shop.grocery": "Grocery",
+    "shop.pharmacy": "Pharmacy"
+  },
+  "fallbacks": [],
+  "grammar": {
+    "commandPrefixes": [
+      "please add",
+      "add",
+      "i need",
+      "we need",
+      "i want",
+      "we want",
+      "actually make",
+      "correct",
+      "change",
+      "make"
+    ],
+    "connectors": [
+      "and",
+      "of",
+      "each",
+      "x",
+      "×",
+      "for"
+    ],
+    "correctionPrefixes": [
+      "actually make",
+      "correct",
+      "change"
+    ],
+    "referencePrefixes": [
+      "make"
+    ],
+    "referencePronouns": [
+      "it",
+      "this",
+      "that"
+    ],
+    "separators": [
+      ",",
+      ";",
+      "-",
+      ":",
+      "(",
+      ")"
+    ],
+    "templates": [
+      {
+        "defaults": {
+          "unit": "piece"
+        },
+        "id": "size-item-times-count-piece-container",
+        "operators": [
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "packageContainer",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "piece"
+        },
+        "id": "size-item-times-count-piece",
+        "operators": [
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "piece"
+        },
+        "id": "item-size-times-count-piece-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "packageContainer",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "piece"
+        },
+        "id": "item-size-times-count-piece",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          }
+        ]
+      },
+      {
+        "id": "item-count-qualified-container-size",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "packQualifier",
+            "kind": "text",
+            "maxTokens": 2,
+            "minTokens": 1
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          }
+        ]
+      },
+      {
+        "id": "count-container-item-size",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "each"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "count-item-container-size",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "each"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "item-count-container-size-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "packageContainer",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "each"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "item-count-container-size",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "each"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "count-container-size-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "each"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "count-size-container-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "item-size-count-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "pack"
+        },
+        "id": "item-count-times-size",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          }
+        ]
+      },
+      {
+        "id": "item-count-times-size-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "pack"
+        },
+        "id": "item-size-times-count",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          }
+        ]
+      },
+      {
+        "id": "item-size-times-count-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "unit": "pack"
+        },
+        "id": "count-times-size-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "count-times-size-container-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "quantity": 1
+        },
+        "id": "size-container-item",
+        "operators": [
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "defaults": {
+          "quantity": 1
+        },
+        "id": "item-size-container",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "id": "item-size-container-count",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          }
+        ]
+      },
+      {
+        "id": "item-size-container-times-count",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          },
+          {
+            "kind": "literal",
+            "values": [
+              "x",
+              "×"
+            ]
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          }
+        ]
+      },
+      {
+        "id": "size-item-count-container",
+        "operators": [
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "container"
+          }
+        ]
+      },
+      {
+        "id": "count-unit-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "any"
+          },
+          {
+            "kind": "optional",
+            "operators": [
+              {
+                "kind": "literal",
+                "values": [
+                  "of"
+                ]
+              }
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "item-count-unit",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "unit",
+            "kind": "unit",
+            "role": "any"
+          }
+        ]
+      },
+      {
+        "id": "count-item-size",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          },
+          {
+            "capture": "packageSize",
+            "kind": "number"
+          },
+          {
+            "capture": "packageUnit",
+            "kind": "unit",
+            "role": "measure"
+          }
+        ]
+      },
+      {
+        "id": "count-item",
+        "operators": [
+          {
+            "capture": "quantity",
+            "kind": "number"
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "article-item",
+        "operators": [
+          {
+            "kind": "literal",
+            "values": [
+              "a",
+              "an"
+            ]
+          },
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      },
+      {
+        "id": "item-only",
+        "operators": [
+          {
+            "capture": "itemName",
+            "kind": "text",
+            "minTokens": 1
+          }
+        ]
+      }
+    ]
+  },
+  "hints": {
+    "capture.helpful.apparel": "Helpful when buying: size, fit, colour, or material.",
+    "capture.helpful.electronics": "Helpful when buying: compatibility, size, power, or model.",
+    "capture.helpful.general": "Add any detail that will help the shop identify this item.",
+    "capture.helpful.grocery": "Helpful when buying: weight, volume, or pack.",
+    "capture.helpful.pharmacy": "Helpful when buying: strength, dosage form, and pack/container.",
+    "classification_uncertain": "This item is available in All until its shop type is known.",
+    "multi_shop_visibility": "This item appears in each applicable shop view and is still counted once.",
+    "quantity_defaulted": "Quantity defaults to one item. You can include a quantity and pack size when adding an item."
+  },
+  "id": "semantic-locale-en-IN",
+  "kind": "locale",
+  "locale": "en-IN",
+  "numerals": {
+    "a": 1,
+    "an": 1,
+    "eight": 8,
+    "eleven": 11,
+    "five": 5,
+    "four": 4,
+    "half": 0.5,
+    "nine": 9,
+    "one": 1,
+    "one and a half": 1.5,
+    "quarter": 0.25,
+    "seven": 7,
+    "six": 6,
+    "ten": 10,
+    "three": 3,
+    "three and a half": 3.5,
+    "twelve": 12,
+    "two": 2,
+    "two and a half": 2.5
+  },
+  "schemaVersion": 2,
+  "unitAliases": [
+    {
+      "alias": "mg",
+      "unitId": "mg"
+    },
+    {
+      "alias": "milligram",
+      "unitId": "mg"
+    },
+    {
+      "alias": "milligrams",
+      "unitId": "mg"
+    },
+    {
+      "alias": "mcg",
+      "unitId": "mcg"
+    },
+    {
+      "alias": "microgram",
+      "unitId": "mcg"
+    },
+    {
+      "alias": "micrograms",
+      "unitId": "mcg"
+    },
+    {
+      "alias": "iu",
+      "unitId": "iu"
+    },
+    {
+      "alias": "ius",
+      "unitId": "iu"
+    },
+    {
+      "alias": "international unit",
+      "unitId": "iu"
+    },
+    {
+      "alias": "international units",
+      "unitId": "iu"
+    },
+    {
+      "alias": "unit",
+      "unitId": "unit"
+    },
+    {
+      "alias": "units",
+      "unitId": "unit"
+    },
+    {
+      "alias": "meq",
+      "unitId": "meq"
+    },
+    {
+      "alias": "mmol",
+      "unitId": "mmol"
+    },
+    {
+      "alias": "strip",
+      "unitId": "strip"
+    },
+    {
+      "alias": "strips",
+      "unitId": "strip"
+    },
+    {
+      "alias": "pint",
+      "unitId": "pint"
+    },
+    {
+      "alias": "pints",
+      "unitId": "pint"
+    },
+    {
+      "alias": "blister",
+      "unitId": "blister"
+    },
+    {
+      "alias": "blisters",
+      "unitId": "blister"
+    },
+    {
+      "alias": "tablet",
+      "unitId": "tablet"
+    },
+    {
+      "alias": "tablets",
+      "unitId": "tablet"
+    },
+    {
+      "alias": "capsule",
+      "unitId": "capsule"
+    },
+    {
+      "alias": "capsules",
+      "unitId": "capsule"
+    },
+    {
+      "alias": "vial",
+      "unitId": "vial"
+    },
+    {
+      "alias": "vials",
+      "unitId": "vial"
+    },
+    {
+      "alias": "ampoule",
+      "unitId": "ampoule"
+    },
+    {
+      "alias": "ampoules",
+      "unitId": "ampoule"
+    },
+    {
+      "alias": "tube",
+      "unitId": "tube"
+    },
+    {
+      "alias": "tubes",
+      "unitId": "tube"
+    },
+    {
+      "alias": "sachet",
+      "unitId": "sachet"
+    },
+    {
+      "alias": "sachets",
+      "unitId": "sachet"
+    },
+    {
+      "alias": "dose",
+      "unitId": "dose"
+    },
+    {
+      "alias": "doses",
+      "unitId": "dose"
+    },
+    {
+      "alias": "drop",
+      "unitId": "drop"
+    },
+    {
+      "alias": "drops",
+      "unitId": "drop"
+    },
+    {
+      "alias": "puff",
+      "unitId": "puff"
+    },
+    {
+      "alias": "puffs",
+      "unitId": "puff"
+    },
+    {
+      "alias": "actuation",
+      "unitId": "actuation"
+    },
+    {
+      "alias": "actuations",
+      "unitId": "actuation"
+    },
+    {
+      "alias": "spray",
+      "unitId": "spray"
+    },
+    {
+      "alias": "sprays",
+      "unitId": "spray"
+    },
+    {
+      "alias": "patch",
+      "unitId": "patch"
+    },
+    {
+      "alias": "patches",
+      "unitId": "patch"
+    },
+    {
+      "alias": "lozenge",
+      "unitId": "lozenge"
+    },
+    {
+      "alias": "lozenges",
+      "unitId": "lozenge"
+    },
+    {
+      "alias": "suppository",
+      "unitId": "suppository"
+    },
+    {
+      "alias": "suppositories",
+      "unitId": "suppository"
+    },
+    {
+      "alias": "m",
+      "unitId": "m"
+    },
+    {
+      "alias": "metre",
+      "unitId": "m"
+    },
+    {
+      "alias": "metres",
+      "unitId": "m"
+    },
+    {
+      "alias": "meter",
+      "unitId": "m"
+    },
+    {
+      "alias": "meters",
+      "unitId": "m"
+    },
+    {
+      "alias": "cm",
+      "unitId": "cm"
+    },
+    {
+      "alias": "inch",
+      "unitId": "inch"
+    },
+    {
+      "alias": "inches",
+      "unitId": "inch"
+    },
+    {
+      "alias": "gb",
+      "unitId": "gb"
+    },
+    {
+      "alias": "tb",
+      "unitId": "tb"
+    },
+    {
+      "alias": "mah",
+      "unitId": "mah"
+    },
+    {
+      "alias": "wh",
+      "unitId": "wh"
+    },
+    {
+      "alias": "w",
+      "unitId": "w"
+    },
+    {
+      "alias": "watt",
+      "unitId": "w"
+    },
+    {
+      "alias": "watts",
+      "unitId": "w"
+    },
+    {
+      "alias": "v",
+      "unitId": "v"
+    },
+    {
+      "alias": "volt",
+      "unitId": "v"
+    },
+    {
+      "alias": "volts",
+      "unitId": "v"
+    },
+    {
+      "alias": "a",
+      "unitId": "a"
+    },
+    {
+      "alias": "amp",
+      "unitId": "a"
+    },
+    {
+      "alias": "amps",
+      "unitId": "a"
+    },
+    {
+      "alias": "hz",
+      "unitId": "hz"
+    },
+    {
+      "alias": "percent",
+      "unitId": "percent"
+    },
+    {
+      "alias": "%",
+      "unitId": "percent"
+    },
+    {
+      "alias": "ream",
+      "unitId": "ream"
+    },
+    {
+      "alias": "reams",
+      "unitId": "ream"
+    },
+    {
+      "alias": "sheet",
+      "unitId": "sheet"
+    },
+    {
+      "alias": "sheets",
+      "unitId": "sheet"
+    },
+    {
+      "alias": "g",
+      "unitId": "g"
+    },
+    {
+      "alias": "gm",
+      "unitId": "g"
+    },
+    {
+      "alias": "gms",
+      "unitId": "g"
+    },
+    {
+      "alias": "gram",
+      "unitId": "g"
+    },
+    {
+      "alias": "grams",
+      "unitId": "g"
+    },
+    {
+      "alias": "kg",
+      "unitId": "kg"
+    },
+    {
+      "alias": "kgs",
+      "unitId": "kg"
+    },
+    {
+      "alias": "kilo",
+      "unitId": "kg"
+    },
+    {
+      "alias": "kilos",
+      "unitId": "kg"
+    },
+    {
+      "alias": "kilogram",
+      "unitId": "kg"
+    },
+    {
+      "alias": "kilograms",
+      "unitId": "kg"
+    },
+    {
+      "alias": "ml",
+      "unitId": "ml"
+    },
+    {
+      "alias": "milliliter",
+      "unitId": "ml"
+    },
+    {
+      "alias": "milliliters",
+      "unitId": "ml"
+    },
+    {
+      "alias": "millilitre",
+      "unitId": "ml"
+    },
+    {
+      "alias": "millilitres",
+      "unitId": "ml"
+    },
+    {
+      "alias": "l",
+      "unitId": "l"
+    },
+    {
+      "alias": "liter",
+      "unitId": "l"
+    },
+    {
+      "alias": "liters",
+      "unitId": "l"
+    },
+    {
+      "alias": "litre",
+      "unitId": "l"
+    },
+    {
+      "alias": "litres",
+      "unitId": "l"
+    },
+    {
+      "alias": "piece",
+      "unitId": "piece"
+    },
+    {
+      "alias": "pieces",
+      "unitId": "piece"
+    },
+    {
+      "alias": "pc",
+      "unitId": "piece"
+    },
+    {
+      "alias": "pcs",
+      "unitId": "piece"
+    },
+    {
+      "alias": "pack",
+      "unitId": "pack"
+    },
+    {
+      "alias": "packs",
+      "unitId": "pack"
+    },
+    {
+      "alias": "pac",
+      "unitId": "pack"
+    },
+    {
+      "alias": "pacs",
+      "unitId": "pack"
+    },
+    {
+      "alias": "pk",
+      "unitId": "pack"
+    },
+    {
+      "alias": "pks",
+      "unitId": "pack"
+    },
+    {
+      "alias": "packet",
+      "unitId": "packet"
+    },
+    {
+      "alias": "packets",
+      "unitId": "packet"
+    },
+    {
+      "alias": "pkt",
+      "unitId": "packet"
+    },
+    {
+      "alias": "pkts",
+      "unitId": "packet"
+    },
+    {
+      "alias": "bottle",
+      "unitId": "bottle"
+    },
+    {
+      "alias": "bottles",
+      "unitId": "bottle"
+    },
+    {
+      "alias": "carton",
+      "unitId": "carton"
+    },
+    {
+      "alias": "cartons",
+      "unitId": "carton"
+    },
+    {
+      "alias": "can",
+      "unitId": "can"
+    },
+    {
+      "alias": "cans",
+      "unitId": "can"
+    },
+    {
+      "alias": "box",
+      "unitId": "box"
+    },
+    {
+      "alias": "boxes",
+      "unitId": "box"
+    },
+    {
+      "alias": "bag",
+      "unitId": "bag"
+    },
+    {
+      "alias": "bags",
+      "unitId": "bag"
+    },
+    {
+      "alias": "dozen",
+      "unitId": "dozen"
+    },
+    {
+      "alias": "dozens",
+      "unitId": "dozen"
+    },
+    {
+      "alias": "tray",
+      "unitId": "tray"
+    },
+    {
+      "alias": "trays",
+      "unitId": "tray"
+    },
+    {
+      "alias": "pouch",
+      "unitId": "pouch"
+    },
+    {
+      "alias": "pouches",
+      "unitId": "pouch"
+    },
+    {
+      "alias": "jar",
+      "unitId": "jar"
+    },
+    {
+      "alias": "jars",
+      "unitId": "jar"
+    },
+    {
+      "alias": "tub",
+      "unitId": "tub"
+    },
+    {
+      "alias": "tubs",
+      "unitId": "tub"
+    },
+    {
+      "alias": "roll",
+      "unitId": "roll"
+    },
+    {
+      "alias": "rolls",
+      "unitId": "roll"
+    },
+    {
+      "alias": "loaf",
+      "unitId": "loaf"
+    },
+    {
+      "alias": "loaves",
+      "unitId": "loaf"
+    },
+    {
+      "alias": "bunch",
+      "unitId": "bunch"
+    },
+    {
+      "alias": "bunches",
+      "unitId": "bunch"
+    },
+    {
+      "alias": "pair",
+      "unitId": "pair"
+    },
+    {
+      "alias": "pairs",
+      "unitId": "pair"
+    },
+    {
+      "alias": "bar",
+      "unitId": "bar"
+    },
+    {
+      "alias": "bars",
+      "unitId": "bar"
+    }
+  ],
+  "version": "2026.08.12.1"
+}

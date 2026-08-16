@@ -1,0 +1,270 @@
+{
+  "checksum": "sha256:5cf5ee97ad7936e7266e2a036b476fa5efc921877e1b51bf115dd37c656ea0e7",
+  "fallbacks": [],
+  "items": [
+    {
+      "aliases": [
+        "biscuits",
+        "plain biscuits"
+      ],
+      "category": "snacks",
+      "compatibleUnits": [
+        "pack",
+        "packet",
+        "piece"
+      ],
+      "id": "grocery.biscuits.plain",
+      "primary": "biscuit"
+    },
+    {
+      "aliases": [
+        "loaf"
+      ],
+      "category": "bakery",
+      "compatibleUnits": [
+        "pack",
+        "piece"
+      ],
+      "id": "grocery.bread.loaf",
+      "primary": "bread"
+    },
+    {
+      "aliases": [
+        "dairy butter"
+      ],
+      "category": "dairy-and-eggs",
+      "compatibleUnits": [
+        "g",
+        "kg",
+        "pack"
+      ],
+      "id": "grocery.butter.dairy",
+      "primary": "butter"
+    },
+    {
+      "aliases": [
+        "chicken eggs",
+        "egg"
+      ],
+      "category": "dairy-and-eggs",
+      "compatibleUnits": [
+        "dozen",
+        "pack",
+        "piece"
+      ],
+      "id": "grocery.eggs.chicken",
+      "primary": "eggs"
+    },
+    {
+      "aliases": [
+        "atta",
+        "whole wheat flour"
+      ],
+      "category": "staples",
+      "compatibleUnits": [
+        "g",
+        "kg",
+        "pack"
+      ],
+      "id": "grocery.flour.wheat",
+      "primary": "wheat flour"
+    },
+    {
+      "aliases": [
+        "dairy milk"
+      ],
+      "category": "dairy-and-eggs",
+      "compatibleUnits": [
+        "bottle",
+        "carton",
+        "l",
+        "ml"
+      ],
+      "id": "grocery.milk.dairy",
+      "primary": "milk"
+    },
+    {
+      "aliases": [
+        "onion"
+      ],
+      "category": "produce",
+      "compatibleUnits": [
+        "bag",
+        "g",
+        "kg"
+      ],
+      "id": "grocery.onion",
+      "primary": "onions"
+    },
+    {
+      "aliases": [
+        "potato"
+      ],
+      "category": "produce",
+      "compatibleUnits": [
+        "bag",
+        "g",
+        "kg"
+      ],
+      "id": "grocery.potato",
+      "primary": "potatoes"
+    },
+    {
+      "aliases": [
+        "white rice"
+      ],
+      "category": "staples",
+      "compatibleUnits": [
+        "bag",
+        "g",
+        "kg"
+      ],
+      "id": "grocery.rice.white",
+      "primary": "rice"
+    },
+    {
+      "aliases": [
+        "white sugar"
+      ],
+      "category": "staples",
+      "compatibleUnits": [
+        "g",
+        "kg",
+        "pack"
+      ],
+      "id": "grocery.sugar.white",
+      "primary": "sugar"
+    },
+    {
+      "aliases": [
+        "tomato"
+      ],
+      "category": "produce",
+      "compatibleUnits": [
+        "g",
+        "kg",
+        "pack"
+      ],
+      "id": "grocery.tomato",
+      "primary": "tomatoes"
+    }
+  ],
+  "locale": "en-IN",
+  "schemaVersion": 1,
+  "ui": {
+    "addItem": "Add an item",
+    "itemNameAscending": "Item name A–Z",
+    "languageName": "English (India)",
+    "latestAdded": "Latest added",
+    "needsAttentionFirst": "Needs attention first",
+    "oldestAdded": "Oldest added",
+    "sortBy": "Sort by"
+  },
+  "units": [
+    {
+      "aliases": [
+        "bags"
+      ],
+      "id": "bag",
+      "primary": "bag"
+    },
+    {
+      "aliases": [
+        "bottles"
+      ],
+      "id": "bottle",
+      "primary": "bottle"
+    },
+    {
+      "aliases": [
+        "boxes"
+      ],
+      "id": "box",
+      "primary": "box"
+    },
+    {
+      "aliases": [
+        "cans"
+      ],
+      "id": "can",
+      "primary": "can"
+    },
+    {
+      "aliases": [
+        "cartons"
+      ],
+      "id": "carton",
+      "primary": "carton"
+    },
+    {
+      "aliases": [
+        "dozens"
+      ],
+      "id": "dozen",
+      "primary": "dozen"
+    },
+    {
+      "aliases": [
+        "gm",
+        "gms",
+        "gram",
+        "grams"
+      ],
+      "id": "g",
+      "primary": "g"
+    },
+    {
+      "aliases": [
+        "kgs",
+        "kilogram",
+        "kilograms"
+      ],
+      "id": "kg",
+      "primary": "kg"
+    },
+    {
+      "aliases": [
+        "liter",
+        "liters",
+        "litre",
+        "litres"
+      ],
+      "id": "l",
+      "primary": "l"
+    },
+    {
+      "aliases": [
+        "milliliter",
+        "milliliters",
+        "millilitre",
+        "millilitres"
+      ],
+      "id": "ml",
+      "primary": "ml"
+    },
+    {
+      "aliases": [
+        "packs"
+      ],
+      "id": "pack",
+      "primary": "pack"
+    },
+    {
+      "aliases": [
+        "packets"
+      ],
+      "id": "packet",
+      "primary": "packet"
+    },
+    {
+      "aliases": [
+        "pc",
+        "pcs",
+        "pieces"
+      ],
+      "id": "piece",
+      "primary": "piece"
+    }
+  ],
+  "version": "2026.08.05.1"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "concepts": [
+    { "id": "grocery.bread.loaf", "category": "bakery", "compatibleUnits": ["piece", "pack"] },
+    { "id": "grocery.butter.dairy", "category": "dairy-and-eggs", "compatibleUnits": ["g", "kg", "pack"] },
+    { "id": "grocery.biscuits.plain", "category": "snacks", "compatibleUnits": ["piece", "pack", "packet"] },
+    { "id": "grocery.eggs.chicken", "category": "dairy-and-eggs", "compatibleUnits": ["piece", "dozen", "pack"] },
+    { "id": "grocery.flour.wheat", "category": "staples", "compatibleUnits": ["g", "kg", "pack"] },
+    { "id": "grocery.milk.dairy", "category": "dairy-and-eggs", "compatibleUnits": ["ml", "l", "bottle", "carton"] },
+    { "id": "grocery.noodles", "category": "staples", "compatibleUnits": ["piece", "pack", "packet"] },
+    { "id": "grocery.onion", "category": "produce", "compatibleUnits": ["g", "kg", "bag"] },
+    { "id": "grocery.potato", "category": "produce", "compatibleUnits": ["g", "kg", "bag"] },
+    { "id": "grocery.rice.white", "category": "staples", "compatibleUnits": ["g", "kg", "bag"] },
+    { "id": "grocery.sugar.white", "category": "staples", "compatibleUnits": ["g", "kg", "pack"] },
+    { "id": "grocery.tea", "category": "beverages", "compatibleUnits": ["g", "kg", "pack"] },
+    { "id": "grocery.tomato", "category": "produce", "compatibleUnits": ["g", "kg", "pack"] }
+  ]
+}

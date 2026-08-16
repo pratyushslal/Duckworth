@@ -1,0 +1,30 @@
+.household-settings {
+  margin-block: 1rem;
+  border: 1px solid #d8caa8;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fff9e9;
+}
+
+.household-settings summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.household-settings .settings-body {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 32rem;
+  padding-top: 0.75rem;
+}
+
+.household-settings label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.household-settings input,
+.household-settings select {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.5rem;
+}

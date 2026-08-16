@@ -1,0 +1,15 @@
+{
+  "roots": [
+    "duckworth-api/src",
+    "duckworth-web/src/app",
+    "packages/shopping-intelligence/src"
+  ],
+  "ignoredSuffixes": [".spec.ts"],
+  "forbiddenLiterals": [
+    "shop.grocery",
+    "shop.electronics",
+    "shop.apparel",
+    "shop.pharmacy",
+    "shop.general"
+  ]
+}

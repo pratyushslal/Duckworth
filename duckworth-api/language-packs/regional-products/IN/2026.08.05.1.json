@@ -1,0 +1,103 @@
+{
+  "checksum": "sha256:663527ec210205d4afff188db8960bb8171f0a6427ec9c069bc4d29a0811b075",
+  "countryCode": "IN",
+  "products": [
+    {
+      "aliases": [
+        "amul butter"
+      ],
+      "brandId": "brand.amul",
+      "brandName": "Amul",
+      "compatibleContainerUnits": [
+        "box",
+        "pack"
+      ],
+      "compatiblePackageUnits": [
+        "g",
+        "kg"
+      ],
+      "conceptId": "grocery.butter.dairy",
+      "id": "product.amul.butter",
+      "primary": "Amul Butter"
+    },
+    {
+      "aliases": [
+        "50-50",
+        "britannia 50 50",
+        "britannia 50-50 biscuit",
+        "britannia 50-50 biscuits"
+      ],
+      "brandId": "brand.britannia",
+      "brandName": "Britannia",
+      "compatibleContainerUnits": [
+        "pack",
+        "packet"
+      ],
+      "compatiblePackageUnits": [
+        "g",
+        "kg"
+      ],
+      "conceptId": "grocery.biscuits.plain",
+      "id": "product.britannia.50-50",
+      "primary": "Britannia 50-50"
+    },
+    {
+      "aliases": [
+        "bourbon biscuits",
+        "dukes bourbon"
+      ],
+      "brandId": "brand.dukes",
+      "brandName": "Dukes",
+      "compatibleContainerUnits": [
+        "pack",
+        "packet"
+      ],
+      "compatiblePackageUnits": [
+        "g",
+        "kg"
+      ],
+      "conceptId": "grocery.biscuits.plain",
+      "id": "product.dukes.bourbon",
+      "primary": "Dukes Bourbon"
+    },
+    {
+      "aliases": [
+        "maggi noodles",
+        "maggie noodles"
+      ],
+      "brandId": "brand.maggi",
+      "brandName": "Maggi",
+      "compatibleContainerUnits": [
+        "pack",
+        "packet"
+      ],
+      "compatiblePackageUnits": [
+        "g",
+        "kg"
+      ],
+      "conceptId": "grocery.noodles",
+      "id": "product.maggi.noodles",
+      "primary": "Maggi noodles"
+    },
+    {
+      "aliases": [
+        "tata tea"
+      ],
+      "brandId": "brand.tata",
+      "brandName": "Tata",
+      "compatibleContainerUnits": [
+        "pack",
+        "packet"
+      ],
+      "compatiblePackageUnits": [
+        "g",
+        "kg"
+      ],
+      "conceptId": "grocery.tea",
+      "id": "product.tata.tea",
+      "primary": "Tata Tea"
+    }
+  ],
+  "schemaVersion": 1,
+  "version": "2026.08.05.1"
+}

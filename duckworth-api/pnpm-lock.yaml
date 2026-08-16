@@ -210,6 +210,9 @@ importers:
       '@duckworth/item-capture':
         specifier: link:../packages/item-capture
         version: link:../packages/item-capture
+      '@duckworth/shopping-intelligence':
+        specifier: link:../packages/shopping-intelligence
+        version: link:../packages/shopping-intelligence
       '@fastify/cors':
         specifier: ^11.3.0
         version: 11.3.0

@@ -1,0 +1,62 @@
+<details class="household-settings" (toggle)="load()">
+  <summary>Conversation settings</summary>
+  <div class="settings-body">
+    <p>Choose whether an idle conversation should ask before closing. Your saved shopping items are never removed by this setting.</p>
+    @if (loading() && !settings()) {
+      <p role="status">Loading settings…</p>
+    } @else if (settings(); as current) {
+      <label>
+        <span>Automatic conversation closure</span>
+        <select [(ngModel)]="current.automaticConversationClose">
+          <option value="off">Off</option>
+          <option value="after_idle">After the idle threshold</option>
+        </select>
+      </label>
+      <label>
+        <span>Idle threshold (seconds)</span>
+        <input type="number" min="60" max="604800" step="60" [(ngModel)]="current.idleThresholdSeconds" />
+      </label>
+      <label>
+        <span>Confirmation grace period (seconds)</span>
+        <input type="number" min="30" max="3600" step="30" [(ngModel)]="current.gracePeriodSeconds" />
+      </label>
+      <label>
+        <span>Close warning</span>
+        <select [(ngModel)]="current.warningPolicy">
+          <option value="prompt">Show a confirmation prompt</option>
+          <option value="silent">Do not show a prompt</option>
+        </select>
+      </label>
+      <fieldset class="cloud-assist">
+        <legend>Premium ambiguity assistance</legend>
+        <p>Plan: {{ current.entitlement === 'premium' ? 'Premium' : 'Free' }}. The local interpreter remains the default. Online lookup sends only the item phrase after you explicitly opt in; it never blocks adding an item.</p>
+        <label>
+          <input type="checkbox" [(ngModel)]="current.onlineLookupConsent" [disabled]="current.entitlement !== 'premium'" />
+          <span>I agree that unresolved item names may be looked up by the configured Premium provider</span>
+        </label>
+        <label>
+          <span>When to look up unresolved items</span>
+          <select [(ngModel)]="current.onlineLookupTrigger" [disabled]="current.entitlement !== 'premium' || !current.onlineLookupConsent">
+            <option value="manual">Only when I request details</option>
+            <option value="on_idle">After I pause typing</option>
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" [(ngModel)]="current.cloudAssistOnSave" [disabled]="current.entitlement !== 'premium' || !current.onlineLookupConsent" />
+          <span>Offer assistance after I save ambiguous text</span>
+        </label>
+        <label>
+          <input type="checkbox" [(ngModel)]="current.cloudAssistWhileTyping" [disabled]="current.entitlement !== 'premium' || !current.onlineLookupConsent || current.onlineLookupTrigger !== 'on_idle'" />
+          <span>Offer assistance while I type</span>
+        </label>
+        @if (current.entitlement !== 'premium') {
+          <p>Cloud assistance is disabled on the Free plan. Upgrade entitlement is managed server-side; no browser API key is used.</p>
+        }
+      </fieldset>
+      <button type="button" [disabled]="loading()" (click)="save()">{{ loading() ? 'Saving…' : 'Save settings' }}</button>
+      @if (saved()) { <span role="status">Settings saved.</span> }
+    } @else {
+      <p role="alert">Settings could not be loaded.</p>
+    }
+  </div>
+</details>

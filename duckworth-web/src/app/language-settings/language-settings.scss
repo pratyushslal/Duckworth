@@ -1,0 +1,14 @@
+:host { display: block; margin-top: 1.25rem; }
+.language-settings { border: 1px solid #d9d2bf; border-radius: 0.85rem; background: #fffdf7; }
+summary { padding: 0.8rem 0.9rem; color: #31503b; font-weight: 750; cursor: pointer; }
+.settings-body { display: grid; gap: 0.8rem; padding: 0 0.9rem 0.9rem; border-top: 1px solid #eee8da; }
+p { margin: 0.8rem 0 0; color: #5d655e; font-size: 0.82rem; line-height: 1.45; }
+ul { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.7rem 0; border-top: 1px solid #eee8da; }
+.locale-copy { display: grid; gap: 0.15rem; }
+small { color: #6e644a; text-transform: capitalize; }
+button, .active-label { padding: 0.55rem 0.7rem; border: 0; border-radius: 0.6rem; background: #21653a; color: #fffdf7; font: inherit; font-weight: 700; }
+button { cursor: pointer; }
+button.quiet { background: #eeeadc; color: #21653a; }
+button:focus-visible, summary:focus-visible { outline: 3px solid #1459a6; outline-offset: 2px; }
+[role="status"] { color: #775018; font-size: 0.8rem; font-weight: 700; }

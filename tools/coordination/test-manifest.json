@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "tests": [
+    { "id": "item-capture", "command": ["node", "duckworth-api/node_modules/vitest/vitest.mjs", "run", "packages/item-capture/src/index.spec.ts", "--globals"] },
+    { "id": "shopping-intelligence", "command": ["node", "duckworth-api/node_modules/vitest/vitest.mjs", "run", "packages/shopping-intelligence/src", "--globals"] },
+    { "id": "api-shopping-items", "command": ["node", "duckworth-api/node_modules/vitest/vitest.mjs", "run", "duckworth-api/test/shopping-items.test.ts"] },
+    { "id": "api-brain", "command": ["node", "duckworth-api/node_modules/vitest/vitest.mjs", "run", "duckworth-api/test/brain-contract.test.ts", "duckworth-api/test/brain-persistence.test.ts", "duckworth-api/test/brain-context-isolation.test.ts"] },
+    { "id": "local-assistance", "command": ["node", "duckworth-api/node_modules/vitest/vitest.mjs", "run", "packages/local-assistance/src", "--globals"] },
+    { "id": "web-capture", "cwd": "duckworth-web", "command": ["node", "node_modules/@angular/cli/bin/ng", "test", "--watch=false", "--include", "src/app/app.spec.ts"] },
+    { "id": "lane-supervisor", "command": ["node", "--test", "tools/lanes/test/profile-manifest.test.mjs", "tools/lanes/test/reconciliation.test.mjs", "tools/lanes/test/supervisor-state.test.mjs", "tools/lanes/test/release-manager.test.mjs"] },
+    { "id": "coordination", "command": ["node", "--test", "tools/coordination/test/coordination.test.mjs"] }
+  ]
+}

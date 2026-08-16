@@ -5,18 +5,26 @@
   "main": "dist/src/server.js",
   "scripts": {
     "capture:build": "tsc -p ../packages/item-capture/tsconfig.json",
+    "intelligence:build": "tsc -p ../packages/shopping-intelligence/tsconfig.json",
     "predev": "pnpm capture:build",
     "dev": "tsx watch src/server.ts",
-    "prebuild": "pnpm capture:build",
+    "prebuild": "pnpm capture:build && pnpm intelligence:build",
     "build": "tsc -p tsconfig.json",
-    "prestart": "pnpm capture:build",
+    "prestart": "pnpm capture:build && pnpm intelligence:build",
     "start": "node dist/src/server.js",
-    "pretypecheck": "pnpm capture:build",
+    "pretypecheck": "pnpm capture:build && pnpm intelligence:build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "pretest": "pnpm capture:build",
+    "pretest": "pnpm capture:build && pnpm intelligence:build",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "openapi:write": "tsx src/openapi/write-openapi.ts"
+    "prelanguage-packs:build": "pnpm capture:build",
+    "language-packs:build": "node ../catalog/scripts/build-packs.mjs",
+    "prelanguage-packs:test": "pnpm capture:build",
+    "language-packs:test": "node --test ../catalog/test/*.test.mjs",
+    "openapi:write": "tsx src/openapi/write-openapi.ts",
+    "maintenance:semantic-migration": "tsx src/maintenance/semantic-migration-cli.ts",
+    "maintenance:database": "tsx src/maintenance/database-operations-cli.ts",
+    "test:brain-release": "vitest --run test/brain-contract.test.ts test/brain-persistence.test.ts test/brain-context-isolation.test.ts test/semantic-runtime-registry.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +33,7 @@
     "packageManager": {
       "name": "pnpm",
       "version": "^11.5.2",
-      "onFail": "download"
+      "onFail": "ignore"
     }
   },
   "type": "module",
@@ -34,6 +42,7 @@
   },
   "dependencies": {
     "@duckworth/item-capture": "link:../packages/item-capture",
+    "@duckworth/shopping-intelligence": "link:../packages/shopping-intelligence",
     "@fastify/cors": "^11.3.0",
     "@fastify/swagger": "^9.8.1",
     "@fastify/type-provider-typebox": "^6.1.0",

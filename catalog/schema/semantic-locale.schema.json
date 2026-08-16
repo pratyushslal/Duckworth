@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://duckworth.local/schema/semantic-locale.schema.json",
+  "title": "Duckworth semantic locale layer",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "id", "version", "locale", "fallbacks", "grammar", "numerals", "unitAliases", "conceptAliases", "attributeValues", "displayLabels"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "kind": { "const": "locale" },
+    "id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "locale": { "type": "string", "minLength": 1 },
+    "fallbacks": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "grammar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["templates", "separators", "connectors", "commandPrefixes"],
+      "properties": {
+        "templates": { "type": "array", "items": { "$ref": "#/$defs/template" } },
+        "separators": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "connectors": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "commandPrefixes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        ,"referencePrefixes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "numerals": { "type": "object", "additionalProperties": { "type": "number" } },
+    "unitAliases": { "type": "array", "items": { "$ref": "#/$defs/unitAlias" } },
+    "conceptAliases": { "type": "array", "items": { "$ref": "#/$defs/conceptAlias" } },
+    "attributeValues": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" }, "uniqueItems": true } },
+    "attributeMarkers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attributeId", "prefixes"],
+        "properties": {
+          "attributeId": { "type": "string", "minLength": 1 },
+          "prefixes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    },
+    "displayLabels": { "type": "object", "additionalProperties": { "type": "string" } },
+    "hints": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "operators"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "operators": { "type": "array", "maxItems": 32, "items": { "type": "object", "required": ["kind"] } },
+        "defaults": { "type": "object", "additionalProperties": { "anyOf": [{ "type": "string" }, { "type": "number" }] } }
+      }
+    },
+    "unitAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alias", "unitId"],
+      "properties": { "alias": { "type": "string", "minLength": 1 }, "unitId": { "type": "string", "minLength": 1 }, "precedence": { "type": "integer" } }
+    },
+    "conceptAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alias", "conceptId"],
+      "properties": { "alias": { "type": "string", "minLength": 1 }, "conceptId": { "type": "string", "minLength": 1 }, "precedence": { "type": "integer" } }
+    }
+  }
+}

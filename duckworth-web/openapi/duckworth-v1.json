@@ -16,6 +16,9 @@
           "householdId": {
             "type": "string"
           },
+          "shoppingListId": {
+            "type": "string"
+          },
           "captureText": {
             "type": "string"
           },
@@ -42,13 +45,126 @@
               }
             ]
           },
+          "packageSize": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "packageUnit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "categoryConfidence": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "inferred",
+              "unknown"
+            ]
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "brandId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conceptId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shopTypes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "quantitySource": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "explicit",
+                  "history",
+                  "catalog_default",
+                  "policy_default"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "unitSource": {
             "anyOf": [
               {
                 "type": "string",
                 "enum": [
                   "explicit",
-                  "history"
+                  "history",
+                  "catalog_default",
+                  "policy_default"
                 ]
               },
               {
@@ -80,7 +196,18 @@
             "type": "string",
             "enum": [
               "active",
-              "purchased"
+              "purchased",
+              "removed"
+            ]
+          },
+          "removedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "createdAt": {
@@ -96,14 +223,24 @@
         "required": [
           "id",
           "householdId",
+          "shoppingListId",
           "captureText",
           "name",
           "quantity",
           "unit",
+          "packageSize",
+          "packageUnit",
+          "categoryId",
+          "categoryConfidence",
+          "attributes",
+          "brandId",
+          "productId",
+          "conceptId",
           "unitSource",
           "unitConfirmedAt",
           "attentionReasons",
           "status",
+          "removedAt",
           "createdAt",
           "updatedAt",
           "version"
@@ -113,6 +250,822 @@
     }
   },
   "paths": {
+    "/api/v1/language-packs/countries/{countryCode}/manifest": {
+      "get": {
+        "tags": [
+          "language-packs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "countryCode",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schemaVersion": {
+                      "type": "integer",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    "checksum": {
+                      "type": "string",
+                      "pattern": "^sha256:[a-f0-9]{64}$"
+                    },
+                    "countryCode": {
+                      "type": "string"
+                    },
+                    "defaultLocale": {
+                      "type": "string"
+                    },
+                    "bridgeLocales": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "locale": {
+                            "type": "string"
+                          },
+                          "version": {
+                            "type": "string"
+                          },
+                          "fallbacks": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "artifactPath": {
+                            "type": "string"
+                          },
+                          "checksum": {
+                            "type": "string",
+                            "pattern": "^sha256:[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "locale",
+                          "version",
+                          "fallbacks",
+                          "artifactPath",
+                          "checksum"
+                        ]
+                      }
+                    },
+                    "regionalProducts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "countryCode": {
+                            "type": "string"
+                          },
+                          "version": {
+                            "type": "string"
+                          },
+                          "artifactPath": {
+                            "type": "string"
+                          },
+                          "checksum": {
+                            "type": "string",
+                            "pattern": "^sha256:[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "countryCode",
+                          "version",
+                          "artifactPath",
+                          "checksum"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "checksum",
+                    "countryCode",
+                    "defaultLocale",
+                    "bridgeLocales",
+                    "locales",
+                    "regionalProducts"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "language_pack_not_found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/language-packs/{locale}/{version}": {
+      "get": {
+        "tags": [
+          "language-packs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "locale",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "version",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schemaVersion": {
+                      "type": "integer",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    "checksum": {
+                      "type": "string",
+                      "pattern": "^sha256:[a-f0-9]{64}$"
+                    },
+                    "locale": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "fallbacks": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "ui": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "primary": {
+                            "type": "string"
+                          },
+                          "aliases": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "category": {
+                            "type": "string"
+                          },
+                          "compatibleUnits": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "primary",
+                          "aliases",
+                          "category",
+                          "compatibleUnits"
+                        ]
+                      }
+                    },
+                    "units": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "primary": {
+                            "type": "string"
+                          },
+                          "aliases": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "primary",
+                          "aliases"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "checksum",
+                    "locale",
+                    "version",
+                    "fallbacks",
+                    "ui",
+                    "items",
+                    "units"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "language_pack_not_found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regional-product-packs/{countryCode}/{version}": {
+      "get": {
+        "tags": [
+          "language-packs"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "countryCode",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "version",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schemaVersion": {
+                      "type": "integer",
+                      "enum": [
+                        1
+                      ]
+                    },
+                    "checksum": {
+                      "type": "string",
+                      "pattern": "^sha256:[a-f0-9]{64}$"
+                    },
+                    "countryCode": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "primary": {
+                            "type": "string"
+                          },
+                          "aliases": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "brandId": {
+                            "type": "string"
+                          },
+                          "brandName": {
+                            "type": "string"
+                          },
+                          "conceptId": {
+                            "type": "string"
+                          },
+                          "compatibleContainerUnits": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "compatiblePackageUnits": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "primary",
+                          "aliases",
+                          "brandId",
+                          "brandName",
+                          "conceptId",
+                          "compatibleContainerUnits",
+                          "compatiblePackageUnits"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "checksum",
+                    "countryCode",
+                    "version",
+                    "products"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "language_pack_not_found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/items/{itemId}/semantic-corrections": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "itemId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/brain/runtime-settings": {
+      "put": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "locale",
+                  "countryCode"
+                ],
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "locale",
+                    "countryCode"
+                  ],
+                  "properties": {
+                    "locale": {
+                      "type": "string"
+                    },
+                    "countryCode": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/brain/captures": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "schemaVersion",
+                  "inputId",
+                  "householdId",
+                  "contextId",
+                  "shoppingListId",
+                  "source",
+                  "text",
+                  "locale",
+                  "countryCode",
+                  "occurredAt",
+                  "idempotencyKey"
+                ],
+                "properties": {
+                  "schemaVersion": {
+                    "type": "integer",
+                    "enum": [
+                      2
+                    ]
+                  },
+                  "inputId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "householdId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "contextId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "shoppingListId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "deviceId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "speakerId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "alternatives": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "text"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "confidence": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  "occurredAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "idempotencyKey": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "acceptedSuggestion": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "reference",
+                      "originalText",
+                      "replacement"
+                    ],
+                    "properties": {
+                      "reference": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "originalText": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "replacement": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "start",
+                          "end",
+                          "replacementText"
+                        ],
+                        "properties": {
+                          "start": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "end": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "replacementText": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "productId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "conceptId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "brandId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/brain/captures/{inputId}": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "inputId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "inputId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -131,6 +1084,20 @@
                       "enum": [
                         "ok"
                       ]
+                    },
+                    "lane": {
+                      "type": "string",
+                      "enum": [
+                        "live",
+                        "sandbox",
+                        "api-test"
+                      ]
+                    },
+                    "instanceId": {
+                      "type": "string"
+                    },
+                    "buildId": {
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -139,6 +1106,352 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/session/pair": {
+      "post": {
+        "tags": [
+          "health"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pairingCode"
+                ],
+                "properties": {
+                  "pairingCode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/shopping-lists": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-contexts": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "deviceId"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "deviceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "speakerId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-pending-actions/{actionId}/confirm": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "actionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-pending-actions/{actionId}/cancel": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "actionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-contexts/{contextId}/handoff": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "accessToken",
+                  "targetDeviceId"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "accessToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "targetDeviceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "targetSpeakerId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "contextId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-contexts/claim": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "handoffToken",
+                  "deviceId"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "handoffToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "deviceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "speakerId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-contexts/{contextId}/close": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "accessToken"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "accessToken": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "contextId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
           }
         }
       }
@@ -155,6 +1468,14 @@
             },
             "in": "query",
             "name": "includePurchased",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "includeRemoved",
             "required": false
           },
           {
@@ -205,6 +1526,19 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 32
+                  },
+                  "productId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "voice",
+                      "api"
+                    ]
                   }
                 },
                 "oneOf": [
@@ -257,6 +1591,1128 @@
         }
       }
     },
+    "/api/v1/households/{householdId}/items/view": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "query",
+            "name": "shopTypeId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/shopping-list-archives": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/shopping-list-archives/{archiveId}": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "archiveId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/shopping-list-archives/{archiveId}/reopen": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "archiveId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/shopping-list-archives/{archiveId}/copy": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "archiveId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-captures": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "voice",
+                      "api",
+                      "assistant"
+                    ]
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "contextId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "idempotencyKey": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "shoppingListId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "acceptedSuggestion": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "reference",
+                      "originalText",
+                      "replacement"
+                    ],
+                    "properties": {
+                      "reference": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "originalText": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "replacement": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "start",
+                          "end",
+                          "replacementText"
+                        ],
+                        "properties": {
+                          "start": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "end": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "replacementText": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "productId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "conceptId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "brandId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-sessions/active": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-state": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-lifecycle/evaluate": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-sessions/{sessionId}/close": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-sessions/{sessionId}/drafts": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-drafts/{draftId}/resolve": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "voice",
+                      "api",
+                      "assistant"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "draftId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/conversation-drafts/{draftId}/dismiss": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "draftId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/capture-settings": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "automaticConversationClose",
+                  "idleThresholdSeconds",
+                  "gracePeriodSeconds",
+                  "warningPolicy",
+                  "cloudDraftAssist",
+                  "cloudAssistOnSave",
+                  "cloudAssistWhileTyping",
+                  "suggestions"
+                ],
+                "properties": {
+                  "automaticConversationClose": {
+                    "type": "string",
+                    "enum": [
+                      "off",
+                      "after_idle"
+                    ]
+                  },
+                  "idleThresholdSeconds": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "maximum": 604800
+                  },
+                  "gracePeriodSeconds": {
+                    "type": "integer",
+                    "minimum": 30,
+                    "maximum": 3600
+                  },
+                  "warningPolicy": {
+                    "type": "string",
+                    "enum": [
+                      "silent",
+                      "prompt"
+                    ]
+                  },
+                  "cloudDraftAssist": {
+                    "type": "string",
+                    "enum": [
+                      "disabled",
+                      "ask_before_each_use"
+                    ]
+                  },
+                  "cloudAssistOnSave": {
+                    "type": "boolean"
+                  },
+                  "cloudAssistWhileTyping": {
+                    "type": "boolean"
+                  },
+                  "onlineLookupConsent": {
+                    "type": "boolean"
+                  },
+                  "onlineLookupTrigger": {
+                    "type": "string",
+                    "enum": [
+                      "manual",
+                      "on_idle"
+                    ]
+                  },
+                  "suggestions": {
+                    "type": "string",
+                    "enum": [
+                      "enabled",
+                      "disabled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/items/{itemId}/classification": {
+      "patch": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "expectedVersion",
+                  "shopTypeDecisions"
+                ],
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "shopTypeDecisions": {
+                    "type": "array",
+                    "maxItems": 64,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "tagId",
+                        "decision"
+                      ],
+                      "properties": {
+                        "tagId": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "decision": {
+                          "type": "string",
+                          "enum": [
+                            "include",
+                            "exclude",
+                            "clear"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "itemId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/cloud-assist": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "text",
+                  "trigger"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "enum": [
+                      "save",
+                      "typing",
+                      "manual",
+                      "on_idle"
+                    ]
+                  },
+                  "captureRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/cloud-assist/{token}/accept": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "token",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/households/{householdId}/entitlement": {
+      "put": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "plan"
+                ],
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "enum": [
+                      "free",
+                      "premium"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/suggestions": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/suggestions/{identityKey}/accept": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "identityKey",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/suggestions/{identityKey}/dismiss": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "identityKey",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/suggestions/{identityKey}/restore": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "identityKey",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/learning": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/households/{householdId}/learning/{learningId}": {
+      "patch": {
+        "tags": [
+          "shopping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suppressed",
+                      "cleared"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "learningId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/learning-control": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/diagnostics/quality": {
+      "get": {
+        "tags": [
+          "diagnostics"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v2/households/{householdId}/semantic-corrections/{eventId}/undo": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "eventId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
     "/api/v1/households/{householdId}/events": {
       "get": {
         "tags": [
@@ -301,6 +2757,10 @@
                   "expectedVersion"
                 ],
                 "properties": {
+                  "captureText": {
+                    "type": "string",
+                    "minLength": 1
+                  },
                   "name": {
                     "type": "string"
                   },
@@ -308,7 +2768,8 @@
                     "type": "string",
                     "enum": [
                       "active",
-                      "purchased"
+                      "purchased",
+                      "removed"
                     ]
                   },
                   "quantity": {
@@ -323,6 +2784,29 @@
                     ]
                   },
                   "confirmedUnit": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "packageSize": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "packageUnit": {
                     "anyOf": [
                       {
                         "type": "string",
@@ -374,6 +2858,36 @@
           }
         }
       }
+    },
+    "/api/v1/households/{householdId}/shopping-item-events/{eventId}/undo": {
+      "post": {
+        "tags": [
+          "shopping"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "householdId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "eventId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
     }
   },
   "tags": [
@@ -385,6 +2899,9 @@
     },
     {
       "name": "events"
+    },
+    {
+      "name": "language-packs"
     }
   ]
 }

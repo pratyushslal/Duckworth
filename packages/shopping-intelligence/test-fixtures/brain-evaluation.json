@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "runtimeFixtureId": "en-IN-IN-2026.08.12.1",
+  "runtime": { "locale": "en-IN", "countryCode": "IN" },
+  "latencyBudgetMs": { "median": 10, "p95": 50 },
+  "cases": [
+    { "id": "ordinary-item", "category": "ordinary", "text": "milk", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["deterministic", "span-accounting"] },
+    { "id": "reviewed-brand", "category": "branded", "text": "Amul Butter", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["evidence"] },
+    { "id": "unknown-item", "category": "unknown", "text": "orbit wrench", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["safe-fallback"] },
+    { "id": "unicode-item", "category": "unicode", "text": "नमक", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["safe-fallback"] },
+    { "id": "numeric-identity", "category": "numeric-identity", "text": "iPhone 15 Pro", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["identity-preserved"] },
+    { "id": "reordered-package", "category": "reordered", "text": "milk 1 litre", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["positive-finite"] },
+    { "id": "multi-item", "category": "multi-item", "text": "milk; bread", "expectedKinds": ["create", "create"], "expectedUnresolvedSpans": [], "invariants": ["span-accounting"] },
+    { "id": "follow-up-merge", "category": "follow-up", "text": "make milk two packs", "contextSeed": "milk", "expectedKinds": ["merge"], "expectedUnresolvedSpans": [], "invariants": ["context-scoped"] },
+    { "id": "contradictory-remainder", "category": "contradiction", "text": "milk; !!!", "expectedKinds": ["create", "draft"], "expectedUnresolvedSpans": [{ "start": 6, "end": 9, "reasonCode": "unsupported_text" }], "invariants": ["safe-fallback"] },
+    { "id": "clear-plus-ambiguous", "category": "mixed", "text": "milk; ???", "expectedKinds": ["create", "draft"], "expectedUnresolvedSpans": [{ "start": 6, "end": 9, "reasonCode": "unsupported_text" }], "invariants": ["safe-fallback", "span-accounting"] },
+    { "id": "unsupported-text", "category": "unknown", "text": "???", "expectedKinds": ["draft"], "expectedUnresolvedSpans": [{ "start": 0, "end": 3, "reasonCode": "unsupported_text" }], "invariants": ["safe-fallback"] },
+    { "id": "unsupported-locale", "category": "unsupported-locale", "text": "milk", "locale": "fr-FR", "countryCode": "FR", "expectedKinds": ["runtime_unavailable"], "expectedUnresolvedSpans": [], "invariants": ["safe-fallback"] },
+    { "id": "adversarial-length", "category": "adversarial-length", "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["bounded"] },
+    { "id": "duplicate-input-a", "category": "duplicate", "text": "Amul Butter", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["stable-identity"] },
+    { "id": "duplicate-input-b", "category": "duplicate", "text": "amul butter", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["stable-identity"] },
+    { "id": "undoable-adjustment", "category": "undo", "text": "make milk two packs", "contextSeed": "milk", "expectedKinds": ["merge"], "expectedUnresolvedSpans": [], "invariants": ["undo-covered-by-api"] },
+    { "id": "source-text", "category": "source-kind", "text": "bread", "source": "text", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["source-neutral"] },
+    { "id": "source-transcript", "category": "source-kind", "text": "bread", "source": "voice-transcript", "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["source-neutral"] },
+    { "id": "cross-context-reference", "category": "cross-context", "text": "make eggs two packs", "contextSeed": "eggs", "seedInOtherContext": true, "expectedKinds": ["create"], "expectedUnresolvedSpans": [], "invariants": ["context-scoped"] }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "webRoot": "duckworth-web/src",
+  "apiRouteFiles": ["duckworth-api/src/app.ts"],
+  "forbiddenWebImports": [
+    "@duckworth/item-capture",
+    "@duckworth/shopping-intelligence",
+    "semantic-runtime",
+    "entity-resolution",
+    "reference-resolution"
+  ],
+  "forbiddenApiCalls": ["interpretCapture", "interpretItem", "interpretConversation", "segmentCapture", "resolveSemanticItem", "resolveContextReference"],
+  "brainProductionRoots": ["packages/item-capture/src", "packages/shopping-intelligence/src"],
+  "ignoredFileSuffixes": [".spec.ts", ".test.ts"],
+  "structuralPolicyAllowlist": [
+    "packages/item-capture/src/index.ts",
+    "packages/shopping-intelligence/src/contracts.ts",
+    "packages/shopping-intelligence/src/conversation-lifecycle.ts"
+  ],
+  "forbiddenRuntimeConstructors": ["compileSemanticRuntime", "loadSemanticRuntime", "semanticRuntimeFixture"],
+  "runtimeConstructionAllowlist": [
+    "packages/shopping-intelligence/src/semantic-runtime.ts"
+  ],
+  "forbiddenMatcherLiterals": ["milk", "butter", "grocery", "electronics", "apparel", "pharmacy", "en-IN"]
+}

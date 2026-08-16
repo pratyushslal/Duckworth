@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "fixtureSetId": "semantic-correction-v2",
+  "implementationRule": "runtime-data",
+  "cases": [
+    {
+      "id": "unknown-brand-casing",
+      "category": "identity",
+      "input": "orion tonic",
+      "sourceCaptureId": "capture-identity-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "consumer_brand", "text": "orion", "sourceStart": 0, "sourceEnd": 5 },
+        { "role": "item_concept", "text": "tonic", "sourceStart": 6, "sourceEnd": 11 }
+      ],
+      "correctionFields": ["canonicalLabel", "consumerBrand"],
+      "expected": {
+        "itemIdentity": { "concept": "tonic", "consumerBrand": "Orion", "canonicalLabel": "Orion tonic" },
+        "correctionFields": ["canonicalLabel", "consumerBrand"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["canonical_label", "entity_alias"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "unknown-remains-addable"]
+      }
+    },
+    {
+      "id": "beverage-shop-learning",
+      "category": "shop-eligibility",
+      "input": "orion tonic",
+      "sourceCaptureId": "capture-shop-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "orion tonic", "sourceStart": 0, "sourceEnd": 11 }
+      ],
+      "correctionFields": ["shopTypeDecisions"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Orion tonic" },
+        "shopTypes": { "include": ["grocery"], "exclude": [] },
+        "correctionFields": ["shopTypeDecisions"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["shop_eligibility"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "distinct-item-count"]
+      }
+    },
+    {
+      "id": "medicine-strength-strip",
+      "category": "quantity-package",
+      "input": "silver tablets 650 mg 1 strip",
+      "sourceCaptureId": "capture-package-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "silver tablets", "sourceStart": 0, "sourceEnd": 14 },
+        { "role": "identity_descriptor", "text": "650 mg", "sourceStart": 15, "sourceEnd": 21 },
+        { "role": "requested_quantity", "text": "1 strip", "sourceStart": 22, "sourceEnd": 29 }
+      ],
+      "correctionFields": ["descriptor", "quantity", "unit"],
+      "expected": {
+        "itemIdentity": { "concept": "tablets", "identityDescriptors": ["650 mg"] },
+        "quantity": { "value": 1, "unit": "strip" },
+        "correctionFields": ["descriptor", "quantity", "unit"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["descriptor_value", "quantity_default", "unit_default"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "unknown-remains-addable"]
+      }
+    },
+    {
+      "id": "explicit-quantity-overrides-learned-default",
+      "category": "quantity-package",
+      "input": "silver tablets 2 strips",
+      "sourceCaptureId": "capture-package-002",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "silver tablets", "sourceStart": 0, "sourceEnd": 14 },
+        { "role": "requested_quantity", "text": "2 strips", "sourceStart": 15, "sourceEnd": 23 }
+      ],
+      "correctionFields": ["quantity", "unit"],
+      "expected": {
+        "itemIdentity": { "concept": "tablets" },
+        "quantity": { "value": 2, "unit": "strip" },
+        "correctionFields": ["quantity", "unit"],
+        "learning": { "mode": "none", "effectKinds": [] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins"]
+      }
+    },
+    {
+      "id": "variant-scoped-package-default",
+      "category": "variant-scope",
+      "input": "silver tablets 500 mg",
+      "sourceCaptureId": "capture-variant-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "silver tablets", "sourceStart": 0, "sourceEnd": 14 },
+        { "role": "identity_descriptor", "text": "500 mg", "sourceStart": 15, "sourceEnd": 21 }
+      ],
+      "correctionFields": ["descriptor"],
+      "expected": {
+        "itemIdentity": { "concept": "tablets", "identityDescriptors": ["500 mg"] },
+        "quantity": { "value": 1, "unit": "piece" },
+        "correctionFields": ["descriptor"],
+        "learning": { "mode": "none", "effectKinds": [] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins"]
+      }
+    },
+    {
+      "id": "multi-tag-count",
+      "category": "multi-tag-count",
+      "input": "sunrise lozenge",
+      "sourceCaptureId": "capture-tags-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "sunrise lozenge", "sourceStart": 0, "sourceEnd": 15 }
+      ],
+      "correctionFields": ["shopTypeDecisions"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Sunrise lozenge" },
+        "shopTypes": { "include": ["pharmacy", "grocery"], "exclude": [] },
+        "counts": { "totalDistinctItems": 1, "pharmacy": 1, "grocery": 1 },
+        "correctionFields": ["shopTypeDecisions"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["shop_eligibility"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["distinct-item-count", "explicit-input-wins"]
+      }
+    },
+    {
+      "id": "batch-clause-isolation",
+      "category": "batch-provenance",
+      "input": "orion tonic; silver tablets 1 strip",
+      "sourceCaptureId": "capture-batch-001",
+      "operationIndex": 1,
+      "sourceSpans": [
+        { "role": "item", "text": "silver tablets 1 strip", "sourceStart": 13, "sourceEnd": 35 },
+        { "role": "requested_quantity", "text": "1 strip", "sourceStart": 28, "sourceEnd": 35 }
+      ],
+      "correctionFields": ["quantity", "unit"],
+      "expected": {
+        "itemIdentity": { "concept": "tablets" },
+        "quantity": { "value": 1, "unit": "strip" },
+        "correctionFields": ["quantity", "unit"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["quantity_default", "unit_default"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "no-poisoning"]
+      }
+    },
+    {
+      "id": "governance-undo-clear-restore",
+      "category": "governance",
+      "input": "orion tonic",
+      "sourceCaptureId": "capture-governance-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "orion tonic", "sourceStart": 0, "sourceEnd": 11 }
+      ],
+      "correctionFields": ["canonicalLabel", "consumerBrand"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Orion tonic", "consumerBrand": "Orion" },
+        "correctionFields": ["canonicalLabel", "consumerBrand"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["canonical_label", "entity_alias"] },
+        "governance": ["undo", "clear", "restore", "keep_separate"],
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["no-poisoning", "explicit-input-wins"]
+      }
+    },
+    {
+      "id": "structured-suggestion-preserves-tail",
+      "category": "assistance",
+      "input": "orion ton 2 bottles 500 ml",
+      "sourceCaptureId": "capture-assistance-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "suggestion_target", "text": "orion ton", "sourceStart": 0, "sourceEnd": 9 },
+        { "role": "quantity_and_package", "text": "2 bottles 500 ml", "sourceStart": 10, "sourceEnd": 26 }
+      ],
+      "correctionFields": ["canonicalLabel", "consumerBrand", "quantity", "unit", "packageSize", "packageUnit"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Orion tonic", "consumerBrand": "Orion" },
+        "quantity": { "value": 2, "unit": "bottle" },
+        "package": { "size": 500, "unit": "ml" },
+        "correctionFields": ["canonicalLabel", "consumerBrand", "quantity", "unit", "packageSize", "packageUnit"],
+        "learning": { "mode": "none", "effectKinds": [] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "no-poisoning"]
+      }
+    },
+    {
+      "id": "rejected-spelling-does-not-poison",
+      "category": "assistance",
+      "input": "orion tonc",
+      "sourceCaptureId": "capture-assistance-002",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "orion tonc", "sourceStart": 0, "sourceEnd": 10 }
+      ],
+      "correctionFields": [],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "orion tonc" },
+        "correctionFields": [],
+        "learning": { "mode": "none", "effectKinds": [] },
+        "governance": ["rejected_spelling"],
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["no-poisoning", "unknown-remains-addable"]
+      }
+    },
+    {
+      "id": "item-only-correction",
+      "category": "governance",
+      "input": "sunrise lozenge",
+      "sourceCaptureId": "capture-governance-002",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "sunrise lozenge", "sourceStart": 0, "sourceEnd": 15 }
+      ],
+      "correctionFields": ["canonicalLabel"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Sunrise lozenge" },
+        "correctionFields": ["canonicalLabel"],
+        "learning": { "mode": "this_item_only", "effectKinds": [] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins", "no-poisoning"]
+      }
+    },
+    {
+      "id": "unicode-and-numeric-label",
+      "category": "unicode",
+      "input": "éclair 50-50",
+      "sourceCaptureId": "capture-unicode-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "éclair 50-50", "sourceStart": 0, "sourceEnd": 12 }
+      ],
+      "correctionFields": ["canonicalLabel"],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "Éclair 50-50" },
+        "correctionFields": ["canonicalLabel"],
+        "learning": { "mode": "future_matching_items", "effectKinds": ["canonical_label"] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["explicit-input-wins"]
+      }
+    },
+    {
+      "id": "unknown-free-text-fallback",
+      "category": "unknown-fallback",
+      "input": "mystery household object",
+      "sourceCaptureId": "capture-unknown-001",
+      "operationIndex": 0,
+      "sourceSpans": [
+        { "role": "item", "text": "mystery household object", "sourceStart": 0, "sourceEnd": 24 }
+      ],
+      "correctionFields": [],
+      "expected": {
+        "itemIdentity": { "canonicalLabel": "mystery household object" },
+        "correctionFields": [],
+        "learning": { "mode": "none", "effectKinds": [] },
+        "api": { "requiresIdempotencyKey": true, "rejectsStaleVersion": true, "publishesAfterCommit": true },
+        "safety": ["unknown-remains-addable", "no-poisoning"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "attributes": [
+    {
+      "cardinality": "one",
+      "id": "colour",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "material",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "size",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "form",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "model",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "fat_level",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "many",
+      "id": "strength",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "many",
+      "id": "compatibility",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "waist",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "inseam",
+      "valueType": "string"
+    },
+    {
+      "cardinality": "one",
+      "id": "footwear_size_system",
+      "valueType": "string"
+    }
+  ],
+  "checksum": "sha256:04ccf7ca8e8bc797313c8c5020d58fb1f30413083cd70effdad7611ff8960f16",
+  "dimensions": [
+    {
+      "baseUnitId": "g",
+      "id": "mass"
+    },
+    {
+      "baseUnitId": "ml",
+      "id": "volume"
+    },
+    {
+      "baseUnitId": "piece",
+      "id": "count"
+    },
+    {
+      "baseUnitId": "m",
+      "id": "length"
+    },
+    {
+      "baseUnitId": "gb",
+      "id": "storage"
+    },
+    {
+      "baseUnitId": "wh",
+      "id": "energy"
+    },
+    {
+      "baseUnitId": "w",
+      "id": "power"
+    },
+    {
+      "baseUnitId": "v",
+      "id": "voltage"
+    },
+    {
+      "baseUnitId": "a",
+      "id": "current"
+    },
+    {
+      "baseUnitId": "hz",
+      "id": "frequency"
+    },
+    {
+      "baseUnitId": "percent",
+      "id": "percentage"
+    }
+  ],
+  "id": "semantic-core",
+  "kind": "core",
+  "schemaVersion": 2,
+  "units": [
+    {
+      "capability": "measure",
+      "dimensionId": "mass",
+      "factorToBase": 1,
+      "id": "g"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "mass",
+      "factorToBase": 1000,
+      "id": "kg"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "volume",
+      "factorToBase": 1,
+      "id": "ml"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "volume",
+      "factorToBase": 1000,
+      "id": "l"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "piece"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 12,
+      "id": "dozen"
+    },
+    {
+      "capability": "container",
+      "id": "pack"
+    },
+    {
+      "capability": "container",
+      "id": "packet"
+    },
+    {
+      "capability": "container",
+      "id": "bottle"
+    },
+    {
+      "capability": "container",
+      "id": "carton"
+    },
+    {
+      "capability": "container",
+      "id": "can"
+    },
+    {
+      "capability": "container",
+      "id": "box"
+    },
+    {
+      "capability": "container",
+      "id": "bag"
+    },
+    {
+      "capability": "container",
+      "id": "tray"
+    },
+    {
+      "capability": "container",
+      "id": "pouch"
+    },
+    {
+      "capability": "container",
+      "id": "jar"
+    },
+    {
+      "capability": "container",
+      "id": "tub"
+    },
+    {
+      "capability": "container",
+      "id": "roll"
+    },
+    {
+      "capability": "container",
+      "id": "loaf"
+    },
+    {
+      "capability": "container",
+      "id": "bunch"
+    },
+    {
+      "capability": "container",
+      "id": "pair"
+    },
+    {
+      "capability": "container",
+      "id": "bar"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "mass",
+      "factorToBase": 0.001,
+      "id": "mg"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "mass",
+      "factorToBase": 0.000001,
+      "id": "mcg"
+    },
+    {
+      "capability": "measure",
+      "id": "iu"
+    },
+    {
+      "capability": "measure",
+      "id": "unit"
+    },
+    {
+      "capability": "measure",
+      "id": "meq"
+    },
+    {
+      "capability": "measure",
+      "id": "mmol"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "length",
+      "factorToBase": 1,
+      "id": "m"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "length",
+      "factorToBase": 0.01,
+      "id": "cm"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "length",
+      "factorToBase": 0.0254,
+      "id": "inch"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "storage",
+      "factorToBase": 1,
+      "id": "gb"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "storage",
+      "factorToBase": 1024,
+      "id": "tb"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "energy",
+      "factorToBase": 0.001,
+      "id": "mah"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "energy",
+      "factorToBase": 1,
+      "id": "wh"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "power",
+      "factorToBase": 1,
+      "id": "w"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "voltage",
+      "factorToBase": 1,
+      "id": "v"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "current",
+      "factorToBase": 1,
+      "id": "a"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "frequency",
+      "factorToBase": 1,
+      "id": "hz"
+    },
+    {
+      "capability": "measure",
+      "dimensionId": "percentage",
+      "factorToBase": 1,
+      "id": "percent"
+    },
+    {
+      "capability": "container",
+      "id": "strip"
+    },
+    {
+      "capability": "container",
+      "id": "pint"
+    },
+    {
+      "capability": "container",
+      "id": "blister"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "tablet"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "capsule"
+    },
+    {
+      "capability": "container",
+      "id": "vial"
+    },
+    {
+      "capability": "container",
+      "id": "ampoule"
+    },
+    {
+      "capability": "container",
+      "id": "tube"
+    },
+    {
+      "capability": "container",
+      "id": "sachet"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "dose"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "drop"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "puff"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "actuation"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "spray"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "patch"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "lozenge"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "suppository"
+    },
+    {
+      "capability": "container",
+      "id": "ream"
+    },
+    {
+      "capability": "both",
+      "dimensionId": "count",
+      "factorToBase": 1,
+      "id": "sheet"
+    }
+  ],
+  "version": "2026.08.12.1"
+}

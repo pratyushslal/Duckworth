@@ -34,6 +34,19 @@ Calm, capable, and considerate. Duckworth should feel quietly intelligent rather
 4. **Reserve attention for decisions.** Missing or suspicious intent is visible; routine state stays quiet.
 5. **Fast is part of trust.** Typing, interpretation, and local interactions remain immediate under poor networking.
 
+## Current Local Assistance
+
+- Latest-added ordering is the default; four deterministic sort modes persist per household/device profile.
+- At most five suggestions combine private choices, household history, and reviewed active/fallback locale packs without a keystroke request.
+- Suggestions remain advisory, preserve quantities, and always pass accepted text through the shared capture parser.
+- Reviewed `en-IN` and `hi-Latn-IN` UI/dictionary bundles activate atomically and remain usable from the last valid browser cache.
+- Likely spelling variants require an explicit, non-blocking decision. Raw observations and redirect keys remain private to the local device profile.
+- Unsupported scripts and wording remain valid free text; missing dictionary coverage reduces assistance but never blocks capture.
+
+## Explicit Deferrals
+
+Price safety remains deferred. It must not introduce placeholder price fields, manual price entry, or warning UI until Duckworth has authoritative order history, store or restaurant identity, automatically discovered line/unit prices, currency metadata, and enough confirmed store/item samples for meaningful comparisons. Retailer routing, ordering, payments, cloud publication, and online Git remote configuration are also outside the current local-first slice.
+
 ## Accessibility & Inclusion
 
 Target WCAG 2.2 AA. Text, placeholders, controls, focus states, and status treatments must meet contrast requirements in light and dark environments. Meaning must never depend on color alone. All capture, detail, acceptance, edit, purchase, and retry flows must be keyboard-operable with clear labels and live-region feedback. Motion must respect reduced-motion preferences, and narrow/mobile layouts must preserve readable hierarchy without overflow.

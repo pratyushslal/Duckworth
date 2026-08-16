@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+
+.clarification {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid #c9b77f;
+  border-left: 0.35rem solid #a66b12;
+  border-radius: 0.85rem;
+  background: #fff8df;
+  color: #392f18;
+}
+
+.question-copy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.eyebrow,
+h3,
+p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: #775018;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+p {
+  color: #665632;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+button {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 3.2rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #b8a56e;
+  border-radius: 0.65rem;
+  background: #fffdf7;
+  color: #24452e;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #21653a;
+  background: #edf5ed;
+}
+
+button:focus-visible {
+  outline: 3px solid #1459a6;
+  outline-offset: 2px;
+}
+
+button span {
+  color: #665f4c;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+button.quiet {
+  color: #514a38;
+}
+
+@media (max-width: 36rem) {
+  .choices {
+    grid-template-columns: 1fr;
+  }
+}

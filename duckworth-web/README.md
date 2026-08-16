@@ -27,6 +27,16 @@ Recognized units cover common mass, volume, count, and package words. Trailing s
 
 When the household has previously confirmed a unit for the same item, Duckworth highlights it as **From last time · Check before ordering**. Use the value-specific **Accept** action or **Change unit** inline; leaving it unconfirmed never blocks other list actions. Confirmed history is cached locally per household for immediate advisory previews, while the API remains authoritative.
 
+## Local assistance, languages, and ordering
+
+Capture assistance is an in-memory projection over three separate sources: private device/profile choices, confirmed household history, and reviewed locale packs. Personal entries rank first, then household history, the active locale, and enabled fallback locales. Exact and prefix matches precede conservative fuzzy candidates; at most five full-text suggestions are shown. Suggestions are advisory and never change text until accepted. Quantities are never invented, and accepted text always returns through the shared capture parser.
+
+The capture control is an accessible combobox. Up/Down reviews options; Tab, Right Arrow, or Enter accepts the highlighted option; Escape dismisses; Enter with no highlight keeps normal submission. All Unicode free text remains valid even without dictionary coverage.
+
+Language assistance initially supports reviewed English-India (`en-IN`) and Latin Hinglish (`hi-Latn-IN`). Settings download UI strings and dictionary content as one checked bundle, stage it locally, and activate only after schema/version/checksum validation succeeds. A failed install retains the previous language and offers Retry. Validated bundles use IndexedDB for offline startup, with an in-memory fallback when browser storage is unavailable. Private observations, redirects, and spelling decisions stay on the device and are never added to official or household-wide packs.
+
+Shopping items default to **Latest added**. Oldest, name A–Z, and needs-attention-first modes are local deterministic projections; the selected mode persists per household/device profile and makes no request.
+
 ## Verify and build
 
 ```bash
@@ -35,6 +45,7 @@ pnpm build
 pnpm api:generate
 python e2e/full_lifecycle_check.py
 python e2e/sse_check.py
+python e2e/local_assistance_check.py
 ```
 
 The OpenAPI snapshot is `openapi/duckworth-v1.json`; generated types are under `src/app/api/generated/`.

@@ -1,4 +1,4 @@
-import { normalizeItemName } from '@duckworth/item-capture';
+import { normalizeTextKey } from './text-key';
 import type { ShoppingItem } from './shopping-items.service';
 
 export interface UnitHistoryRecord {
@@ -41,8 +41,9 @@ export class UnitHistoryCache {
   replaceFromItems(householdId: string, items: ShoppingItem[]): UnitHistoryMap {
     const units: UnitHistoryMap = {};
     for (const item of items) {
-      if (item.householdId !== householdId || item.unitSource !== 'explicit' || !item.unit || !item.unitConfirmedAt) continue;
-      const name = normalizeItemName(item.name);
+      if (item.householdId !== householdId || item.status === 'removed'
+        || item.unitSource !== 'explicit' || !item.unit || !item.unitConfirmedAt) continue;
+      const name = normalizeTextKey(item.name);
       const existing = units[name];
       if (!existing || item.unitConfirmedAt > existing.confirmedAt) {
         units[name] = { unit: item.unit, confirmedAt: item.unitConfirmedAt };
@@ -54,8 +55,9 @@ export class UnitHistoryCache {
 
   mergeExplicitItem(householdId: string, item: ShoppingItem): UnitHistoryMap {
     const units = this.read(householdId);
-    if (item.householdId !== householdId || item.unitSource !== 'explicit' || !item.unit || !item.unitConfirmedAt) return units;
-    const name = normalizeItemName(item.name);
+    if (item.householdId !== householdId || item.status === 'removed'
+      || item.unitSource !== 'explicit' || !item.unit || !item.unitConfirmedAt) return units;
+    const name = normalizeTextKey(item.name);
     const existing = units[name];
     if (!existing || item.unitConfirmedAt > existing.confirmedAt) {
       units[name] = { unit: item.unit, confirmedAt: item.unitConfirmedAt };

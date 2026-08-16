@@ -1,0 +1,625 @@
+{
+  "brands": [
+    {
+      "id": "brand.amul"
+    },
+    {
+      "id": "brand.britannia"
+    },
+    {
+      "id": "brand.dukes"
+    },
+    {
+      "id": "brand.tata"
+    },
+    {
+      "id": "brand.coca-cola"
+    },
+    {
+      "id": "brand.thums-up"
+    },
+    {
+      "id": "brand.maggi"
+    },
+    {
+      "id": "brand.dabur"
+    }
+  ],
+  "categories": [
+    {
+      "discardConnectors": [
+        "of",
+        "each",
+        "with",
+        "in",
+        "at",
+        "x",
+        "for",
+        "per",
+        "by",
+        "and"
+      ],
+      "id": "grocery",
+      "relevantAttributeIds": [
+        "fat_level"
+      ],
+      "shopTypeIds": [
+        "shop.grocery"
+      ],
+      "signals": [
+        "milk",
+        "butter",
+        "cheese",
+        "biscuit",
+        "bread",
+        "rice",
+        "flour",
+        "sugar",
+        "salt",
+        "oil",
+        "jam",
+        "chips",
+        "tea",
+        "coffee",
+        "juice",
+        "noodles",
+        "beer",
+        "wine",
+        "whisky",
+        "alcohol",
+        "cola",
+        "grocery",
+        "groceries"
+      ],
+      "unitRoles": {
+        "g": "net_content",
+        "kg": "net_content",
+        "l": "net_content",
+        "mg": "net_content",
+        "ml": "net_content",
+        "percent": "alcohol_by_volume",
+        "piece": "contained_count"
+      },
+      "variantAttributeIds": [
+        "fat_level"
+      ]
+    },
+    {
+      "attributePatterns": [
+        {
+          "attributeId": "compatibility",
+          "expression": "\\bfor\\s+(.+)$",
+          "removeMatch": true,
+          "valueGroup": 1
+        }
+      ],
+      "discardConnectors": [
+        "of",
+        "each",
+        "with",
+        "in",
+        "at",
+        "x",
+        "for",
+        "per",
+        "by",
+        "and"
+      ],
+      "id": "electronics",
+      "relevantAttributeIds": [
+        "model",
+        "colour",
+        "compatibility"
+      ],
+      "shopTypeIds": [
+        "shop.electronics"
+      ],
+      "signals": [
+        "iphone",
+        "phone",
+        "tablet",
+        "ipad",
+        "laptop",
+        "computer",
+        "charger",
+        "headphone",
+        "headphones",
+        "earbud",
+        "earbuds",
+        "television",
+        "tv",
+        "camera",
+        "keyboard",
+        "mouse",
+        "monitor",
+        "cable",
+        "cables",
+        "electronics"
+      ],
+      "unitRoles": {
+        "a": "current_rating",
+        "cm": "product_dimension",
+        "gb": "storage_capacity",
+        "hz": "frequency_rating",
+        "inch": "screen_diagonal",
+        "m": "cable_length",
+        "mah": "battery_capacity",
+        "tb": "storage_capacity",
+        "v": "voltage_rating",
+        "w": "power_rating",
+        "wh": "battery_capacity"
+      },
+      "variantAttributeIds": [
+        "model",
+        "colour",
+        "compatibility"
+      ]
+    },
+    {
+      "attributePatterns": [
+        {
+          "attributeId": "waist",
+          "expression": "\\bW(\\d{2,3})\\b",
+          "removeMatch": true,
+          "valueGroup": 1
+        },
+        {
+          "attributeId": "inseam",
+          "expression": "\\bL(\\d{2,3})\\b",
+          "removeMatch": true,
+          "valueGroup": 1
+        },
+        {
+          "attributeId": "size",
+          "expression": "\\bsize\\s+(XS|S|M|L|XL|XXL|\\d{2,3})\\b",
+          "removeMatch": true,
+          "valueGroup": 1
+        }
+      ],
+      "discardConnectors": [
+        "of",
+        "each",
+        "with",
+        "in",
+        "at",
+        "x",
+        "for",
+        "per",
+        "by",
+        "and"
+      ],
+      "id": "apparel",
+      "relevantAttributeIds": [
+        "size",
+        "colour",
+        "material",
+        "waist",
+        "inseam",
+        "footwear_size_system"
+      ],
+      "shopTypeIds": [
+        "shop.apparel"
+      ],
+      "signals": [
+        "shirt",
+        "t-shirt",
+        "tshirt",
+        "jeans",
+        "trouser",
+        "pants",
+        "dress",
+        "saree",
+        "kurta",
+        "jacket",
+        "shoes",
+        "socks",
+        "apparel",
+        "clothing"
+      ],
+      "unitRoles": {
+        "cm": "product_dimension",
+        "g": "fabric_weight",
+        "m": "product_dimension"
+      },
+      "variantAttributeIds": [
+        "size",
+        "colour",
+        "material",
+        "waist",
+        "inseam",
+        "footwear_size_system"
+      ]
+    },
+    {
+      "discardConnectors": [
+        "of",
+        "each",
+        "with",
+        "in",
+        "at",
+        "x",
+        "for",
+        "per",
+        "by",
+        "and"
+      ],
+      "id": "pharmacy",
+      "measureAttributeIds": {
+        "medicine_strength": "strength"
+      },
+      "ratioRoles": [
+        {
+          "denominatorUnitIds": [
+            "ml",
+            "l"
+          ],
+          "numeratorUnitIds": [
+            "mg",
+            "mcg",
+            "g",
+            "iu",
+            "unit",
+            "meq",
+            "mmol"
+          ],
+          "role": "concentration"
+        },
+        {
+          "denominatorUnitIds": [
+            "tablet",
+            "capsule",
+            "dose",
+            "drop",
+            "puff",
+            "actuation",
+            "spray",
+            "patch",
+            "lozenge",
+            "suppository"
+          ],
+          "numeratorUnitIds": [
+            "mg",
+            "mcg",
+            "g",
+            "iu",
+            "unit",
+            "meq",
+            "mmol"
+          ],
+          "role": "medicine_strength"
+        }
+      ],
+      "relevantAttributeIds": [
+        "form",
+        "strength"
+      ],
+      "shopTypeIds": [
+        "shop.pharmacy"
+      ],
+      "signals": [
+        "paracetamol",
+        "acetaminophen",
+        "ibuprofen",
+        "crocin",
+        "cetirizine",
+        "amoxicillin",
+        "telma",
+        "medicine",
+        "medication",
+        "syrup",
+        "capsule",
+        "tablet",
+        "strip",
+        "blister",
+        "inhaler",
+        "insulin"
+      ],
+      "unitRoles": {
+        "g": "medicine_strength",
+        "iu": "medicine_strength",
+        "mcg": "medicine_strength",
+        "meq": "medicine_strength",
+        "mg": "medicine_strength",
+        "ml": "net_content",
+        "mmol": "medicine_strength",
+        "percent": "concentration",
+        "unit": "medicine_strength"
+      },
+      "variantAttributeIds": [
+        "form",
+        "strength"
+      ]
+    },
+    {
+      "discardConnectors": [
+        "of",
+        "each",
+        "with",
+        "in",
+        "at",
+        "x",
+        "for",
+        "per",
+        "by",
+        "and"
+      ],
+      "id": "general",
+      "relevantAttributeIds": [],
+      "shopTypeIds": [
+        "shop.general"
+      ],
+      "signals": [
+        "paper",
+        "stationery",
+        "cleaner",
+        "detergent",
+        "bulb",
+        "tool",
+        "tape",
+        "notebook"
+      ],
+      "unitRoles": {
+        "g": "net_content",
+        "kg": "net_content",
+        "l": "net_content",
+        "ml": "net_content",
+        "sheet": "contained_count"
+      },
+      "variantAttributeIds": []
+    }
+  ],
+  "checksum": "sha256:714d7894ee1f69dfa2e1f0fc5dd002e70b866452f000986947cc8e0751e8cfcc",
+  "commercialRoles": [
+    {
+      "brandId": "brand.maggi",
+      "countryCode": "IN",
+      "id": "role.maggi.nestle.owner.IN",
+      "organizationId": "org.nestle",
+      "role": "brand_owner"
+    }
+  ],
+  "concepts": [
+    {
+      "categoryId": "grocery",
+      "id": "grocery.bread.loaf"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.butter.dairy"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.biscuits.plain"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.eggs.chicken"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.flour.wheat"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.milk.dairy"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.onion"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.potato"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.rice.white"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.sugar.white"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.tea"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.tomato"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.noodles"
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.cola.coca-cola",
+      "shopTypeIds": [
+        "shop.grocery"
+      ]
+    },
+    {
+      "categoryId": "grocery",
+      "id": "grocery.cola.thums-up",
+      "shopTypeIds": [
+        "shop.grocery"
+      ]
+    },
+    {
+      "categoryId": "pharmacy",
+      "id": "pharmacy.naproxen",
+      "shopTypeIds": [
+        "shop.pharmacy"
+      ]
+    },
+    {
+      "categoryId": "pharmacy",
+      "id": "pharmacy.pudin_hara",
+      "shopTypeIds": [
+        "shop.pharmacy"
+      ]
+    }
+  ],
+  "countryCode": "IN",
+  "descriptors": [
+    {
+      "alias": "low-fat",
+      "attributeId": "fat_level",
+      "categoryIds": [
+        "grocery"
+      ],
+      "role": "identity_attribute",
+      "value": "low-fat"
+    },
+    {
+      "alias": "whole",
+      "attributeId": "fat_level",
+      "categoryIds": [
+        "grocery"
+      ],
+      "role": "identity_attribute",
+      "value": "whole"
+    }
+  ],
+  "id": "semantic-country-IN",
+  "kind": "country",
+  "locales": [
+    "en-IN"
+  ],
+  "organizations": [
+    {
+      "id": "org.nestle"
+    }
+  ],
+  "policy": {
+    "acceptThreshold": 0.9,
+    "ambiguityMargin": 0.12,
+    "defaultItem": {
+      "quantity": 1,
+      "unitId": "piece"
+    },
+    "maximumCandidatesPerEntity": 8,
+    "maximumSegments": 32,
+    "minimumLearningSupport": 2
+  },
+  "productFamilies": [
+    {
+      "aliases": [
+        "maggi noodles"
+      ],
+      "brandId": "brand.maggi",
+      "conceptId": "grocery.noodles",
+      "id": "family.maggi.noodles"
+    }
+  ],
+  "products": [
+    {
+      "aliases": [
+        "amul butter"
+      ],
+      "brandId": "brand.amul",
+      "conceptId": "grocery.butter.dairy",
+      "defaultUnitId": "pack",
+      "id": "product.amul.butter"
+    },
+    {
+      "aliases": [
+        "britannia 50 50",
+        "50-50",
+        "britannia 50-50 biscuit",
+        "britannia 50-50 biscuits"
+      ],
+      "brandId": "brand.britannia",
+      "conceptId": "grocery.biscuits.plain",
+      "id": "product.britannia.50-50"
+    },
+    {
+      "aliases": [
+        "dukes bourbon",
+        "bourbon biscuits"
+      ],
+      "brandId": "brand.dukes",
+      "conceptId": "grocery.biscuits.plain",
+      "id": "product.dukes.bourbon"
+    },
+    {
+      "aliases": [
+        "tata tea"
+      ],
+      "brandId": "brand.tata",
+      "conceptId": "grocery.tea",
+      "id": "product.tata.tea"
+    },
+    {
+      "aliases": [
+        "coca cola",
+        "coca-cola"
+      ],
+      "brandId": "brand.coca-cola",
+      "conceptId": "grocery.cola.coca-cola",
+      "id": "product.coca-cola.cola",
+      "shopTypeIds": [
+        "shop.grocery"
+      ]
+    },
+    {
+      "aliases": [
+        "thums up",
+        "thums-up"
+      ],
+      "brandId": "brand.thums-up",
+      "conceptId": "grocery.cola.thums-up",
+      "defaultUnitId": "piece",
+      "id": "product.thums-up.cola",
+      "shopTypeIds": [
+        "shop.grocery"
+      ]
+    },
+    {
+      "aliases": [
+        "maggi noodles",
+        "maggie noodles"
+      ],
+      "brandId": "brand.maggi",
+      "conceptId": "grocery.noodles",
+      "defaultUnitId": "pack",
+      "id": "product.maggi.noodles",
+      "productFamilyId": "family.maggi.noodles",
+      "shopTypeIds": [
+        "shop.grocery"
+      ]
+    },
+    {
+      "aliases": [
+        "pudin hara",
+        "dabur pudin hara"
+      ],
+      "brandId": "brand.dabur",
+      "conceptId": "pharmacy.pudin_hara",
+      "defaultUnitId": "piece",
+      "id": "product.dabur.pudin_hara",
+      "shopTypeIds": [
+        "shop.pharmacy"
+      ]
+    }
+  ],
+  "schemaVersion": 2,
+  "shopTypes": [
+    {
+      "id": "shop.grocery"
+    },
+    {
+      "id": "shop.electronics"
+    },
+    {
+      "id": "shop.apparel"
+    },
+    {
+      "id": "shop.pharmacy"
+    },
+    {
+      "id": "shop.general"
+    }
+  ],
+  "version": "2026.08.12.1"
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://duckworth.local/schema/semantic-core.schema.json",
+  "title": "Duckworth semantic core layer",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "id", "version", "dimensions", "units", "attributes"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "kind": { "const": "core" },
+    "id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "baseUnitId"],
+        "properties": { "id": { "type": "string", "minLength": 1 }, "baseUnitId": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "capability"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "capability": { "enum": ["measure", "container", "both"] },
+          "dimensionId": { "type": "string", "minLength": 1 },
+          "factorToBase": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "valueType", "cardinality"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "valueType": { "enum": ["string", "number"] },
+          "cardinality": { "enum": ["one", "many"] }
+        }
+      }
+    }
+  }
+}

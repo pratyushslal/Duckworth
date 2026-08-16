@@ -1,1 +1,100 @@
-/* You can add global styles to this file, and also import other style files */
+app-root .archive-controls,
+app-root .archive-actions,
+app-root .archive-item-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+app-root .archive-controls {
+  margin-top: 1.25rem;
+  gap: 0.65rem;
+}
+
+app-root .archive-confirmation,
+app-root .archive-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+app-root .archive-confirmation {
+  flex-basis: 100%;
+  padding: 0.8rem;
+  border: 1px solid #d8caa8;
+  border-radius: 0.8rem;
+  background: #fff9e9;
+  color: #3d4f44;
+  font-size: 0.82rem;
+}
+
+app-root .list-archives,
+app-root .list-archive,
+app-root .archive-heading div,
+app-root .archive-item-list {
+  display: grid;
+}
+
+app-root .list-archives {
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+app-root .list-archives h3,
+app-root .list-archives p {
+  margin: 0;
+}
+
+app-root .list-archives h3 {
+  font-size: 1rem;
+}
+
+app-root .list-archive {
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid #d9d2bf;
+  border-radius: 0.85rem;
+  background: #fffdf7;
+}
+
+app-root .archive-heading div {
+  gap: 0.2rem;
+}
+
+app-root .archive-heading div span {
+  color: #6e644a;
+  font-size: 0.76rem;
+}
+
+app-root .archive-item-list {
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.65rem 0 0;
+  border-top: 1px solid #eee8da;
+  list-style: none;
+}
+
+app-root .archive-item-list li {
+  color: #536158;
+  font-size: 0.82rem;
+}
+
+app-root .archive-item-list li span:first-child {
+  color: #17231d;
+  font-weight: 700;
+}
+
+@media (max-width: 32rem) {
+  app-root .archive-confirmation,
+  app-root .archive-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  app-root .archive-controls > button,
+  app-root .archive-actions,
+  app-root .archive-actions button {
+    width: 100%;
+  }
+}

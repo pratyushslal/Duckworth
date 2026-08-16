@@ -1,0 +1,35 @@
+{
+  "bridgeLocales": [
+    "en-IN"
+  ],
+  "checksum": "sha256:1c053ebeb66523b140d46cbb8b62dd9bc8e0d53ed9a2be11e9de01580c039d5c",
+  "countryCode": "IN",
+  "defaultLocale": "en-IN",
+  "locales": [
+    {
+      "artifactPath": "packs/en-IN/2026.08.14.2.json",
+      "checksum": "sha256:075e6eaa03c98df830e9c0ab25f1427644711436affb75f7ac0f414be1f1672f",
+      "fallbacks": [],
+      "locale": "en-IN",
+      "version": "2026.08.14.2"
+    },
+    {
+      "artifactPath": "packs/hi-Latn-IN/2026.08.06.1.json",
+      "checksum": "sha256:5d23495d9e34b36d5b632ab240142daaf3d8b215dbf4b35c3ea427fd7d75297a",
+      "fallbacks": [
+        "en-IN"
+      ],
+      "locale": "hi-Latn-IN",
+      "version": "2026.08.06.1"
+    }
+  ],
+  "regionalProducts": [
+    {
+      "artifactPath": "regional-products/IN/2026.08.05.1.json",
+      "checksum": "sha256:24e05ed7bd6b38ce29370633daa4acbb8207f1d451ef26d479a73aba7f513a69",
+      "countryCode": "IN",
+      "version": "2026.08.05.1"
+    }
+  ],
+  "schemaVersion": 1
+}

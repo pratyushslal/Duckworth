@@ -1,0 +1,24 @@
+<details class="language-settings">
+  <summary>Language assistance</summary>
+  <div class="settings-body">
+    <p>Download reviewed interface and grocery vocabulary together. Free-text capture always stays available.</p>
+    @if (!manifest()) {
+      <button type="button" class="load-button" [disabled]="loading()" (click)="loadOptions()">
+        {{ loading() ? 'Loading languages…' : 'View language options' }}
+      </button>
+    } @else {
+      <ul>
+        @for (entry of manifest()!.locales; track entry.locale) {
+          <li>
+            <span class="locale-copy"><strong>{{ localeLabel(entry.locale) }}</strong><small>{{ status(entry.locale) }}</small></span>
+            @if (status(entry.locale) === 'failed') { <button type="button" (click)="enable(entry.locale)">Retry</button> }
+            @else if (status(entry.locale) === 'available') { <button type="button" (click)="enable(entry.locale)">Enable</button> }
+            @else if (status(entry.locale) === 'enabled') { <button type="button" class="quiet" (click)="disable(entry.locale)">Disable</button> }
+            @else if (status(entry.locale) === 'downloading') { <span role="status">Downloading and validating…</span> }
+            @else { <span class="active-label">Active</span> }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</details>

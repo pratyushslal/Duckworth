@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "kind": "country",
+  "id": "semantic-country-IN",
+  "version": "2026.08.12.1",
+  "countryCode": "IN",
+  "locales": ["en-IN"],
+  "shopTypes": [
+    { "id": "shop.grocery" },
+    { "id": "shop.electronics" },
+    { "id": "shop.apparel" },
+    { "id": "shop.pharmacy" },
+    { "id": "shop.general" }
+  ],
+  "categories": [
+    { "id": "grocery", "relevantAttributeIds": ["fat_level"], "variantAttributeIds": ["fat_level"], "signals": ["milk", "butter", "cheese", "biscuit", "bread", "rice", "flour", "sugar", "salt", "oil", "jam", "chips", "tea", "coffee", "juice", "noodles", "beer", "wine", "whisky", "alcohol", "cola", "grocery", "groceries"], "shopTypeIds": ["shop.grocery"], "unitRoles": { "g": "net_content", "kg": "net_content", "mg": "net_content", "ml": "net_content", "l": "net_content", "piece": "contained_count", "percent": "alcohol_by_volume" }, "discardConnectors": ["of", "each", "with", "in", "at", "x", "for", "per", "by", "and"] },
+    { "id": "electronics", "relevantAttributeIds": ["model", "colour", "compatibility"], "variantAttributeIds": ["model", "colour", "compatibility"], "signals": ["iphone", "phone", "tablet", "ipad", "laptop", "computer", "charger", "headphone", "headphones", "earbud", "earbuds", "television", "tv", "camera", "keyboard", "mouse", "monitor", "cable", "cables", "electronics"], "shopTypeIds": ["shop.electronics"], "unitRoles": { "gb": "storage_capacity", "tb": "storage_capacity", "mah": "battery_capacity", "wh": "battery_capacity", "w": "power_rating", "v": "voltage_rating", "a": "current_rating", "hz": "frequency_rating", "inch": "screen_diagonal", "m": "cable_length", "cm": "product_dimension" }, "attributePatterns": [{ "attributeId": "compatibility", "expression": "\\bfor\\s+(.+)$", "valueGroup": 1, "removeMatch": true }], "discardConnectors": ["of", "each", "with", "in", "at", "x", "for", "per", "by", "and"] },
+    { "id": "apparel", "relevantAttributeIds": ["size", "colour", "material", "waist", "inseam", "footwear_size_system"], "variantAttributeIds": ["size", "colour", "material", "waist", "inseam", "footwear_size_system"], "signals": ["shirt", "t-shirt", "tshirt", "jeans", "trouser", "pants", "dress", "saree", "kurta", "jacket", "shoes", "socks", "apparel", "clothing"], "shopTypeIds": ["shop.apparel"], "unitRoles": { "m": "product_dimension", "cm": "product_dimension", "g": "fabric_weight" }, "attributePatterns": [{ "attributeId": "waist", "expression": "\\bW(\\d{2,3})\\b", "valueGroup": 1, "removeMatch": true }, { "attributeId": "inseam", "expression": "\\bL(\\d{2,3})\\b", "valueGroup": 1, "removeMatch": true }, { "attributeId": "size", "expression": "\\bsize\\s+(XS|S|M|L|XL|XXL|\\d{2,3})\\b", "valueGroup": 1, "removeMatch": true }], "discardConnectors": ["of", "each", "with", "in", "at", "x", "for", "per", "by", "and"] },
+    { "id": "pharmacy", "relevantAttributeIds": ["form", "strength"], "variantAttributeIds": ["form", "strength"], "signals": ["paracetamol", "acetaminophen", "ibuprofen", "crocin", "cetirizine", "amoxicillin", "telma", "medicine", "medication", "syrup", "capsule", "tablet", "strip", "blister", "inhaler", "insulin"], "shopTypeIds": ["shop.pharmacy"], "unitRoles": { "mg": "medicine_strength", "mcg": "medicine_strength", "g": "medicine_strength", "iu": "medicine_strength", "unit": "medicine_strength", "meq": "medicine_strength", "mmol": "medicine_strength", "ml": "net_content", "percent": "concentration" }, "measureAttributeIds": { "medicine_strength": "strength" }, "ratioRoles": [{ "role": "concentration", "numeratorUnitIds": ["mg", "mcg", "g", "iu", "unit", "meq", "mmol"], "denominatorUnitIds": ["ml", "l"] }, { "role": "medicine_strength", "numeratorUnitIds": ["mg", "mcg", "g", "iu", "unit", "meq", "mmol"], "denominatorUnitIds": ["tablet", "capsule", "dose", "drop", "puff", "actuation", "spray", "patch", "lozenge", "suppository"] }], "discardConnectors": ["of", "each", "with", "in", "at", "x", "for", "per", "by", "and"] },
+    { "id": "general", "relevantAttributeIds": [], "variantAttributeIds": [], "signals": ["paper", "stationery", "cleaner", "detergent", "bulb", "tool", "tape", "notebook"], "shopTypeIds": ["shop.general"], "unitRoles": { "sheet": "contained_count", "g": "net_content", "kg": "net_content", "ml": "net_content", "l": "net_content" }, "discardConnectors": ["of", "each", "with", "in", "at", "x", "for", "per", "by", "and"] }
+  ],
+  "concepts": [
+    { "id": "grocery.bread.loaf", "categoryId": "grocery" }, { "id": "grocery.butter.dairy", "categoryId": "grocery" },
+    { "id": "grocery.biscuits.plain", "categoryId": "grocery" }, { "id": "grocery.eggs.chicken", "categoryId": "grocery" },
+    { "id": "grocery.flour.wheat", "categoryId": "grocery" }, { "id": "grocery.milk.dairy", "categoryId": "grocery" },
+    { "id": "grocery.onion", "categoryId": "grocery" }, { "id": "grocery.potato", "categoryId": "grocery" },
+    { "id": "grocery.rice.white", "categoryId": "grocery" }, { "id": "grocery.sugar.white", "categoryId": "grocery" },
+    { "id": "grocery.tea", "categoryId": "grocery" }, { "id": "grocery.tomato", "categoryId": "grocery" }, { "id": "grocery.noodles", "categoryId": "grocery" },
+    { "id": "grocery.cola.coca-cola", "categoryId": "grocery", "shopTypeIds": ["shop.grocery"] },
+    { "id": "grocery.cola.thums-up", "categoryId": "grocery", "shopTypeIds": ["shop.grocery"] },
+    { "id": "pharmacy.naproxen", "categoryId": "pharmacy", "shopTypeIds": ["shop.pharmacy"] },
+    { "id": "pharmacy.pudin_hara", "categoryId": "pharmacy", "shopTypeIds": ["shop.pharmacy"] }
+  ],
+  "brands": [{ "id": "brand.amul" }, { "id": "brand.britannia" }, { "id": "brand.dukes" }, { "id": "brand.tata" }, { "id": "brand.coca-cola" }, { "id": "brand.thums-up" }, { "id": "brand.maggi" }, { "id": "brand.dabur" }],
+  "organizations": [{ "id": "org.nestle" }],
+  "productFamilies": [{ "id": "family.maggi.noodles", "conceptId": "grocery.noodles", "brandId": "brand.maggi", "aliases": ["maggi noodles"] }],
+  "commercialRoles": [{ "id": "role.maggi.nestle.owner.IN", "role": "brand_owner", "organizationId": "org.nestle", "brandId": "brand.maggi", "countryCode": "IN" }],
+  "descriptors": [
+    { "alias": "low-fat", "role": "identity_attribute", "attributeId": "fat_level", "value": "low-fat", "categoryIds": ["grocery"] },
+    { "alias": "whole", "role": "identity_attribute", "attributeId": "fat_level", "value": "whole", "categoryIds": ["grocery"] }
+  ],
+  "products": [
+    { "id": "product.amul.butter", "brandId": "brand.amul", "conceptId": "grocery.butter.dairy", "aliases": ["amul butter"], "defaultUnitId": "pack" },
+    { "id": "product.britannia.50-50", "brandId": "brand.britannia", "conceptId": "grocery.biscuits.plain", "aliases": ["britannia 50 50", "50-50", "britannia 50-50 biscuit", "britannia 50-50 biscuits"] },
+    { "id": "product.dukes.bourbon", "brandId": "brand.dukes", "conceptId": "grocery.biscuits.plain", "aliases": ["dukes bourbon", "bourbon biscuits"] },
+    { "id": "product.tata.tea", "brandId": "brand.tata", "conceptId": "grocery.tea", "aliases": ["tata tea"] },
+    { "id": "product.coca-cola.cola", "brandId": "brand.coca-cola", "conceptId": "grocery.cola.coca-cola", "aliases": ["coca cola", "coca-cola"], "shopTypeIds": ["shop.grocery"] },
+    { "id": "product.thums-up.cola", "brandId": "brand.thums-up", "conceptId": "grocery.cola.thums-up", "aliases": ["thums up", "thums-up"], "shopTypeIds": ["shop.grocery"], "defaultUnitId": "piece" },
+    { "id": "product.maggi.noodles", "brandId": "brand.maggi", "conceptId": "grocery.noodles", "aliases": ["maggi noodles", "maggie noodles"], "shopTypeIds": ["shop.grocery"], "defaultUnitId": "pack", "productFamilyId": "family.maggi.noodles" },
+    { "id": "product.dabur.pudin_hara", "brandId": "brand.dabur", "conceptId": "pharmacy.pudin_hara", "aliases": ["pudin hara", "dabur pudin hara"], "shopTypeIds": ["shop.pharmacy"], "defaultUnitId": "piece" }
+  ],
+  "policy": { "acceptThreshold": 0.9, "ambiguityMargin": 0.12, "maximumSegments": 32, "maximumCandidatesPerEntity": 8, "minimumLearningSupport": 2, "defaultItem": { "quantity": 1, "unitId": "piece" } }
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://duckworth.local/schema/country-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "countryCode", "defaultLocale", "bridgeLocales", "locales"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "countryCode": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "defaultLocale": { "type": "string" },
+    "bridgeLocales": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "checksum": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "locales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["locale", "version"],
+        "properties": {
+          "locale": { "type": "string" },
+          "version": { "type": "string" },
+          "fallbacks": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "artifactPath": { "type": "string" },
+          "checksum": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

@@ -52,6 +52,20 @@ Every item moves through a simple lifecycle:
 | Attention filtering | Handle high-confidence routine work quietly and surface only ambiguity, conflict, risk, or meaningful choice. |
 | Purchase guidance | Help each item reach an appropriate destination when purchasing begins, without locking the product to a destination model prematurely. |
 
+## Phase 2 context boundary
+
+The Phase 2 implementation supports simultaneous device/speaker conversation
+contexts over one shared household list. Context IDs, device/speaker metadata,
+labels, tokens, and idempotency keys are dynamic input or server-generated
+values; item, brand, unit, and catalog data remains data-driven rather than
+hardcoded in the application brain. The web adapter only renders and forwards
+these opaque values. See the [concurrent-context design](docs/superpowers/specs/2026-08-11-concurrent-contexts-design.md)
+and [acceptance gate](docs/superpowers/specs/2026-08-11-concurrent-contexts-acceptance.md).
+
+Phase 1 callers remain compatible through a legacy household context. Phase 2
+does not include cloud interpretation, retailer routing, prices, ordering,
+payment, medical advice, or vendor-specific assistant SDKs.
+
 ## Product Principles
 
 ### Capture first, clarify later

@@ -1,0 +1,26 @@
+<section class="clarification" aria-labelledby="spelling-question">
+  <div class="question-copy">
+    <p class="eyebrow">Quick spelling check</p>
+    <h3 id="spelling-question">Are “{{ candidate().earlier }}” and “{{ candidate().later }}” the same item?</h3>
+    <p>Your choice stays on this device and never changes the household dictionary.</p>
+  </div>
+
+  <div class="choices">
+    <button type="button" (click)="decision.emit('prefer-later')">
+      <strong>Use {{ candidate().later }}</strong>
+      <span>Suggest this spelling when you type {{ candidate().earlier }}.</span>
+    </button>
+    <button type="button" (click)="decision.emit('prefer-earlier')">
+      <strong>Keep {{ candidate().earlier }}</strong>
+      <span>Use your earlier spelling as the personal preference.</span>
+    </button>
+    <button type="button" (click)="decision.emit('keep-separate')">
+      <strong>Keep both separate</strong>
+      <span>Treat them as different items and do not ask again.</span>
+    </button>
+    <button type="button" class="quiet" (click)="decision.emit('dismiss')">
+      <strong>Not now</strong>
+      <span>Dismiss this check until there is new evidence later.</span>
+    </button>
+  </div>
+</section>
