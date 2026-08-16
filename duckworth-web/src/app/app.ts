@@ -102,6 +102,10 @@ export class App implements OnDestroy {
   protected readonly learnedEntries = signal<LearnedSemanticEntry[]>([]);
   protected readonly learningCorrections = signal<SemanticCorrectionRecord[]>([]);
   protected readonly learningMetrics = signal<HouseholdQualityMetrics | null>(null);
+  protected readonly unresolvedReviewOpen = signal(false);
+  protected readonly unresolvedItems = computed(() => this.items().filter((item) => item.status === 'active' && (
+    item.categoryConfidence === 'unknown' || item.quantity === null || item.unit === null
+  )));
   protected readonly personalVocabularyEnabled = signal(true);
   private readonly activeLanguageBundle = signal<LanguagePackBundle | null>(null);
   private readonly installedLanguageBundles = signal<LanguagePackBundle[]>([]);
@@ -437,6 +441,7 @@ export class App implements OnDestroy {
     this.conversation.undo(this.householdId, token.eventId).subscribe({
       next: ({ item }) => {
         this.replaceItem(item);
+        this.refreshLearningMetricsIfLoaded();
         this.conversationResult.update((current) => current ? {
           ...current,
           undo: current.undo.filter((candidate) => candidate.eventId !== token.eventId),
@@ -855,6 +860,7 @@ export class App implements OnDestroy {
     this.shoppingItems.update(this.householdId, item.id, { status, expectedVersion: item.version }).subscribe({
       next: (updated) => {
         this.replaceItem(updated);
+        this.refreshLearningMetricsIfLoaded();
         this.message.set(`${updated.name} ${status === 'purchased' ? 'marked purchased' : 'reopened'}.`);
         this.setItemPending(item.id, false);
       },
@@ -878,6 +884,7 @@ export class App implements OnDestroy {
     }).subscribe({
       next: (updated) => {
         this.replaceItem(updated);
+        this.refreshLearningMetricsIfLoaded();
         this.lastRemovedItem.set(updated);
         this.message.set(`${updated.name} removed from the list.`);
         this.setItemPending(item.id, false);
@@ -903,6 +910,7 @@ export class App implements OnDestroy {
     }).subscribe({
       next: (updated) => {
         this.replaceItem(updated);
+        this.refreshLearningMetricsIfLoaded();
         if (this.lastRemovedItem()?.id === item.id) this.lastRemovedItem.set(null);
         this.message.set(`${updated.name} restored to the list.`);
         this.setItemPending(item.id, false);
@@ -996,6 +1004,7 @@ export class App implements OnDestroy {
         next: ({ item: updated }) => {
           const confirmed = { ...updated, semanticLearningStatus: 'confirmed' as const };
           this.replaceItem(confirmed);
+          this.refreshLearningMetricsIfLoaded();
           this.cancelDetails();
           this.message.set(`${confirmed.name} details saved and remembered for matching items.`);
           this.setItemPending(item.id, false);
@@ -1018,6 +1027,7 @@ export class App implements OnDestroy {
     }).subscribe({
       next: (updated) => {
         this.replaceItem(updated);
+        this.refreshLearningMetricsIfLoaded();
         this.cancelDetails();
         this.message.set(`${updated.name} details saved.`);
         this.setItemPending(item.id, false);
@@ -1043,6 +1053,7 @@ export class App implements OnDestroy {
     }).subscribe({
       next: (updated) => {
         this.replaceItem(updated);
+        this.refreshLearningMetricsIfLoaded();
         this.message.set(`${updated.unit} accepted for ${updated.name}.`);
         this.setItemPending(item.id, false);
       },
@@ -1092,6 +1103,7 @@ export class App implements OnDestroy {
         this.unitHistory.set(this.unitHistoryCache.replaceFromItems(this.householdId, items));
         this.householdVocabulary.replace(items);
         this.configureAssistance();
+        this.refreshLearningMetricsIfLoaded();
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === 401) this.pairingRequired.set(true);
@@ -1119,6 +1131,18 @@ export class App implements OnDestroy {
       },
       error: () => this.householdLearning.learned(this.householdId).subscribe({ next: (entries) => this.learnedEntries.set(entries) }),
     });
+  }
+
+  protected toggleUnresolvedReview(): void {
+    this.unresolvedReviewOpen.update((open) => !open);
+  }
+
+  protected unresolvedReasons(item: ShoppingItem): string[] {
+    return [
+      ...(item.categoryConfidence === 'unknown' ? ['Category not confirmed'] : []),
+      ...(item.quantity === null ? ['Quantity missing'] : []),
+      ...(item.unit === null ? ['Unit missing'] : []),
+    ];
   }
 
   protected undoCorrection(event: SemanticCorrectionRecord): void {
@@ -1172,6 +1196,10 @@ export class App implements OnDestroy {
     this.items.update((items) => items.map((item) => item.id === updated.id ? updated : item));
     this.rememberExplicitUnit(updated);
     this.refreshAssistanceItem(updated);
+  }
+
+  private refreshLearningMetricsIfLoaded(): void {
+    if (this.learningMetrics()) this.loadLearning();
   }
 
   private rememberExplicitUnit(item: ShoppingItem): void {

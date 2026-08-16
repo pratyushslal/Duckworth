@@ -626,6 +626,40 @@ button:disabled {
   white-space: nowrap;
 }
 
+.learning-metric-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #176b45;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+}
+
+.unresolved-review {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #d9cdb5;
+  border-radius: 1rem;
+  background: #fbf7ee;
+}
+
+.unresolved-review h3,
+.unresolved-review p {
+  margin: 0;
+}
+
+.unresolved-entry {
+  align-items: center;
+}
+
+.unresolved-entry span {
+  color: #7a4b2a;
+}
+
 .attention-badge {
   padding: 0.3rem 0.5rem;
   border-radius: 999px;

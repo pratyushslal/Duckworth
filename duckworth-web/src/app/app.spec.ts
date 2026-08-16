@@ -930,6 +930,77 @@ describe('App', () => {
       .toBe(true);
   });
 
+  it('opens an actionable review list from the unresolved learning metric', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([{
+      id: 'unresolved-milk', householdId: 'household-demo', captureText: 'Milk', name: 'Milk',
+      quantity: null, unit: null, unitSource: null, unitConfirmedAt: null,
+      categoryId: 'unknown', categoryConfidence: 'unknown', attentionReasons: ['missing_quantity'],
+      status: 'active', createdAt: '2026-08-03T00:00:00.000Z', updatedAt: '2026-08-03T00:00:00.000Z', version: 1,
+    }]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    (Array.from(root.querySelectorAll<HTMLButtonElement>('button'))
+      .find((button) => button.textContent?.includes('Review learned preferences')) as HTMLButtonElement).click();
+    httpTesting.expectOne('/api/v2/households/household-demo/learning-control').flush({
+      householdId: 'household-demo', overlayRevision: 1, entries: [], corrections: [],
+      metrics: {
+        correctionCount: 0, undoCount: 0, activeLearningCount: 0, suppressedLearningCount: 0,
+        unresolvedCount: 1, conflictCount: 0,
+      },
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const unresolved = Array.from(root.querySelectorAll<HTMLButtonElement>('button'))
+      .find((button) => button.textContent?.includes('1 unresolved'));
+    expect(unresolved).toBeTruthy();
+    unresolved?.click();
+    fixture.detectChanges();
+
+    const review = root.querySelector('.unresolved-review') as HTMLElement;
+    expect(review.textContent).toContain('Milk');
+    expect(review.textContent).toContain('Quantity missing');
+    expect(review.textContent).toContain('Unit missing');
+    expect(review.textContent).toContain('Category not confirmed');
+    const reviewItem = Array.from(review.querySelectorAll<HTMLButtonElement>('button'))
+      .find((button) => button.textContent?.trim() === 'Review item');
+    expect(reviewItem).toBeTruthy();
+    reviewItem?.click();
+    fixture.detectChanges();
+
+    const row = root.querySelector('.item-list li') as HTMLElement;
+    const quantity = row.querySelector('input[aria-label="Quantity for Milk"]') as HTMLInputElement;
+    const unit = row.querySelector('input[aria-label="Unit for Milk"]') as HTMLInputElement;
+    quantity.value = '2';
+    quantity.dispatchEvent(new Event('input'));
+    unit.value = 'cartons';
+    unit.dispatchEvent(new Event('input'));
+    (Array.from(row.querySelectorAll<HTMLButtonElement>('button'))
+      .find((button) => button.textContent?.trim() === 'Save details') as HTMLButtonElement).click();
+
+    httpTesting.expectOne('/api/v1/households/household-demo/items/unresolved-milk').flush({
+      id: 'unresolved-milk', householdId: 'household-demo', captureText: 'Milk', name: 'Milk',
+      quantity: 2, unit: 'cartons', unitSource: 'explicit', unitConfirmedAt: '2026-08-16T00:00:00.000Z',
+      categoryId: 'grocery', categoryConfidence: 'confirmed', attentionReasons: [],
+      status: 'active', createdAt: '2026-08-03T00:00:00.000Z', updatedAt: '2026-08-16T00:00:00.000Z', version: 2,
+    });
+    httpTesting.expectOne('/api/v2/households/household-demo/learning-control').flush({
+      householdId: 'household-demo', overlayRevision: 1, entries: [], corrections: [],
+      metrics: {
+        correctionCount: 0, undoCount: 0, activeLearningCount: 0, suppressedLearningCount: 0,
+        unresolvedCount: 0, conflictCount: 0,
+      },
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('0 unresolved');
+  });
+
   it('opens row-local quantity and unit fields with quantity focused', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

@@ -90,8 +90,35 @@
         </div>
         @if (learningMetrics(); as metrics) {
           <p class="learning-metrics" role="status">
-            {{ metrics.activeLearningCount }} active rules · {{ metrics.correctionCount }} corrections · {{ metrics.undoCount }} undone · {{ metrics.unresolvedCount }} unresolved
+            {{ metrics.activeLearningCount }} active rules · {{ metrics.correctionCount }} corrections · {{ metrics.undoCount }} undone ·
+            @if (metrics.unresolvedCount > 0) {
+              <button type="button" class="learning-metric-link" [attr.aria-expanded]="unresolvedReviewOpen()"
+                aria-controls="unresolved-review" (click)="toggleUnresolvedReview()">
+                {{ metrics.unresolvedCount }} unresolved
+              </button>
+            } @else {
+              <span>0 unresolved</span>
+            }
           </p>
+        }
+        @if (unresolvedReviewOpen()) {
+          <div id="unresolved-review" class="unresolved-review" aria-labelledby="unresolved-review-title">
+            <h3 id="unresolved-review-title">Needs your attention</h3>
+            <p>These active items are missing details that may help Duckworth understand or organize them correctly.</p>
+            @if (unresolvedItems().length > 0) {
+              @for (item of unresolvedItems(); track item.id) {
+                <article class="learning-entry unresolved-entry">
+                  <div>
+                    <strong>{{ formatItemName(item.name, item.brandName) }}</strong>
+                    <span>{{ unresolvedReasons(item).join(' · ') }}</span>
+                  </div>
+                  <button type="button" (click)="beginDetails(item)">Review item</button>
+                </article>
+              }
+            } @else {
+              <p>No matching items are currently loaded. Refresh the list and try again.</p>
+            }
+          </div>
         }
         @for (entry of learnedEntries(); track entry.id) {
           <article class="learning-entry">
