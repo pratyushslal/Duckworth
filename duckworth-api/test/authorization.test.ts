@@ -117,4 +117,57 @@ describe('central household authorization', () => {
     expect(items.statusCode).toBe(200);
     await app.close();
   });
+
+  it('captures immediately after pairing and registering a device context', async () => {
+    const app = await buildApp({
+      databasePath: ':memory:',
+      runtimeIdentity: { lane: 'sandbox', instanceId: 'auth-capture-test' },
+      authorization: {
+        householdId: 'family-a',
+        accessToken: 'secret-token',
+        pairingCode: 'pair-family-a',
+      },
+    });
+
+    const paired = await app.inject({
+      method: 'POST',
+      url: '/api/v1/session/pair',
+      payload: { pairingCode: 'pair-family-a' },
+    });
+    const cookie = String(paired.headers['set-cookie']).split(';')[0];
+    const context = await app.inject({
+      method: 'POST',
+      url: '/api/v1/households/family-a/conversation-contexts',
+      headers: { cookie },
+      payload: { deviceId: 'device-after-pairing' },
+    });
+    const lists = await app.inject({
+      method: 'GET',
+      url: '/api/v1/households/family-a/shopping-lists',
+      headers: { cookie },
+    });
+    const registration = context.json();
+    const shoppingList = lists.json()[0];
+    const capture = await app.inject({
+      method: 'POST',
+      url: '/api/v1/households/family-a/conversation-captures',
+      headers: { cookie },
+      payload: {
+        text: 'milk',
+        source: 'text',
+        shoppingListId: shoppingList.id,
+        contextId: registration.context.id,
+        accessToken: registration.accessToken,
+        idempotencyKey: 'capture-after-pairing',
+      },
+    });
+
+    expect(paired.statusCode).toBe(200);
+    expect(context.statusCode).toBe(201);
+    expect(lists.statusCode).toBe(200);
+    expect(capture.statusCode).toBe(201);
+    expect(capture.json().saved).toHaveLength(1);
+    expect(capture.json().saved[0].name).toBe('milk');
+    await app.close();
+  });
 });
