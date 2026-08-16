@@ -18,3 +18,20 @@ When this work is designed, cover the complete path:
 - Verification: tests for camera/gallery adapters, duplicate/replayed images, multiple items per image, blurry/empty/unsupported images, handwriting and packaging text, ambiguous quantities, multi-device context isolation, accessibility, and real-browser/device flows.
 
 Dynamic product, brand, category, language, and adjective knowledge must remain in validated runtime/catalog data. Do not add product-specific image rules to application code.
+
+## Future product area: household membership and group access
+
+Status: parked until the core shopping experience is stable and accepted.
+
+Duckworth will eventually need a simple, familiar household-group model similar to Telegram or WhatsApp groups:
+
+- One user account may belong to more than one household.
+- Each household has its own private shopping lists and settings.
+- A household owner can allow users to join by approving a join request or invitation.
+- Any invite code, link, or QR code must be random, short-lived, single-use, and revocable; it must never become a permanent shared password.
+- Owners can view members, pending requests, active invitations, and enough activity/device information to recognize unfamiliar access.
+- Owners can remove a member and immediately revoke that member's active sessions.
+- Household switching must be explicit so a user does not accidentally add items to the wrong household.
+- Membership, invitation, removal, leave, rejoin, lost-device, and account-recovery flows must be designed together before implementation.
+
+Do not expand the current development pairing flow into this feature prematurely. Revisit it after the core list, capture, clarification, and correction workflows are satisfactorily validated.
