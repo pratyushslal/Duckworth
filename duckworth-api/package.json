@@ -6,7 +6,7 @@
   "scripts": {
     "capture:build": "tsc -p ../packages/item-capture/tsconfig.json",
     "intelligence:build": "tsc -p ../packages/shopping-intelligence/tsconfig.json",
-    "predev": "pnpm capture:build",
+    "predev": "pnpm capture:build && pnpm intelligence:build",
     "dev": "tsx watch src/server.ts",
     "prebuild": "pnpm capture:build && pnpm intelligence:build",
     "build": "tsc -p tsconfig.json",

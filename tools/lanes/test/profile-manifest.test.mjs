@@ -43,7 +43,7 @@ describe('Duckworth profile manifest', () => {
     const liveWeb = desired.find((entry) => entry.key === 'live-web');
     const sandboxApi = desired.find((entry) => entry.key === 'sandbox-api');
     assert.deepEqual(liveApi.command, ['node', 'dist/src/server.js']);
-    assert.deepEqual(sandboxApi.command, ['node', 'node_modules/tsx/dist/cli.mjs', 'watch', 'src/server.ts']);
+    assert.deepEqual(sandboxApi.command, ['pnpm', 'dev']);
     assert.equal(liveWeb.command[1].endsWith('static-web-server.mjs'), true);
     assert.equal(liveApi.env.DUCKWORTH_LANE, 'live');
     assert.equal(liveApi.env.DUCKWORTH_BUILD_ID, 'release-abc123');

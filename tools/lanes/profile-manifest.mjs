@@ -84,7 +84,7 @@ export function buildDesiredProcesses(manifest) {
     webProcess(manifest.live, [
       'node', join(manifest.live.sourceRoot, 'tools', 'lanes', 'static-web-server.mjs'),
     ], join(manifest.live.sourceRoot, 'duckworth-web', 'dist', 'duckworth-web', 'browser')),
-    apiProcess(manifest.sandbox, ['node', 'node_modules/tsx/dist/cli.mjs', 'watch', 'src/server.ts']),
+    apiProcess(manifest.sandbox, ['pnpm', 'dev']),
     webProcess(manifest.sandbox, [
       'node', 'node_modules/@angular/cli/bin/ng.js', 'serve', '--host', '0.0.0.0',
       '--port', '4300', '--proxy-config', 'proxy.sandbox.conf.json',
