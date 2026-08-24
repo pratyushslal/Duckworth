@@ -4,9 +4,7 @@ import type { ShoppingItem } from './shopping-items.service';
 export type ShoppingItemSort = 'latest' | 'oldest' | 'name-asc' | 'attention';
 
 export function isUnresolvedShoppingItem(item: ShoppingItem): boolean {
-  return item.status === 'active' && (
-    item.categoryConfidence === 'unknown' || item.quantity === null || item.unit === null
-  );
+  return item.status === 'active' && (item.quantity === null || item.unit === null);
 }
 
 function needsAttention(item: ShoppingItem): boolean {

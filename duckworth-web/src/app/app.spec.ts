@@ -925,7 +925,8 @@ describe('App', () => {
     fixture.detectChanges();
 
     const row = fixture.nativeElement.querySelector('li') as HTMLElement;
-    expect(row.textContent).toContain('Needs details');
+    expect(row.textContent).toContain('Quantity missing');
+    expect(row.textContent).toContain('Unit missing');
     expect(Array.from(row.querySelectorAll('button')).some((button) => button.textContent?.includes('Add details')))
       .toBe(true);
   });
@@ -966,7 +967,6 @@ describe('App', () => {
     expect(review.textContent).toContain('Milk');
     expect(review.textContent).toContain('Quantity missing');
     expect(review.textContent).toContain('Unit missing');
-    expect(review.textContent).toContain('Category not confirmed');
     const reviewItem = Array.from(review.querySelectorAll<HTMLButtonElement>('button'))
       .find((button) => button.textContent?.trim() === 'Review item');
     expect(reviewItem).toBeTruthy();
@@ -1003,6 +1003,24 @@ describe('App', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(root.textContent).toContain('0 unresolved');
+  });
+
+  it('does not flag category-only uncertainty when quantity and unit are present', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([{
+      id: 'category-only', householdId: 'household-demo', captureText: 'Amul dahi', name: 'Amul dahi',
+      quantity: 1, unit: 'litre', unitSource: 'explicit', unitConfirmedAt: '2026-08-24T00:00:00.000Z',
+      categoryId: 'unknown', categoryConfidence: 'unknown', attentionReasons: [], status: 'active',
+      createdAt: '2026-08-24T00:00:00.000Z', updatedAt: '2026-08-24T00:00:00.000Z', version: 1,
+    }]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector('.item-list li') as HTMLElement;
+    expect(row.textContent).not.toContain('Needs review');
+    expect(row.querySelector('.attention-badge')).toBeNull();
   });
 
   it('opens row-local quantity and unit fields with quantity focused', async () => {

@@ -1165,7 +1165,6 @@ export class App implements OnDestroy {
 
   protected unresolvedReasons(item: ShoppingItem): string[] {
     return [
-      ...(item.categoryConfidence === 'unknown' ? ['Category not confirmed'] : []),
       ...(item.quantity === null ? ['Quantity missing'] : []),
       ...(item.unit === null ? ['Unit missing'] : []),
     ];

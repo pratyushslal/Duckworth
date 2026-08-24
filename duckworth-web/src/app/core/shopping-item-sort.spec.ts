@@ -78,7 +78,7 @@ describe('sortShoppingItems', () => {
       .toEqual(['item-b', 'item-a', 'item-c']);
   });
 
-  it('puts unresolved category and unit items ahead of otherwise complete items', () => {
+  it('does not treat category uncertainty as actionable when quantity and unit are present', () => {
     const complete = {
       ...item('complete', '2026-08-06T09:00:00.000Z'),
       quantity: 1,
@@ -99,6 +99,6 @@ describe('sortShoppingItems', () => {
     } satisfies ShoppingItem;
 
     expect(sortShoppingItems([complete, unknownCategory, missingUnit], 'attention').map(({ id }) => id))
-      .toEqual(['missing-unit', 'unknown-category', 'complete']);
+      .toEqual(['missing-unit', 'complete', 'unknown-category']);
   });
 });

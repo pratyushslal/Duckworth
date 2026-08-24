@@ -1061,7 +1061,7 @@ export class ShoppingItemRepository {
         + count("SELECT COUNT(*) AS count FROM household_semantic_learning WHERE household_id = ? AND status = 'active' AND id NOT LIKE 'typed:%'"),
       suppressedLearningCount: count("SELECT COUNT(*) AS count FROM household_learning_effects WHERE household_id = ? AND status IN ('suppressed', 'cleared')")
         + count("SELECT COUNT(*) AS count FROM household_semantic_learning WHERE household_id = ? AND status IN ('suppressed', 'cleared')"),
-      unresolvedCount: count("SELECT COUNT(*) AS count FROM shopping_items WHERE household_id = ? AND status = 'active' AND (category_confidence = 'unknown' OR quantity IS NULL OR unit IS NULL)"),
+      unresolvedCount: count("SELECT COUNT(*) AS count FROM shopping_items WHERE household_id = ? AND status = 'active' AND (quantity IS NULL OR unit IS NULL)"),
       conflictCount: count("SELECT COUNT(*) AS count FROM household_learning_effects WHERE household_id = ? AND status = 'candidate'"),
     };
   }

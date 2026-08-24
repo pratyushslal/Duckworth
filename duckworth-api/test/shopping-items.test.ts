@@ -12,6 +12,17 @@ import { BrainCaptureStore } from '../src/brain-captures.js';
 import { createItemIdentity, type BrainCaptureEnvelope, type BrainResult } from '@duckworth/shopping-intelligence';
 
 describe('shopping item endpoints', () => {
+  it('counts only missing quantity or unit as actionable unresolved data', async () => {
+    const database = new DatabaseSync(':memory:');
+    const runtime = await loadSemanticRuntime(resolve(import.meta.dirname, '../language-packs'));
+    const repository = new ShoppingItemRepository(database, runtime);
+    repository.create('actionable-metrics', {
+      captureText: 'Amul dahi', itemName: 'Amul dahi', identityKey: 'amul-dahi', quantity: 1, unit: 'litre', packageSize: null, packageUnit: null,
+    });
+    expect(repository.getHouseholdQualityMetrics('actionable-metrics').unresolvedCount).toBe(0);
+    database.close();
+  });
+
   it('classifies an ordinary item creation with runtime defaults and one canonical shop tag', async () => {
     const app = await buildApp({ databasePath: ':memory:' });
     try {
