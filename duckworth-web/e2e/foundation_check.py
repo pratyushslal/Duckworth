@@ -15,9 +15,9 @@ with sync_playwright() as playwright:
     page = browser.new_page()
     open_sandbox(page)
 
-    assert page.locator("h1").inner_text() == "Shopping coordination starts here."
-    assert page.get_by_role("status").inner_text() == "API connected"
-    assert page.get_by_text("A lightweight shared space for the household’s next purchase.").is_visible()
+    assert page.locator("h1").inner_text() == "Shopping list"
+    assert page.locator(".status.ready").count() == 1
+    assert page.get_by_text("Capture a need quickly. Duckworth helps clarify only what needs your attention.").is_visible()
 
     item_name = f"Browser milk {uuid4().hex[:8]}"
     page.get_by_label("Add an item").fill(item_name)

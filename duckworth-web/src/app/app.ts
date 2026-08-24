@@ -49,6 +49,7 @@ import { CloudAssistService, type CloudAssistSuggestion } from './core/cloud-ass
 import { HouseholdSettingsService, type HouseholdCaptureSettings } from './core/household-settings.service';
 
 type ApiStatus = 'checking' | 'ready' | 'offline' | 'misconfigured';
+type AppPage = 'list' | 'settings' | 'household-access';
 type CapturePreview = {
   captureText: string;
   name: string;
@@ -97,6 +98,7 @@ export class App implements OnDestroy {
   private personalVocabulary: PersonalVocabularyStore | null = null;
   protected readonly unitHistory = signal<UnitHistoryMap>(this.unitHistoryCache.read(this.householdId));
   protected readonly apiStatus = signal<ApiStatus>('checking');
+  protected readonly currentPage = signal<AppPage>(pageFromPath());
   protected readonly runtimeIdentity = signal<RuntimeIdentity | null>(null);
   protected readonly items = signal<ShoppingItem[]>([]);
   protected readonly learnedEntries = signal<LearnedSemanticEntry[]>([]);
@@ -191,6 +193,7 @@ export class App implements OnDestroy {
   ngOnDestroy(): void {
     if (this.cloudAssistTypingTimer) clearTimeout(this.cloudAssistTypingTimer);
     this.cloudAssistRequestVersion += 1;
+    globalThis.removeEventListener('popstate', this.handlePopState);
   }
   protected readonly reviewingDraftId = signal<string | null>(null);
   protected readonly draftResolutionText = signal('');
@@ -224,6 +227,7 @@ export class App implements OnDestroy {
   });
 
   constructor() {
+    globalThis.addEventListener('popstate', this.handlePopState);
     this.apiHealth.check().subscribe({
       next: (health) => {
         const expectedLane = expectedLaneForOrigin(globalThis.location?.origin ?? '');
@@ -316,6 +320,7 @@ export class App implements OnDestroy {
       error: (error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.pairingRequired.set(true);
+          this.navigateTo('settings');
           this.message.set('Connect this device to the household before retrying.');
         } else {
           this.message.set(error.status === 409
@@ -1108,7 +1113,10 @@ export class App implements OnDestroy {
         this.refreshLearningMetricsIfLoaded();
       },
       error: (error: HttpErrorResponse) => {
-        if (error.status === 401) this.pairingRequired.set(true);
+        if (error.status === 401) {
+          this.pairingRequired.set(true);
+          this.navigateTo('settings');
+        }
         this.message.set(error.status === 401
           ? 'Connect this device to the household to view the list.'
           : 'Could not load the shopping list.');
@@ -1135,6 +1143,22 @@ export class App implements OnDestroy {
     });
   }
 
+  protected openLearningSettings(): void {
+    this.navigateTo('settings');
+    this.loadLearning();
+  }
+
+  protected navigateTo(page: AppPage): void {
+    const path = page === 'list' ? '/' : `/${page}`;
+    if (globalThis.location.pathname !== path) globalThis.history.pushState({}, '', path);
+    this.currentPage.set(page);
+    this.documentTitle.setTitle(pageTitle(page, this.runtimeIdentity()?.lane));
+  }
+
+  private readonly handlePopState = (): void => {
+    this.currentPage.set(pageFromPath());
+  };
+
   protected toggleUnresolvedReview(): void {
     this.unresolvedReviewOpen.update((open) => {
       const nextOpen = !open;
@@ -1149,6 +1173,7 @@ export class App implements OnDestroy {
   }
 
   protected reviewUnresolvedItem(item: ShoppingItem): void {
+    this.navigateTo('list');
     this.changeSort('attention');
     this.selectedShopTypeId.set(null);
     this.focusedUnresolvedItemId.set(item.id);
@@ -1323,4 +1348,17 @@ function runtimeTitle(lane: RuntimeLane): string {
   if (lane === 'live') return 'Duckworth · Household list';
   if (lane === 'sandbox') return 'TESTING · Duckworth';
   return 'DISPOSABLE API TEST · Duckworth';
+}
+
+function pageFromPath(): AppPage {
+  if (globalThis.location?.pathname === '/settings') return 'settings';
+  if (globalThis.location?.pathname === '/household-access') return 'household-access';
+  return 'list';
+}
+
+function pageTitle(page: AppPage, lane: RuntimeLane | undefined): string {
+  const prefix = lane === 'live' || !lane ? 'Duckworth' : lane === 'sandbox' ? 'TESTING · Duckworth' : 'DISPOSABLE API TEST · Duckworth';
+  if (page === 'settings') return `${prefix} · Settings`;
+  if (page === 'household-access') return `${prefix} · Household access`;
+  return runtimeTitle(lane ?? 'live');
 }

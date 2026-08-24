@@ -9,7 +9,7 @@ with sync_playwright() as playwright:
     browser = playwright.chromium.launch()
     page = browser.new_page()
     origin, household_id = open_sandbox(page)
-    page.get_by_role("status").filter(has_text="API connected").wait_for()
+    page.locator(".status.ready").wait_for(state="attached")
 
     item_name = f"Browser review milk {uuid4().hex[:8]}"
     page.get_by_label("Add an item").fill(item_name)
@@ -30,7 +30,7 @@ with sync_playwright() as playwright:
     )
     assert patch_response.ok, patch_response.text()
     page.reload(wait_until="domcontentloaded")
-    page.get_by_role("status").filter(has_text="API connected").wait_for()
+    page.locator(".status.ready").wait_for(state="attached")
 
     page.get_by_role("button", name="Review learned preferences").click()
     unresolved = page.locator(".learning-metric-link")

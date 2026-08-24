@@ -1,12 +1,8 @@
-.household-settings {
-  margin-block: 1rem;
-  border: 1px solid #d8caa8;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #fff9e9;
-}
+.household-settings { display: block; }
 
 .household-settings summary {
+  padding: 0.2rem 0;
+  color: #31503b;
   cursor: pointer;
   font-weight: 700;
 }
@@ -15,7 +11,7 @@
   display: grid;
   gap: 0.75rem;
   max-width: 32rem;
-  padding-top: 0.75rem;
+  padding-top: 0.9rem;
 }
 
 .household-settings label {

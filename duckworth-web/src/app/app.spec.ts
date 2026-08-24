@@ -54,6 +54,7 @@ describe('App', () => {
     FakeEventSource.latest = undefined;
     vi.stubGlobal('EventSource', FakeEventSource);
     vi.stubGlobal('localStorage', new FakeStorage());
+    globalThis.history.replaceState({}, '', '/');
   });
 
   beforeEach(async () => {
@@ -90,6 +91,31 @@ describe('App', () => {
     fixture.detectChanges();
     httpTesting.expectOne('/health').flush({ status: 'ok' });
     httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([]);
+  });
+
+  it('keeps the list task-focused and navigates between the app pages without reloading', () => {
+    globalThis.history.replaceState({}, '', '/');
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    httpTesting.expectOne('/health').flush({ status: 'ok', lane: 'sandbox', instanceId: 'sandbox-laptop' });
+    httpTesting.expectOne('/api/v1/households/household-demo/items?includePurchased=true&includeRemoved=true').flush([]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.list-panel')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.personal-learning-panel')).toBeNull();
+
+    (fixture.componentInstance as unknown as { navigateTo: (page: string) => void }).navigateTo('settings');
+    fixture.detectChanges();
+    expect(globalThis.location.pathname).toBe('/settings');
+    expect(fixture.nativeElement.querySelector('.list-panel')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-language-settings')).toBeTruthy();
+
+    (fixture.componentInstance as unknown as { navigateTo: (page: string) => void }).navigateTo('household-access');
+    fixture.detectChanges();
+    expect(globalThis.location.pathname).toBe('/household-access');
+    expect(fixture.nativeElement.querySelector('.access-page')?.textContent).toContain('Phase 2');
+
+    globalThis.history.replaceState({}, '', '/');
   });
 
   it('waits for a verified runtime identity before loading data and marks sandbox clearly', async () => {
@@ -159,7 +185,7 @@ describe('App', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Shopping coordination starts here.');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Shopping list');
     expect(compiled.querySelector('[role="status"]')?.textContent).toContain('API connected');
   });
 

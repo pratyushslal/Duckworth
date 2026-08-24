@@ -823,3 +823,326 @@ h1 {
   border-radius: 50%;
   background: currentColor;
 }
+
+/* Responsive minimal shell: the list stays task-first and secondary context moves to Settings. */
+:host {
+  background: #f4f1e8;
+}
+
+.shell {
+  display: block;
+  min-height: 100vh;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: #f4f1e8;
+}
+
+.hero {
+  box-sizing: border-box;
+  width: min(100%, 68rem);
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2.75rem);
+  border: 1px solid #d9d2bf;
+  border-radius: 1.25rem;
+  background: #fffdf7;
+  box-shadow: 0 1.5rem 4rem rgb(52 47 28 / 10%);
+}
+
+.hero * { box-sizing: border-box; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1.25rem, 3vw, 2.4rem);
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #e1d9c5;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0;
+  background: transparent;
+  color: #173126;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+}
+
+.brand-mark > span {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border-radius: 0.55rem;
+  background: #21653a;
+  color: #fffdf7;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.app-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: #536158;
+  font-size: 0.82rem;
+}
+
+.app-nav button.active {
+  border-color: #c9dfcc;
+  background: #e7f1e8;
+  color: #21653a;
+}
+
+.nav-icon {
+  display: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.nav-icon path { vector-effect: non-scaling-stroke; }
+
+.page-intro {
+  margin-bottom: 1rem;
+}
+
+.page-intro.compact {
+  display: block;
+}
+
+.page-intro .eyebrow {
+  margin-bottom: 0.55rem;
+}
+
+.page-intro h1 {
+  max-width: none;
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  letter-spacing: -0.045em;
+}
+
+.page-intro .lede {
+  margin: 0.75rem 0 1rem;
+  font-size: 0.98rem;
+}
+
+.page-intro .status {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.page-intro .status.ready {
+  display: none;
+}
+
+.attention-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 1.2rem 0 1.5rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid #e0c986;
+  border-radius: 0.75rem;
+  background: #fff8e8;
+  color: #684c1e;
+  text-align: left;
+}
+
+.list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.attention-summary > span:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.attention-summary small {
+  color: #775018;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.learning-status {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 1.2rem;
+  color: #536158;
+  font-size: 0.8rem;
+}
+
+.learning-status small { color: #7a827c; }
+
+.recently-removed li span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.page-section-heading,
+.access-section-heading,
+.access-summary,
+.access-list {
+  display: flex;
+  gap: 1rem;
+}
+
+.page-section-heading,
+.access-section-heading {
+  align-items: start;
+  justify-content: space-between;
+}
+
+.page-section-heading h2,
+.access-section-heading h3 {
+  margin: 0;
+}
+
+.page-section-heading p,
+.access-section-heading p {
+  max-width: 36rem;
+  margin: 0.35rem 0 0;
+  color: #536158;
+  font-size: 0.86rem;
+}
+
+.phase-badge {
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: #eeeadc;
+  color: #6e644a;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.settings-body,
+.household-settings,
+.language-settings {
+  width: 100%;
+}
+
+.settings-access-link {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0 0;
+}
+
+.settings-access-link .phase-badge {
+  margin-inline-start: 0.35rem;
+  background: #fffdf7;
+}
+
+.settings-page > section,
+.personal-learning-panel,
+.capture-privacy-panel,
+.learning-panel,
+.pairing-panel,
+.household-settings,
+.language-settings {
+  margin-top: 1.25rem;
+  padding: 1.25rem 0;
+  border: 0;
+  border-top: 1px solid #e1d9c5;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.learning-panel .section-heading,
+.personal-learning-panel .section-heading,
+.capture-privacy-panel .section-heading {
+  align-items: start;
+}
+
+.access-page {
+  margin-top: 1.25rem;
+}
+
+.access-summary {
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 1.3rem 0 0;
+  color: #536158;
+  font-size: 0.84rem;
+}
+
+.access-summary strong { color: #17231d; }
+
+.access-section {
+  padding: 1.35rem 0;
+  border-top: 1px solid #e1d9c5;
+}
+
+.access-section:first-of-type { margin-top: 1.2rem; }
+
+.access-list {
+  display: grid;
+  gap: 0;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #eee8da;
+}
+
+.access-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #eee8da;
+}
+
+.access-list li span:first-child { display: grid; gap: 0.15rem; }
+.access-list small { color: #536158; }
+.access-status { color: #21653a; font-size: 0.8rem; font-weight: 700; }
+.phase-note { margin-top: 0.9rem; padding: 0.75rem 0.9rem; border-left: 2px solid #a47b38; background: #fff2d5; color: #684c1e; font-size: 0.82rem; }
+
+@media (max-width: 36rem) {
+  .shell { padding: 0; }
+  .hero { min-height: 100vh; padding: 0.85rem 1rem 2rem; border: 0; border-radius: 0; box-shadow: none; }
+  .app-header { margin-bottom: 1.2rem; padding-bottom: 0.75rem; }
+  .brand-mark { font-size: 1.1rem; }
+  .brand-mark > span { width: 1.5rem; height: 1.5rem; font-size: 0.9rem; }
+  .app-nav button { width: 2.55rem; min-height: 2.55rem; justify-content: center; padding: 0.45rem; }
+  .nav-label { display: none; }
+  .nav-icon { display: block; }
+  .page-intro.compact { display: block; }
+  .page-intro h1 { font-size: 2rem; }
+  .page-intro .lede { display: none; }
+  .page-intro .status.ready { display: none; }
+  .section-heading,
+  .page-section-heading,
+  .access-section-heading { display: grid; grid-template-columns: 1fr; gap: 0.65rem; }
+  .list-tools { align-items: center; }
+  .list-toolbar { justify-content: stretch; }
+  .list-toolbar .list-tools { width: 100%; justify-content: space-between; }
+  .add-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .add-form .capture-lookup-button { grid-column: 1 / -1; width: 100%; }
+  .access-list li { align-items: start; }
+  .access-list li button { width: auto; }
+  .settings-body { padding-inline: 0; }
+  .household-settings label,
+  .household-settings input,
+  .household-settings select { max-width: none; }
+}
