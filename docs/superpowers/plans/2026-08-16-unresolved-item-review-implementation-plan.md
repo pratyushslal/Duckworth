@@ -2,15 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** Implemented and browser-verified in the current release line.
+
 **Goal:** Make the household learning panel explain and open the exact active shopping items counted as unresolved, with a direct path to review each item.
 
-**Architecture:** Reuse the already-loaded authoritative shopping items in the Angular app rather than adding a new API endpoint. The frontend will derive the same unresolved conditions used by the API metric—unknown category confidence, missing quantity, or missing unit—then render an expandable review list. Existing row detail editing remains the resolution mechanism, and the learning metric will refresh after item changes.
+**Architecture:** Reuse the already-loaded authoritative shopping items in the Angular app rather than adding a new API endpoint. The frontend derives the same unresolved conditions used by the API metric—missing quantity or missing unit—then renders an expandable review list. Category uncertainty remains non-blocking until a dedicated category confirmation workflow exists. Existing row detail editing remains the resolution mechanism, and the learning metric refreshes after item changes.
 
 **Tech Stack:** Angular 20, TypeScript, Vitest, Angular HTTP testing utilities, existing Duckworth shopping-item API.
 
 ## Global Constraints
 
-- Do not change the meaning of the server-side unresolved metric.
+- Keep the server-side metric and frontend predicate aligned: active items with missing quantity or unit are unresolved.
 - Do not modify family-live data during tests.
 - Keep household learning rules, correction history, and unresolved item review visibly separate.
 - Preserve the existing row-level edit, save, validation, optimistic-concurrency, and error behavior.
@@ -104,13 +106,17 @@ Run: `pnpm --dir duckworth-web typecheck` and `pnpm --dir duckworth-web lint`
 
 Expected: both commands pass.
 
-- [ ] **Step 5: Verify the disposable browser flow**
+- [x] **Step 5: Verify the disposable browser flow**
 
 Use the existing disposable lane/browser acceptance workflow to confirm: open learned panel → click unresolved count → see exact item/reasons → open item review → save details → count refreshes. Do not perform mutation tests against family-live.
 
-- [ ] **Step 6: Commit the verified slice**
+- Evidence: `duckworth-web/e2e/unresolved_review_check.py` passed in a fresh `api-test` lane after rebuilding the current web bundle. The test confirms the exact missing-field labels, review navigation, successful detail save, and the count changing to `0 unresolved`.
+
+- [x] **Step 6: Commit the verified slice**
 
 ```powershell
 git add duckworth-web/src/app/app.ts duckworth-web/src/app/app.html duckworth-web/src/app/app.scss duckworth-web/src/app/app.spec.ts docs/superpowers/plans/2026-08-16-unresolved-item-review-implementation-plan.md
 git commit -m "feat: make unresolved items reviewable"
 ```
+
+The review workflow was committed in `9c63a52`, navigation was hardened in `0fe1d9f`, and the actionable quantity/unit definition was corrected in `2bc70be`.

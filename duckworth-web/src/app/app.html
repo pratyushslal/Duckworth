@@ -110,7 +110,11 @@
                 <article class="learning-entry unresolved-entry">
                   <div>
                     <strong>{{ formatItemName(item.name, item.brandName) }}</strong>
-                    <span>{{ unresolvedReasons(item).join(' · ') }}</span>
+                    <span class="unresolved-reasons" aria-label="Missing details">
+                      @for (reason of unresolvedReasons(item); track reason) {
+                        <span class="attention-reason">{{ reason }}</span>
+                      }
+                    </span>
                   </div>
                   <button type="button" (click)="reviewUnresolvedItem(item)">Review item</button>
                 </article>

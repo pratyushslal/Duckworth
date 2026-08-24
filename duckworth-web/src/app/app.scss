@@ -670,8 +670,24 @@ button:disabled {
   align-items: center;
 }
 
-.unresolved-entry span {
-  color: #7a4b2a;
+.unresolved-entry > div {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.unresolved-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.attention-reason {
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: #f7dfd5;
+  color: #872e1d;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .attention-badge {
