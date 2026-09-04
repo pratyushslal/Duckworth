@@ -1,7 +1,6 @@
-<details class="language-settings">
-  <summary>Language assistance</summary>
-  <div class="settings-body">
-    <p>Download reviewed interface and grocery vocabulary together. Free-text capture always stays available.</p>
+<section class="language-settings settings-section" aria-labelledby="language-settings-title">
+  <div class="settings-section-copy"><h2 id="language-settings-title">Language assistance</h2><p>Choose the language Duckworth uses to understand and display your list.</p></div>
+  <div class="settings-section-content settings-body">
     @if (!manifest()) {
       <button type="button" class="load-button" [disabled]="loading()" (click)="loadOptions()">
         {{ loading() ? 'Loading languages…' : 'View language options' }}
@@ -21,4 +20,4 @@
       </ul>
     }
   </div>
-</details>
+</section>

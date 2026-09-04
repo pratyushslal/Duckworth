@@ -2,7 +2,6 @@
   <section class="hero" aria-labelledby="app-title">
     <header class="app-header">
       <button type="button" class="brand-mark" (click)="navigateTo('list')" aria-label="Go to shopping list">
-        <span aria-hidden="true">D</span>
         <strong>Duckworth</strong>
       </button>
       <nav class="app-nav" aria-label="Application navigation">
@@ -27,24 +26,32 @@
         </aside>
       }
     }
-    <div class="page-intro" [class.compact]="currentPage() !== 'list'">
-      <p class="eyebrow">{{ currentPage() === 'list' ? 'Active list' : currentPage() === 'settings' ? 'Preferences' : 'Household access' }}</p>
-      <h1 id="app-title">{{ currentPage() === 'list' ? 'Shopping list' : currentPage() === 'settings' ? 'Settings' : 'Household access' }}</h1>
-      @if (currentPage() === 'list') {
-        <p class="lede">Capture a need quickly. Duckworth helps clarify only what needs your attention.</p>
-      }
-      <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline' || apiStatus() === 'misconfigured'" role="status">
-      <span class="status-dot" aria-hidden="true"></span>
-      @if (apiStatus() === 'ready') {
-        <span class="sr-only">API connected</span>
-      } @else {
-        @switch (apiStatus()) {
-          @case ('offline') { API unavailable }
-          @case ('misconfigured') { Wrong API lane }
-          @default { Connecting to API… }
-        }
-      }
+    <div class="page-intro" [class.compact]="currentPage() !== 'list'" [class.with-description]="currentPage() !== 'list'">
+      <div class="page-intro-copy">
+        <p class="eyebrow">{{ currentPage() === 'list' ? 'Active list' : currentPage() === 'settings' ? 'Preferences' : 'Household access' }}</p>
+        <h1 id="app-title">{{ currentPage() === 'list' ? 'Shopping list' : currentPage() === 'settings' ? 'Settings' : 'Who can use this list' }}</h1>
       </div>
+      @if (currentPage() === 'list') {
+        <div class="list-intro-copy">
+          <p class="lede">Capture a need quickly. Duckworth will help clarify only what needs your attention.</p>
+          <div class="status" [class.ready]="apiStatus() === 'ready'" [class.offline]="apiStatus() === 'offline' || apiStatus() === 'misconfigured'" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            @if (apiStatus() === 'ready') {
+              <span>Connected</span>
+            } @else {
+              @switch (apiStatus()) {
+                @case ('offline') { API unavailable }
+                @case ('misconfigured') { Wrong API lane }
+                @default { Connecting to API… }
+              }
+            }
+          </div>
+        </div>
+      } @else if (currentPage() === 'settings') {
+        <p class="page-description">Adjust how Duckworth behaves for you and your household. Changes are saved by section.</p>
+      } @else {
+        <p class="page-description">Invite trusted people, review requests, and remove access when it is no longer needed.</p>
+      }
     </div>
 
     @if (currentPage() === 'settings' && message()) {
@@ -52,70 +59,59 @@
     }
 
     @if (currentPage() === 'settings') {
-      <div class="settings-access-link">
-        <button type="button" class="secondary-button" (click)="navigateTo('household-access')">Household access <span class="phase-badge">Phase 2</span></button>
+    <section class="settings-section connection-section" aria-labelledby="connection-title">
+      <div class="settings-section-copy"><h2 id="connection-title">Household connection</h2><p>This device is connected to the household list.</p></div>
+      <div class="settings-section-content">
+        <div class="settings-field"><span>Connected household</span><strong>{{ householdId === 'household-demo' ? 'Household demo' : householdId }}</strong></div>
+        <div class="settings-field"><span>Connection</span><span class="inline-status">{{ pairingRequired() ? 'Needs connection' : 'Active' }}</span></div>
+        @if (pairingRequired()) {
+          <div class="pairing-panel" aria-labelledby="pairing-title">
+            <h3 id="pairing-title">Connect this device</h3>
+            <p>Enter the household pairing code once. It will be kept in a protected browser session.</p>
+            <label>
+              Pairing code
+              <input
+                [ngModel]="pairingCode()"
+                (ngModelChange)="pairingCode.set($event)"
+                autocomplete="one-time-code"
+                type="password"
+              />
+            </label>
+            <button type="button" (click)="pairSession()" [disabled]="pairingPending()">
+              {{ pairingPending() ? 'Connecting…' : 'Connect household' }}
+            </button>
+          </div>
+        }
       </div>
-    @if (pairingRequired()) {
-      <section class="pairing-panel" aria-labelledby="pairing-title">
-        <h2 id="pairing-title">Connect this device</h2>
-        <p>Enter the household pairing code once. It will be kept in a protected browser session.</p>
-        <label>
-          Pairing code
-          <input
-            [ngModel]="pairingCode()"
-            (ngModelChange)="pairingCode.set($event)"
-            autocomplete="one-time-code"
-            type="password"
-          />
-        </label>
-        <button type="button" (click)="pairSession()" [disabled]="pairingPending()">
-          {{ pairingPending() ? 'Connecting…' : 'Connect household' }}
-        </button>
-      </section>
-    }
+    </section>
 
     <app-language-settings (changed)="applyLanguageSettings($event)" />
     <app-household-settings [householdId]="householdId" />
 
-    <section class="personal-learning-panel" aria-labelledby="personal-learning-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Private on this device</p>
-          <h2 id="personal-learning-title">Spelling help</h2>
-        </div>
-        <p>Personal corrections stay in this browser and never change the shared list.</p>
+    <section class="settings-section personal-learning-panel" aria-labelledby="personal-learning-title">
+      <div class="settings-section-copy"><h2 id="personal-learning-title">Personal spelling help</h2><p>Private corrections stored only in this browser.</p></div>
+      <div class="settings-section-content settings-actions">
+        <label class="toggle-control"><input type="checkbox" [checked]="personalVocabularyEnabled()" (change)="togglePersonalVocabulary()" /> Enable spelling help</label>
+        <div class="section-actions"><button type="button" class="secondary-button" (click)="clearPersonalVocabulary()">Clear spelling history</button></div>
       </div>
-      <button type="button" (click)="togglePersonalVocabulary()">
-        {{ personalVocabularyEnabled() ? 'Disable spelling help' : 'Enable spelling help' }}
-      </button>
-      <button type="button" (click)="clearPersonalVocabulary()">Clear this device history</button>
     </section>
 
-    <section class="capture-privacy-panel" aria-labelledby="capture-privacy-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Raw input privacy</p>
-          <h2 id="capture-privacy-title">Capture history</h2>
-        </div>
-        <p>Raw capture text follows the server retention policy and is removed automatically. List items are not removed.</p>
+    <section class="settings-section capture-privacy-panel" aria-labelledby="capture-privacy-title">
+      <div class="settings-section-copy"><h2 id="capture-privacy-title">Privacy and capture history</h2><p>Manage the raw text Duckworth receives while capturing an item.</p></div>
+      <div class="settings-section-content">
+        <p class="settings-note">List items are not removed when capture history is deleted.</p>
+        <div class="section-actions"><button type="button" class="secondary-button" (click)="exportCaptureHistory()">Export capture history</button><button type="button" class="danger-button" (click)="deleteCaptureHistory()">Delete capture history</button></div>
+        @if (capturePrivacyMessage()) { <p role="status">{{ capturePrivacyMessage() }}</p> }
       </div>
-      <button type="button" (click)="exportCaptureHistory()">Export capture history</button>
-      <button type="button" (click)="deleteCaptureHistory()">Delete capture history</button>
-      @if (capturePrivacyMessage()) {
-        <p role="status">{{ capturePrivacyMessage() }}</p>
-      }
     </section>
 
-    <section class="learning-panel" aria-labelledby="learning-title">
+    <section class="settings-section learning-panel" aria-labelledby="learning-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Governed intelligence</p>
-            <h2 id="learning-title">Duckworth learned</h2>
+            <h2 id="learning-title">Learned preferences</h2>
+            <p>Review what Duckworth has learned and remove anything you no longer want it to use.</p>
           </div>
-          <div>
-            <p>These household preferences are reversible and never override what you type now.</p>
-            <button type="button" (click)="loadLearning()">Review learned preferences</button>
-          </div>
+          <div class="section-actions"><button type="button" class="secondary-button" (click)="loadLearning()">Review learned preferences</button></div>
         </div>
         @if (learningMetrics(); as metrics) {
           <p class="learning-metrics" role="status">
@@ -188,38 +184,49 @@
           </details>
         }
     </section>
+    <div class="settings-access-link"><button type="button" class="text-link" (click)="navigateTo('household-access')">Household access <span class="phase-badge">Phase 2</span></button></div>
     }
 
     @if (currentPage() === 'household-access') {
       <section class="access-page" aria-labelledby="app-title">
-        <div class="page-section-heading">
-          <p>Who can use this list. Invite trusted people, review requests, and manage access in one place.</p>
-          <span class="phase-badge">Phase 2</span>
-        </div>
         <div class="access-summary" aria-label="Household summary">
           <strong>Household demo</strong><span>4 members</span><span>You are the owner</span>
         </div>
         <section class="access-section" aria-labelledby="invite-title">
           <div class="access-section-heading">
-            <div><h3 id="invite-title">Invite someone</h3><p>Invite codes will expire and can be replaced at any time.</p></div>
-            <button type="button" class="secondary-button" disabled>Generate invite</button>
+            <div><h2 id="invite-title">Invite someone</h2><p>Invite codes expire and can be replaced at any time.</p></div>
+            <button type="button" class="primary-button" disabled>Generate invite</button>
           </div>
-          <p class="phase-note">Household invitations and QR codes will be connected after Phase 1 is accepted. This preview does not create a real invitation.</p>
+          <div class="invite-preview">
+            <div>
+              <p>Preview invite · expires in 22 hours</p>
+              <p class="invite-code">D7K4-PQ2M</p>
+              <p class="settings-note">The previous code is no longer valid. Share this code or scan the QR code.</p>
+              <div class="section-actions"><button type="button" class="secondary-button" disabled>Copy code</button><button type="button" class="secondary-button" disabled>Generate new code</button></div>
+            </div>
+            <div class="qr-preview" aria-label="QR code preview">@for (cell of qrPreviewCells; track $index) { <i [class.empty]="cell === 0"></i> }</div>
+          </div>
+          <p class="phase-note">Household invitations and QR codes are visual previews for Phase 2. They do not create a real invitation yet.</p>
+        </section>
+        <section class="access-section" aria-labelledby="requests-title">
+          <div class="access-section-heading"><div><h2 id="requests-title">Requests to join</h2><p>Only the owner can approve a request.</p></div></div>
+          <div class="join-request"><div><strong>Riya’s phone</strong><small>Requested a few minutes ago</small></div><div class="section-actions"><button type="button" class="secondary-button" disabled>Approve</button><button type="button" class="danger-button" disabled>Decline</button></div></div>
         </section>
         <section class="access-section" aria-labelledby="members-title">
-          <div class="access-section-heading"><div><h3 id="members-title">Members</h3><p>People currently connected to this household.</p></div></div>
-          <ul class="access-list">
-            <li><span><strong>Pratyush</strong><small>Owner · Active</small></span><span class="access-status">You</span></li>
-            <li><span><strong>Riya</strong><small>Member · Joined 12 Aug</small></span><button type="button" class="secondary-button" disabled>Remove</button></li>
-            <li><span><strong>Home tablet</strong><small>Member device · Joined 10 Aug</small></span><button type="button" class="secondary-button" disabled>Remove</button></li>
-          </ul>
+          <div class="access-section-heading"><div><h2 id="members-title">Members</h2><p>People currently connected to this household.</p></div></div>
+          <table class="members-table"><thead><tr><th>Member</th><th>Role</th><th>Joined</th><th>Access</th></tr></thead><tbody>
+            <tr><td><strong>Pratyush</strong></td><td>Owner</td><td>Today</td><td class="access-status">Active</td></tr>
+            <tr><td><strong>Riya</strong></td><td>Member</td><td>12 Aug</td><td><button type="button" class="danger-button" disabled>Remove</button></td></tr>
+            <tr><td><strong>Home tablet</strong></td><td>Member device</td><td>10 Aug</td><td><button type="button" class="danger-button" disabled>Remove</button></td></tr>
+          </tbody></table>
         </section>
       </section>
     }
 
     @if (currentPage() === 'list') {
     <section class="list-panel" aria-labelledby="app-title">
-      <div class="list-toolbar">
+      <div class="list-heading">
+        <h2>Shopping list</h2>
         <div class="list-tools">
           <label class="sort-control">
             <span>{{ uiText('sortBy', 'Sort by') }}</span>
@@ -236,8 +243,8 @@
 
       @if (unresolvedItems().length > 0) {
         <button type="button" class="attention-summary" (click)="openLearningSettings()">
-          <span><strong>{{ unresolvedItems().length }} {{ unresolvedItems().length === 1 ? 'item needs' : 'items need' }} your attention</strong><small>Review learned preferences and missing details</small></span>
-          <span aria-hidden="true">→</span>
+          <span><strong>{{ unresolvedItems().length }} {{ unresolvedItems().length === 1 ? 'item needs' : 'items need' }} your attention</strong><small>{{ formatItemName(unresolvedItems()[0].name, unresolvedItems()[0].brandName) }} is missing {{ unresolvedReasons(unresolvedItems()[0]).join(' and ').toLocaleLowerCase() }}.</small></span>
+          <span class="attention-link" aria-hidden="true">Review item</span>
         </button>
       }
       @if (learningMetrics(); as metrics) {
@@ -278,9 +285,11 @@
           (suggestionAccepted)="acceptCaptureSuggestion($event)"
         />
         <button type="submit" [disabled]="addPending()">{{ addPending() ? 'Saving…' : uiText('addItem', 'Add') }}</button>
-        <button type="button" class="capture-lookup-button"
-          [disabled]="cloudLookupPending() || itemName().trim().length < 4"
-          (click)="requestOptionalDetails()">Find optional details</button>
+        @if (itemName().trim().length >= 4) {
+          <button type="button" class="capture-lookup-button"
+            [disabled]="cloudLookupPending()"
+            (click)="requestOptionalDetails()">Find optional details</button>
+        }
       </form>
 
       @if (capturePreview(); as preview) {

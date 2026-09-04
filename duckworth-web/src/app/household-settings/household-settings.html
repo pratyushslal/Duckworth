@@ -1,7 +1,7 @@
-<details class="household-settings" (toggle)="load()">
-  <summary>Conversation settings</summary>
-  <div class="settings-body">
-    <p>Choose whether an idle conversation should ask before closing. Your saved shopping items are never removed by this setting.</p>
+<section class="household-settings settings-section" aria-labelledby="conversation-settings-title">
+  <div class="settings-section-copy"><h2 id="conversation-settings-title">Conversation behaviour</h2><p>Control when an unfinished conversation should be closed.</p></div>
+  <div class="settings-section-content settings-body">
+    <p class="section-description">Choose whether an idle conversation should ask before closing. Your saved shopping items are never removed by this setting.</p>
     @if (loading() && !settings()) {
       <p role="status">Loading settings…</p>
     } @else if (settings(); as current) {
@@ -59,4 +59,4 @@
       <p role="alert">Settings could not be loaded.</p>
     }
   </div>
-</details>
+</section>

@@ -99,6 +99,9 @@ export class App implements OnDestroy {
   protected readonly unitHistory = signal<UnitHistoryMap>(this.unitHistoryCache.read(this.householdId));
   protected readonly apiStatus = signal<ApiStatus>('checking');
   protected readonly currentPage = signal<AppPage>(pageFromPath());
+  protected readonly qrPreviewCells = Array.from({ length: 49 }, (_, index) => (
+    ((index * 17 + 11) % 23 < 10 || index % 7 === 0 || index % 13 === 0) ? 1 : 0
+  ));
   protected readonly runtimeIdentity = signal<RuntimeIdentity | null>(null);
   protected readonly items = signal<ShoppingItem[]>([]);
   protected readonly learnedEntries = signal<LearnedSemanticEntry[]>([]);

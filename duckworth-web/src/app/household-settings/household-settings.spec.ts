@@ -19,9 +19,6 @@ describe('HouseholdSettings', () => {
     const fixture = TestBed.createComponent(HouseholdSettings);
     fixture.componentRef.setInput('householdId', 'household-a');
     fixture.detectChanges();
-    const details = fixture.nativeElement.querySelector('details') as HTMLDetailsElement;
-    details.open = true;
-    details.dispatchEvent(new Event('toggle'));
     const get = http.expectOne('/api/v1/households/household-a/capture-settings');
     get.flush({
       automaticConversationClose: 'off', idleThresholdSeconds: 1800, gracePeriodSeconds: 300,

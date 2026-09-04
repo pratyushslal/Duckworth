@@ -84,6 +84,8 @@ describe('App', () => {
     vi.unstubAllGlobals();
   });
 
+  afterEach(() => TestBed.resetTestingModule());
+
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;

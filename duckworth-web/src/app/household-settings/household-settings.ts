@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HouseholdSettingsService, type HouseholdCaptureSettings } from '../core/household-settings.service';
 
@@ -8,12 +8,16 @@ import { HouseholdSettingsService, type HouseholdCaptureSettings } from '../core
   templateUrl: './household-settings.html',
   styleUrl: './household-settings.scss',
 })
-export class HouseholdSettings {
+export class HouseholdSettings implements OnInit {
   readonly householdId = input.required<string>();
   private readonly service = inject(HouseholdSettingsService);
   protected readonly settings = signal<HouseholdCaptureSettings | null>(null);
   protected readonly loading = signal(false);
   protected readonly saved = signal(false);
+
+  ngOnInit(): void {
+    this.load();
+  }
 
   protected load(): void {
     if (this.loading() || this.settings()) return;
