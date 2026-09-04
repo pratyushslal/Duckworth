@@ -50,6 +50,16 @@ describe('App', () => {
     });
   };
 
+  // The HouseholdAccess shell renders on the settings page and eagerly loads
+  // capture settings; absorb that request where a test visits settings.
+  const flushHouseholdSettings = (): void => {
+    httpTesting.expectOne('/api/v1/households/household-demo/capture-settings').flush({
+      automaticConversationClose: 'off', idleThresholdSeconds: 300, gracePeriodSeconds: 60,
+      warningPolicy: 'silent', cloudDraftAssist: 'disabled', cloudAssistOnSave: false,
+      cloudAssistWhileTyping: false, onlineLookupConsent: false, suggestions: 'enabled', entitlement: 'free',
+    });
+  };
+
   vitestBeforeEach(() => {
     FakeEventSource.latest = undefined;
     vi.stubGlobal('EventSource', FakeEventSource);
@@ -108,6 +118,7 @@ describe('App', () => {
 
     (fixture.componentInstance as unknown as { navigateTo: (page: string) => void }).navigateTo('settings');
     fixture.detectChanges();
+    flushHouseholdSettings();
     expect(globalThis.location.pathname).toBe('/settings');
     expect(fixture.nativeElement.querySelector('.list-panel')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-language-settings')).toBeTruthy();
@@ -188,7 +199,7 @@ describe('App', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Shopping list');
-    expect(compiled.querySelector('[role="status"]')?.textContent).toContain('API connected');
+    expect(compiled.querySelector('[role="status"]')?.textContent).toContain('Connected');
   });
 
   it('presents saved, merged, draft, undo, and close outcomes from one brain result', async () => {
@@ -907,6 +918,7 @@ describe('App', () => {
       .flush({ error: 'authentication_required' }, { status: 401, statusText: 'Unauthorized' });
     await fixture.whenStable();
     fixture.detectChanges();
+    flushHouseholdSettings();
 
     expect(fixture.nativeElement.querySelector('#pairing-title')?.textContent)
       .toContain('Connect this device');
@@ -923,6 +935,7 @@ describe('App', () => {
       .flush({ error: 'authentication_required' }, { status: 401, statusText: 'Unauthorized' });
     await fixture.whenStable();
     fixture.detectChanges();
+    flushHouseholdSettings();
 
     expect(initializeContext).toHaveBeenCalledTimes(1);
     const component = fixture.componentInstance as unknown as {
@@ -971,6 +984,10 @@ describe('App', () => {
     }]);
     await fixture.whenStable();
     fixture.detectChanges();
+
+    (fixture.componentInstance as unknown as { navigateTo: (page: string) => void }).navigateTo('settings');
+    fixture.detectChanges();
+    flushHouseholdSettings();
 
     const root = fixture.nativeElement as HTMLElement;
     (Array.from(root.querySelectorAll<HTMLButtonElement>('button'))
